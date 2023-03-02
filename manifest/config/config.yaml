@@ -1,0 +1,75 @@
+server:
+  address: ":7855"
+  serverRoot: "/resources"
+  dumpRouterMap: true
+  routeOverWrite: true
+  accessLogEnabled: false
+  SessionIdName: "KysionWeixinLibrarySessionId"
+  sessionPath: "temp/sessions/kys-weixin-library_sessions"    # Session文件存储目录
+  openapiPath: "/openapi/kys-weixin-library.json"
+  swaggerPath: "/docs/kys-weixin-library"
+  # TLS/HTTPS配置，同时需要配置证书和密钥
+  httpsAddr: ":443"
+  # TLS/HTTPS证书文件路径
+  httpsCertPath: "/data/kysion_files/weixin.jditco.com_ssl/9358963_weixin.jditco.com.pem"
+  # TLS/HTTPS密钥文件路径
+  httpsKeyPath: "/data/kysion_files/weixin.jditco.com_ssl/9358963_weixin.jditco.com.key"
+
+service:
+  # 用户表ID生成器，分布式终端标识，取值范围 1 ~ 63，解决分布式多服务横向扩展时保证生成的ID不重复
+  idGeneratorWorkerId: 1
+  # 接口前缀
+  apiPrefix: "/kysion/kys-weixin-library"
+  # Token Sign Key
+  tokenSignKey: "KysionWeixinLibraryProTokenSignKey"
+  # 用户默认类型：0匿名，1用户，2微商，4商户、8广告主、16服务商、32运营商；独立调用创建用户、查询用户信息等相关接口时强制过滤类型
+  # 新增用户默认类型：0匿名，1用户，2微商，4商户、8广告主、16服务商、32运营中心、-1超级管理员
+  # -1超级管理员，不支持注册为超级管理员
+  # 业务层有自定义类型时将忽略这里的设置
+  userDefaultType: 32
+  # 新增用户默认状态：0未激活，1正常，-1封号，-2异常，-3已注销
+  userDefaultState: 0
+  # 是否运行注册用户，false时用户注册接口将强制返回失败
+  userAllowRegister: true
+  # 不允许登录的用户类型，多个用半角逗号隔开，支持扩展自定义类型
+  notAllowLoginUserType: [ 0 ]
+  # 需要存储到数据库中的日志，支持：all,error,warn,info
+  logLevelToDatabase: [ "all" ]
+  # 业务审核服务时限，超过时限需要重新申请审核，相关业务有自定义设置时，将自动忽略这里的设置
+  auditExpireDay:
+    default: 15
+  # Session上下文缓存Key
+  sessionContextKey: "KysionWeixinLibraryBizCtxContextKye"
+  # ORM 缓存存
+
+# 日志配置
+logger:
+  path: "temp/logs/default"
+  level: "all"
+  stdout: true
+  ctxKeys: [ "RequestId" ]
+
+# 文件上传设置
+upload:
+  # 用戶1分钟内限制上传最大文件数量
+  fileMaxUploadCountMinute: 10
+  # 文件上传的默认保存路径
+  path: "resources/upload"
+  temp: "temp/upload"
+
+# 数据库连接配置
+database:
+  logger:
+    path: "temp/logs/sql"
+    level: "all"
+    stdout: true
+    ctxKeys: ["RequestId"]
+
+  default:
+    link: "pgsql:user=dbUsername password=dbPassword host=127.0.0.1 port=5432 dbname=dbName sslmode=disable"
+    debug: true
+
+redis:
+  # 单实例配置示例1
+  default:
+    address: 127.0.0.1:6379
