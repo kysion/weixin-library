@@ -3,7 +3,7 @@
 // You can delete these comments if you wish manually maintain this interface file.
 // ================================================================================
 
-package service
+package weixin_service
 
 import (
 	"context"

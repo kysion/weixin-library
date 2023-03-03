@@ -9,11 +9,11 @@ import (
 	wechat3 "github.com/go-pay/gopay/wechat/v3"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/kysion/kys-weixin-library/utility"
+	service "github.com/kysion/kys-weixin-library/weixin_service"
 	"log"
 	"sort"
 	"strings"
 
-	"github.com/kysion/kys-weixin-library/service"
 	"github.com/kysion/kys-weixin-library/utility/file"
 )
 

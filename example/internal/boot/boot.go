@@ -5,7 +5,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
-	"github.com/kysion/kys-weixin-library/controller"
+	"github.com/kysion/kys-weixin-library/weixin_controller"
 )
 
 var (
@@ -17,9 +17,9 @@ var (
 			s := g.Server()
 			s.Group("/weixin", func(group *ghttp.RouterGroup) {
 				group.Bind(
-					controller.WeiXin.WeiXinServices,
-					controller.WeiXin.WeiXinCallback,
-					controller.WeiXin.CheckSignature,
+					weixin_controller.WeiXin.WeiXinServices,
+					weixin_controller.WeiXin.WeiXinCallback,
+					weixin_controller.WeiXin.CheckSignature,
 				)
 				// 直接通过回调获取用户信息
 

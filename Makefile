@@ -25,9 +25,9 @@ cli.install:
 # Generate Go files for DAO/DO/Entity.
 .PHONY: dao
 dao: cli.install
-	@gf gen dao -p model -o do -e entity -d dao -t1 hack/tpls/dao_template.tpl -t2 hack/tpls/dao_internal_template.tpl -t3 hack/tpls/do_template.tpl -t4 hack/tpls/entity_template.tpl
+	@gf gen dao -p weixin_model -o weixin_do -e weixin_entity -d weixin_dao -t1 hack/tpls/dao_template.tpl -t2 hack/tpls/dao_internal_template.tpl -t3 hack/tpls/do_template.tpl -t4 hack/tpls/entity_template.tpl
 
 # Generate Go files for Service.
 .PHONY: service
 service: cli.install
-	@gf gen service -d ./service
+	@gf gen service -d ./weixin_service

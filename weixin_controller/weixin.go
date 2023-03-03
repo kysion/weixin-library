@@ -1,10 +1,10 @@
-package controller
+package weixin_controller
 
 import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/api_v1"
-	v1 "github.com/kysion/kys-weixin-library/api/v1"
-	"github.com/kysion/kys-weixin-library/service"
+	v1 "github.com/kysion/kys-weixin-library/api/weixin_v1"
+	"github.com/kysion/kys-weixin-library/weixin_service"
 )
 
 // WeiXin 网关
@@ -16,13 +16,13 @@ type StringRes string
 
 // WeiXinServices 商家授权应用，等消息推送，消息通知，通过这个消息  针对B端
 func (c *cWeiXin) WeiXinServices(ctx context.Context, req *v1.WeiXinServicesReq) (v1.StringRes, error) {
-	result, err := service.WeiXin().WeiXinServices(ctx)
+	result, err := weixin_service.WeiXin().WeiXinServices(ctx)
 	return (v1.StringRes)(result), err
 }
 
 // WeiXinCallback C端业务小消息   消费者支付.....
 func (c *cWeiXin) WeiXinCallback(ctx context.Context, req *v1.WeiXinCallbackReq) (api_v1.BoolRes, error) {
-	result, err := service.WeiXin().WeiXinCallback(ctx)
+	result, err := weixin_service.WeiXin().WeiXinCallback(ctx)
 
 	return result != "", err
 }
@@ -32,7 +32,7 @@ func (c *cWeiXin) CheckSignature(ctx context.Context, req *v1.CheckSignatureReq)
 	// 时间戳，单位纳秒 UnixNano
 	//unix := time.Now().Unix()
 
-	return (v1.StringRes)(service.WeiXin().WXCheckSignature(ctx, req.Signature, req.Signature, req.Nonce, req.Echostr)), nil
+	return (v1.StringRes)(weixin_service.WeiXin().WXCheckSignature(ctx, req.Signature, req.Signature, req.Nonce, req.Echostr)), nil
 }
 
 // AlipayAuthUserInfo 用户登录信息

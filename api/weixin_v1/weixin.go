@@ -1,4 +1,4 @@
-package v1
+package weixin_v1
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
