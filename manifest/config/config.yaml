@@ -40,7 +40,15 @@ service:
     default: 15
   # Session上下文缓存Key
   sessionContextKey: "KysionWeixinLibraryBizCtxContextKye"
-  # ORM 缓存存
+  # 第三方应用ID
+  appId: "wx534d1a08aa84c529"
+  # 第三方应用密钥
+  appSecret: "a1f0e1abcb259e9adc084bf8b7e862ab"
+  # 第三方应用Token
+  token: "comjditcokuaimk"
+  # 消息解密密钥
+  decryptKey: "EC68C5852D342DD42A7F64071E6C5EE901234567890"
+
 
 # 日志配置
 logger:

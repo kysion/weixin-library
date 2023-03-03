@@ -7,12 +7,14 @@ package weixin_service
 
 import (
 	"context"
+
+	"github.com/kysion/kys-weixin-library/weixin_model"
 )
 
 type (
 	IWeiXin interface {
 		UserInfoAuth(ctx context.Context) (string, error)
-		WeiXinServices(ctx context.Context) (string, error)
+		WeiXinServices(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error)
 		WeiXinCallback(ctx context.Context) (string, error)
 		WXCheckSignature(ctx context.Context, signature, timestamp, nonce, echostr string) string
 	}

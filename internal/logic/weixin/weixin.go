@@ -7,14 +7,19 @@ import (
 	"github.com/go-pay/gopay/pkg/xlog"
 	wechat "github.com/go-pay/gopay/wechat"
 	wechat3 "github.com/go-pay/gopay/wechat/v3"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gcache"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/kys-weixin-library/utility"
+	"github.com/kysion/kys-weixin-library/utility/weixin_encrypt"
+	"github.com/kysion/kys-weixin-library/weixin_consts"
+	"github.com/kysion/kys-weixin-library/weixin_model"
 	service "github.com/kysion/kys-weixin-library/weixin_service"
 	"log"
 	"sort"
 	"strings"
-
-	"github.com/kysion/kys-weixin-library/utility/file"
+	"time"
 )
 
 type sWeiXin struct {
@@ -26,11 +31,6 @@ func init() {
 
 func New() *sWeiXin {
 	// 初始化文件内容
-	privateData, _ = file.GetFile(priPath)
-	publicCertData, _ = file.GetFile(publicCrtPath)
-	appCertPublicKeyData, _ = file.GetFile(appCertPublicKeyPath)
-	alipayRootCertData, _ = file.GetFile(alipayRootCertPath)
-	alipayCertPublicKeyData, _ = file.GetFile(alipayCertPublicKeyPath)
 
 	return &sWeiXin{}
 }
@@ -73,11 +73,67 @@ func (s *sWeiXin) UserInfoAuth(ctx context.Context) (string, error) {
 }
 
 // WeiXinServices 接收消息通知  B端消息
-func (s *sWeiXin) WeiXinServices(ctx context.Context) (string, error) {
+func (s *sWeiXin) WeiXinServices(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error) {
+	fmt.Println("hello~ 我是消息接收")
 
-	fmt.Println("hello")
+	// 1.验签
+	ok := utility.VerifyByteDanceServer(weixin_consts.Global.Token, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
+	if !ok {
+		fmt.Println("验签失败")
+		return "success", nil
+	}
+
+	// 2.解密
+	data := Decrypt(*eventInfo, *msgInfo)
+	fmt.Println("解密后的内容：", data)
+
+	//{"errcode":41018,"errmsg":"missing component_appid rid: 64021f9c-2ffaddeb-572ebf0a"}
+
+	// 通过Hook处理不同类型的请求。。。。。。。。 先写
+
+	// 3.获取token令牌 (第三方平台接口的调用凭据 access_token)
+	tokenUrl := "https://api.weixin.qq.com/cgi-bin/component/api_component_token?component_appid=" + weixin_consts.Global.AppId +
+		"&component_appsecret=" + weixin_consts.Global.AppSecret +
+		"&component_verify_ticket=" + data.ComponentVerifyTicket
+	componentAccessToken := g.Client().PostContent(ctx, tokenUrl)
+
+	fmt.Println(tokenUrl)
+
+	componentAccessTokenRes := weixin_model.ComponentAccessTokenRes{}
+	gjson.DecodeTo(componentAccessToken, &componentAccessTokenRes)
+	fmt.Println("令牌：", componentAccessTokenRes)
+
+	// 缓存componentAccessToken 第三方接口调用凭据
+	if componentAccessTokenRes.ComponentAccessToken != "" {
+		gcache.Set(ctx, weixin_consts.Global.AppId+"_component_access_token", componentAccessTokenRes.ComponentAccessToken, time.Duration(componentAccessTokenRes.ExpiresIn))
+	}
+
+	/*
+		AppId = {string} "wx534d1a08aa84c529"
+		CreateTime = {int} 1677855987
+		InfoType = {string} "component_verify_ticket"
+		ComponentVerifyTicket = {string} "ticket@@@Bb3RjaKczF7YiV-mdama4Qzmo6x5H72QsZSWsCSfs1fs0XiWoMF5UY7Yix_-24W9RdKXn-yHHHOKyLwD8t79FA"
+		AuthorizerAppid = {string} ""
+		AuthorizationCode = {string} ""
+		AuthorizationCodeExpiredTime = {string} ""
+		PreAuthCode = {string} ""
+	*/
 
 	return "success", nil
+}
+
+func Decrypt(eventInfo weixin_model.EventEncryptMsgReq, msgInfo weixin_model.MessageEncryptReq) *weixin_model.EventMessageBody {
+	// 创建解密对象
+	instance := weixin_encrypt.NewWechatMsgCrypt(weixin_consts.Global.Token, weixin_consts.Global.DecryptKey, weixin_consts.Global.AppId)
+	// 微信消息推送事件解密
+	decryptData := instance.WechatEventDecrypt(eventInfo, msgInfo.MsgSignature, msgInfo.TimeStamp, msgInfo.Nonce)
+
+	// 消息事件内容结构体
+	data := weixin_model.EventMessageBody{}
+
+	gconv.Struct(decryptData, &data)
+
+	return &data
 }
 
 // WeiXinCallback 接收消息回调  C端消息

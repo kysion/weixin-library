@@ -2,6 +2,7 @@ package weixin_controller
 
 import (
 	"context"
+	"fmt"
 	"github.com/SupenBysz/gf-admin-community/api_v1"
 	v1 "github.com/kysion/kys-weixin-library/api/weixin_v1"
 	"github.com/kysion/kys-weixin-library/weixin_service"
@@ -16,7 +17,22 @@ type StringRes string
 
 // WeiXinServices 商家授权应用，等消息推送，消息通知，通过这个消息  针对B端
 func (c *cWeiXin) WeiXinServices(ctx context.Context, req *v1.WeiXinServicesReq) (v1.StringRes, error) {
-	result, err := weixin_service.WeiXin().WeiXinServices(ctx)
+	fmt.Println("推送消息：", req.MessageEncryptReq)
+
+	/*
+		{
+			751453258
+			j3J0XblMIC+GNHixG1NZmu8PoPUTugrrhwCO3cx+SRj40FrEq4QuxYb8hEt2XvU+mukvgHoXgYnoAibRdxVCG/fkXHD7S3OmoybKwmdUoH232XgLdjxRXJExpn4ScmKyRpQULLqLIjViY9IJFNCs5z1QWTke3W4A4BK6qOG1ppoSH+34wgw3LI/ILuQhcHEZKnic90C5iDY2VYePS7QG3V9G3Zl/z8j4Opwe54fThs0gt3PCQOQxChoDZosw7WeL/taFHJB//+LiHbvnthdwtDM4IiaMZ04rTqJlnFZXqn++3Gk0xas16iHu721bui6+M5R1S8k98nHm6brTzdiHXRv7rUF1UPodjr9Vm1EOD8fEFrMUykqz9b/P04y9mb8KogGfbaC1h5BSyLfM+isfoXilSQ87pOAiJMTXuFrXd1rWwZUGD6t7YnaFo9pRFcYRHUqDEs86fzmWIwWk0HA==
+			976058fa2a5d14b4eb2c8f81ea7fd2b7eea60d68
+			1677854810
+		}
+	*/
+
+	/*
+		wx534d1a08aa84c529
+		tF7U9rjAzZQ5wJpBRmHjMndBHOyjOwu+70mty1IUStw5opir+5ShBdQJWi048GEwoEqbplaw+w7xS4a7xotTTJQJa29+0yiKsSb8HURhMT4HsFVkTIBC53xN10R5iE/uxnrJ57FCaN1en7VTAWjrwpjJ/p604Pmfcq7lV7bgd5jOsLyYLSUlPqL7m6VpY+RbNeg3VT22zSQJAeCvuyjvO9mgp9FBx59mB3mK9qD/ItAB0RxxbPBYmQNEQAwThmWEyhAeVRpGyEErEvA43vuLNrmC5MeDu+bko8/1GnY1B26OYT8JyD5DPBCawFf8ktn12HbYPL0lYde/p1iUYCln5Axod2Hwo91nIyFbINkOWXuFieF2J4wnOxAFIZ6v7h+nd5a2nvi+zxIkyKdKfYT9FQ6Ke6R/UXGZ/kC1oUP+oHh3U/h3QUwfQYNhPWwzqXXTfUGhhi2Oqt9jGBwL0Pw==
+	*/
+	result, err := weixin_service.WeiXin().WeiXinServices(ctx, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
 	return (v1.StringRes)(result), err
 }
 

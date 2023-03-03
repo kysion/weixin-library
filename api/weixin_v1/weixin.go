@@ -3,10 +3,16 @@ package weixin_v1
 import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/kysion/kys-weixin-library/weixin_model"
 )
 
 type WeiXinServicesReq struct { // 第三方应用的相关消息
 	g.Meta `path:"/gateway.services" method:"post" summary:"消息接收" tags:"微信"`
+
+	// 推送的Ticket等加密数据
+	weixin_model.EventEncryptMsgReq
+
+	weixin_model.MessageEncryptReq
 }
 
 type WeiXinCallbackReq struct { // 商家相关消息
