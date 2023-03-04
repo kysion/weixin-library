@@ -5,5 +5,6 @@
 package logic
 
 import (
-	_ "github.com/kysion/kys-weixin-library/internal/logic/weixin"
+	_ "github.com/kysion/weixin-library/internal/logic/gateway"
+	_ "github.com/kysion/weixin-library/internal/logic/merchant"
 )

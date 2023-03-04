@@ -10,22 +10,30 @@ import (
 
 // WeixinThirdAppConfig is the golang structure for table weixin_third_app_config.
 type WeixinThirdAppConfig struct {
-	Id           int64       `json:"id"           description:"授权商家id"`
-	Name         string      `json:"name"         description:"授权商家name"`
-	AppId        int64       `json:"appId"        description:"商家授权应用Id"`
-	AppName      string      `json:"appName"      description:"商家授权应用名称"`
-	AppType      string      `json:"appType"      description:"应用类型"`
-	AppAuthToken string      `json:"appAuthToken" description:"授权应用token"`
-	IsFullProxy  int         `json:"isFullProxy"  description:"是否全权委托待开发：0否 1是"`
-	AuthState    int         `json:"authState"    description:"授权状态"`
-	ExpiresIn    *gtime.Time `json:"expiresIn"    description:"生效时间"`
-	ReExpiresIn  *gtime.Time `json:"reExpiresIn"  description:"失效时间"`
-	UserId       int64       `json:"userId"       description:"用户账号id"`
-	UnionMainId  int64       `json:"unionMainId"  description:"关联主体id"`
-	SysUserId    int64       `json:"sysUserId"    description:"用户id"`
-	Tokens       string      `json:"tokens"       description:"token列表"`
-	ExtJson      string      `json:"extJson"      description:"拓展字段"`
-	CreatedAt    *gtime.Time `json:"createdAt"    description:""`
-	UpdatedAt    *gtime.Time `json:"updatedAt"    description:""`
-	DeletedAt    *gtime.Time `json:"deletedAt"    description:""`
+	Id             int64       `json:"id"             description:"授权商家id"`
+	Name           string      `json:"name"           description:"服务商名称"`
+	AppId          string      `json:"appId"          description:"服务商应用Id"`
+	AppName        string      `json:"appName"        description:"服务商应用名称"`
+	AppType        int         `json:"appType"        description:"服务商应用类型"`
+	AppAuthToken   string      `json:"appAuthToken"   description:"服务商应用授权token"`
+	ExpiresIn      *gtime.Time `json:"expiresIn"      description:"Token过期时间"`
+	ReExpiresIn    *gtime.Time `json:"reExpiresIn"    description:"Token限期刷新时间"`
+	UnionMainId    int64       `json:"unionMainId"    description:"关联主体id"`
+	SysUserId      int64       `json:"sysUserId"      description:"用户id"`
+	ExtJson        string      `json:"extJson"        description:"拓展字段"`
+	AppGatewayUrl  string      `json:"appGatewayUrl"  description:"网关地址"`
+	AppCallbackUrl string      `json:"appCallbackUrl" description:"回调地址"`
+	AppSecret      string      `json:"appSecret"      description:"服务商应用密钥"`
+	MsgVerfiyToken string      `json:"msgVerfiyToken" description:"消息校验Token"`
+	MsgEncryptKey  string      `json:"msgEncryptKey"  description:"消息加密解密密钥"`
+	AuthInitUrl    string      `json:"authInitUrl"    description:"授权发起页域名"`
+	ServerDomain   string      `json:"serverDomain"   description:"服务器域名"`
+	BusinessDomain string      `json:"businessDomain" description:"业务域名"`
+	AuthTestAppIds string      `json:"authTestAppIds" description:"授权测试应用列表"`
+	PlatformSite   string      `json:"platformSite"   description:"平台官方"`
+	Logo           string      `json:"logo"           description:"服务商logo"`
+	State          int         `json:"state"          description:"状态：0禁用 1启用"`
+	ReleaseState   int         `json:"releaseState"   description:"发布状态：0未发布 1已发布"`
+	HttpsCert      string      `json:"httpsCert"      description:"域名证书"`
+	HttpsKey       string      `json:"httpsKey"       description:"域名私钥"`
 }

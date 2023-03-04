@@ -6,8 +6,8 @@ server:
   accessLogEnabled: false
   SessionIdName: "KysionWeixinLibrarySessionId"
   sessionPath: "temp/sessions/kys-weixin-library_sessions"    # Session文件存储目录
-  openapiPath: "/openapi/kys-weixin-library.json"
-  swaggerPath: "/docs/kys-weixin-library"
+  openapiPath: "/openapi/weixin-library.json"
+  swaggerPath: "/docs/weixin-library"
   # TLS/HTTPS配置，同时需要配置证书和密钥
   httpsAddr: ":443"
   # TLS/HTTPS证书文件路径
@@ -19,7 +19,7 @@ service:
   # 用户表ID生成器，分布式终端标识，取值范围 1 ~ 63，解决分布式多服务横向扩展时保证生成的ID不重复
   idGeneratorWorkerId: 1
   # 接口前缀
-  apiPrefix: "/kysion/kys-weixin-library"
+  apiPrefix: "/kysion/weixin-library"
   # Token Sign Key
   tokenSignKey: "KysionWeixinLibraryProTokenSignKey"
   # 用户默认类型：0匿名，1用户，2微商，4商户、8广告主、16服务商、32运营商；独立调用创建用户、查询用户信息等相关接口时强制过滤类型
@@ -40,14 +40,14 @@ service:
     default: 15
   # Session上下文缓存Key
   sessionContextKey: "KysionWeixinLibraryBizCtxContextKye"
-  # 第三方应用ID
-  appId: "wx534d1a08aa84c529"
-  # 第三方应用密钥
-  appSecret: "a1f0e1abcb259e9adc084bf8b7e862ab"
-  # 第三方应用Token
-  token: "comjditcokuaimk"
-  # 消息解密密钥
-  decryptKey: "EC68C5852D342DD42A7F64071E6C5EE901234567890"
+#  # 第三方应用ID
+#  appId: "wx534d1a08aa84c529"
+#  # 第三方应用密钥
+#  appSecret: "a1f0e1abcb259e9adc084bf8b7e862ab"
+#  # 第三方应用Token
+#  token: "comjditcokuaimk"
+#  # 消息解密密钥
+#  decryptKey: "EC68C5852D342DD42A7F64071E6C5EE901234567890"
 
 
 # 日志配置

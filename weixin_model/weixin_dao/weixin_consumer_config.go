@@ -5,7 +5,7 @@
 package dao
 
 import (
-	"github.com/kysion/kys-weixin-library/weixin_model/weixin_dao/internal"
+	"github.com/kysion/weixin-library/weixin_model/weixin_dao/internal"
 )
 
 // internalWeixinConsumerConfigDao is internal type for wrapping internal DAO implements.

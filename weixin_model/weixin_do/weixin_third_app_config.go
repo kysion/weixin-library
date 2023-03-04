@@ -11,23 +11,31 @@ import (
 
 // WeixinThirdAppConfig is the golang structure of table weixin_third_app_config for DAO operations like Where/Data.
 type WeixinThirdAppConfig struct {
-	g.Meta       `orm:"table:weixin_third_app_config, do:true"`
-	Id           interface{} // 授权商家id
-	Name         interface{} // 授权商家name
-	AppId        interface{} // 商家授权应用Id
-	AppName      interface{} // 商家授权应用名称
-	AppType      interface{} // 应用类型
-	AppAuthToken interface{} // 授权应用token
-	IsFullProxy  interface{} // 是否全权委托待开发：0否 1是
-	AuthState    interface{} // 授权状态
-	ExpiresIn    *gtime.Time // 生效时间
-	ReExpiresIn  *gtime.Time // 失效时间
-	UserId       interface{} // 用户账号id
-	UnionMainId  interface{} // 关联主体id
-	SysUserId    interface{} // 用户id
-	Tokens       interface{} // token列表
-	ExtJson      interface{} // 拓展字段
-	CreatedAt    *gtime.Time //
-	UpdatedAt    *gtime.Time //
-	DeletedAt    *gtime.Time //
+	g.Meta         `orm:"table:weixin_third_app_config, do:true"`
+	Id             interface{} // 授权商家id
+	Name           interface{} // 服务商名称
+	AppId          interface{} // 服务商应用Id
+	AppName        interface{} // 服务商应用名称
+	AppType        interface{} // 服务商应用类型
+	AppAuthToken   interface{} // 服务商应用授权token
+	ExpiresIn      *gtime.Time // Token过期时间
+	ReExpiresIn    *gtime.Time // Token限期刷新时间
+	UnionMainId    interface{} // 关联主体id
+	SysUserId      interface{} // 用户id
+	ExtJson        interface{} // 拓展字段
+	AppGatewayUrl  interface{} // 网关地址
+	AppCallbackUrl interface{} // 回调地址
+	AppSecret      interface{} // 服务商应用密钥
+	MsgVerfiyToken interface{} // 消息校验Token
+	MsgEncryptKey  interface{} // 消息加密解密密钥
+	AuthInitUrl    interface{} // 授权发起页域名
+	ServerDomain   interface{} // 服务器域名
+	BusinessDomain interface{} // 业务域名
+	AuthTestAppIds interface{} // 授权测试应用列表
+	PlatformSite   interface{} // 平台官方
+	Logo           interface{} // 服务商logo
+	State          interface{} // 状态：0禁用 1启用
+	ReleaseState   interface{} // 发布状态：0未发布 1已发布
+	HttpsCert      interface{} // 域名证书
+	HttpsKey       interface{} // 域名私钥
 }

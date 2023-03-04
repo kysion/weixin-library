@@ -1,4 +1,4 @@
-module github.com/kysion/kys-weixin-library
+module github.com/kysion/weixin-library
 
 go 1.19
 
@@ -7,6 +7,7 @@ require (
 	github.com/SupenBysz/gf-admin-company-modules v0.2.3
 	github.com/go-pay/gopay v1.5.89
 	github.com/gogf/gf/v2 v2.3.2
+	github.com/kysion/base-library v0.0.5
 )
 
 require (
@@ -28,7 +29,6 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grokify/html-strip-tags-go v0.0.1 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
-	github.com/kysion/base-library v0.0.4 // indirect
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/lionsoul2014/ip2region/binding/golang v0.0.0-20230201065125-561cdd83b71d // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
@@ -50,3 +50,5 @@ require (
 	golang.org/x/text v0.6.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/kysion/base-library v0.0.5 => ../base-library

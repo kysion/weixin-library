@@ -23,46 +23,62 @@ type WeixinThirdAppConfigDao struct {
 
 // WeixinThirdAppConfigColumns defines and stores column names for table weixin_third_app_config.
 type WeixinThirdAppConfigColumns struct {
-	Id           string // 授权商家id
-	Name         string // 授权商家name
-	AppId        string // 商家授权应用Id
-	AppName      string // 商家授权应用名称
-	AppType      string // 应用类型
-	AppAuthToken string // 授权应用token
-	IsFullProxy  string // 是否全权委托待开发：0否 1是
-	AuthState    string // 授权状态
-	ExpiresIn    string // 生效时间
-	ReExpiresIn  string // 失效时间
-	UserId       string // 用户账号id
-	UnionMainId  string // 关联主体id
-	SysUserId    string // 用户id
-	Tokens       string // token列表
-	ExtJson      string // 拓展字段
-	CreatedAt    string //
-	UpdatedAt    string //
-	DeletedAt    string //
+	Id             string // 授权商家id
+	Name           string // 服务商名称
+	AppId          string // 服务商应用Id
+	AppName        string // 服务商应用名称
+	AppType        string // 服务商应用类型
+	AppAuthToken   string // 服务商应用授权token
+	ExpiresIn      string // Token过期时间
+	ReExpiresIn    string // Token限期刷新时间
+	UnionMainId    string // 关联主体id
+	SysUserId      string // 用户id
+	ExtJson        string // 拓展字段
+	AppGatewayUrl  string // 网关地址
+	AppCallbackUrl string // 回调地址
+	AppSecret      string // 服务商应用密钥
+	MsgVerfiyToken string // 消息校验Token
+	MsgEncryptKey  string // 消息加密解密密钥
+	AuthInitUrl    string // 授权发起页域名
+	ServerDomain   string // 服务器域名
+	BusinessDomain string // 业务域名
+	AuthTestAppIds string // 授权测试应用列表
+	PlatformSite   string // 平台官方
+	Logo           string // 服务商logo
+	State          string // 状态：0禁用 1启用
+	ReleaseState   string // 发布状态：0未发布 1已发布
+	HttpsCert      string // 域名证书
+	HttpsKey       string // 域名私钥
 }
 
 // weixinThirdAppConfigColumns holds the columns for table weixin_third_app_config.
 var weixinThirdAppConfigColumns = WeixinThirdAppConfigColumns{
-	Id:           "id",
-	Name:         "name",
-	AppId:        "app_id",
-	AppName:      "app_name",
-	AppType:      "app_type",
-	AppAuthToken: "app_auth_token",
-	IsFullProxy:  "is_full_proxy",
-	AuthState:    "auth_state",
-	ExpiresIn:    "expires_in",
-	ReExpiresIn:  "re_expires_in",
-	UserId:       "user_id",
-	UnionMainId:  "union_main_id",
-	SysUserId:    "sys_user_id",
-	Tokens:       "tokens",
-	ExtJson:      "ext_json",
-	CreatedAt:    "created_at",
-	UpdatedAt:    "updated_at",
-	DeletedAt:    "deleted_at",
+	Id:             "id",
+	Name:           "name",
+	AppId:          "app_id",
+	AppName:        "app_name",
+	AppType:        "app_type",
+	AppAuthToken:   "app_auth_token",
+	ExpiresIn:      "expires_in",
+	ReExpiresIn:    "re_expires_in",
+	UnionMainId:    "union_main_id",
+	SysUserId:      "sys_user_id",
+	ExtJson:        "ext_json",
+	AppGatewayUrl:  "app_gateway_url",
+	AppCallbackUrl: "app_callback_url",
+	AppSecret:      "app_secret",
+	MsgVerfiyToken: "msg_verfiy_token",
+	MsgEncryptKey:  "msg_encrypt_key",
+	AuthInitUrl:    "auth_init_url",
+	ServerDomain:   "server_domain",
+	BusinessDomain: "business_domain",
+	AuthTestAppIds: "auth_test_appIds",
+	PlatformSite:   "platform_site",
+	Logo:           "logo",
+	State:          "state",
+	ReleaseState:   "release_state",
+	HttpsCert:      "https_cert",
+	HttpsKey:       "https_key",
 }
 
 // NewWeixinThirdAppConfigDao creates and returns a new DAO object for table data access.

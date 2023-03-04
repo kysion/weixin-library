@@ -3,9 +3,8 @@ package weixin_controller
 import (
 	"context"
 	"fmt"
-	"github.com/SupenBysz/gf-admin-community/api_v1"
-	v1 "github.com/kysion/kys-weixin-library/api/weixin_v1"
-	"github.com/kysion/kys-weixin-library/weixin_service"
+	v1 "github.com/kysion/weixin-library/api/weixin_v1"
+	"github.com/kysion/weixin-library/weixin_service"
 )
 
 // WeiXin 网关
@@ -16,7 +15,7 @@ type cWeiXin struct{}
 type StringRes string
 
 // WeiXinServices 商家授权应用，等消息推送，消息通知，通过这个消息  针对B端
-func (c *cWeiXin) WeiXinServices(ctx context.Context, req *v1.WeiXinServicesReq) (v1.StringRes, error) {
+func (c *cWeiXin) WeiXinServices(ctx context.Context, req *v1.ServicesReq) (v1.StringRes, error) {
 	fmt.Println("推送消息：", req.MessageEncryptReq)
 
 	/*
@@ -32,23 +31,16 @@ func (c *cWeiXin) WeiXinServices(ctx context.Context, req *v1.WeiXinServicesReq)
 		wx534d1a08aa84c529
 		tF7U9rjAzZQ5wJpBRmHjMndBHOyjOwu+70mty1IUStw5opir+5ShBdQJWi048GEwoEqbplaw+w7xS4a7xotTTJQJa29+0yiKsSb8HURhMT4HsFVkTIBC53xN10R5iE/uxnrJ57FCaN1en7VTAWjrwpjJ/p604Pmfcq7lV7bgd5jOsLyYLSUlPqL7m6VpY+RbNeg3VT22zSQJAeCvuyjvO9mgp9FBx59mB3mK9qD/ItAB0RxxbPBYmQNEQAwThmWEyhAeVRpGyEErEvA43vuLNrmC5MeDu+bko8/1GnY1B26OYT8JyD5DPBCawFf8ktn12HbYPL0lYde/p1iUYCln5Axod2Hwo91nIyFbINkOWXuFieF2J4wnOxAFIZ6v7h+nd5a2nvi+zxIkyKdKfYT9FQ6Ke6R/UXGZ/kC1oUP+oHh3U/h3QUwfQYNhPWwzqXXTfUGhhi2Oqt9jGBwL0Pw==
 	*/
-	result, err := weixin_service.WeiXin().WeiXinServices(ctx, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
-	return (v1.StringRes)(result), err
+	weixin_service.Gateway().Services(ctx, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
+	return "", nil
 }
 
 // WeiXinCallback C端业务小消息   消费者支付.....
-func (c *cWeiXin) WeiXinCallback(ctx context.Context, req *v1.WeiXinCallbackReq) (api_v1.BoolRes, error) {
-	result, err := weixin_service.WeiXin().WeiXinCallback(ctx)
+func (c *cWeiXin) WeiXinCallback(ctx context.Context, req *v1.CallbackReq) (v1.StringRes, error) {
 
-	return result != "", err
-}
+	weixin_service.Gateway().Callback(ctx, &req.AuthorizationCodeRes)
 
-func (c *cWeiXin) CheckSignature(ctx context.Context, req *v1.CheckSignatureReq) (v1.StringRes, error) {
-	// 时间戳，单位秒
-	// 时间戳，单位纳秒 UnixNano
-	//unix := time.Now().Unix()
-
-	return (v1.StringRes)(weixin_service.WeiXin().WXCheckSignature(ctx, req.Signature, req.Signature, req.Nonce, req.Echostr)), nil
+	return "", nil
 }
 
 // AlipayAuthUserInfo 用户登录信息
