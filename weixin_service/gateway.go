@@ -15,8 +15,28 @@ import (
 )
 
 type (
+	IGateway interface {
+		InstallHook(infoType weixin_enum.InfoType, hookFunc weixin_hook.ServiceMsgHookFunc)
+		Services(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq)
+		Callback(ctx context.Context, info *weixin_model.AuthorizationCodeRes, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq)
+		WXCheckSignature(ctx context.Context, signature, timestamp, nonce, echostr string) string
+	}
 	ITicket interface {
 		Ticket(ctx context.Context, info g.Map) bool
+	}
+	IConsumer interface {
+		GetConsumerById(ctx context.Context, id int64) (*weixin_model.WeixinConsumerConfig, error)
+		GetConsumerBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinConsumerConfig, error)
+		CreateConsumer(ctx context.Context, info weixin_model.WeixinConsumerConfig) (*weixin_model.WeixinConsumerConfig, error)
+		UpdateConsumer(ctx context.Context, id int64, info weixin_model.UpdateConsumerReq) (bool, error)
+		UpdateConsumerState(ctx context.Context, id int64, state int) (bool, error)
+	}
+	IMerchantAppConfig interface {
+		GetMerchantAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinMerchantAppConfig, error)
+		GetMerchantAppConfigBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinMerchantAppConfig, error)
+		CreateMerchantAppConfig(ctx context.Context, info weixin_model.WeixinMerchantAppConfig) (*weixin_model.WeixinMerchantAppConfig, error)
+		UpdateMerchantAppConfig(ctx context.Context, id int64, info weixin_model.UpdateMerchantAppConfig) (bool, error)
+		UpdateMerchantAppConfigAuthState(ctx context.Context, id int64, authState int) (bool, error)
 	}
 	IThirdAppConfig interface {
 		GetThirdAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinThirdAppConfig, error)
@@ -29,17 +49,14 @@ type (
 		UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateThirdAppConfigReq) (bool, error)
 		UpdateAppConfigHttps(ctx context.Context, info *weixin_model.UpdateThirdAppConfigHttpsReq) (bool, error)
 	}
-	IGateway interface {
-		InstallHook(infoType weixin_enum.InfoType, hookFunc weixin_hook.ServiceMsgHookFunc)
-		Services(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq)
-		Callback(ctx context.Context, info *weixin_model.AuthorizationCodeRes)
-	}
 )
 
 var (
-	localGateway        IGateway
-	localTicket         ITicket
-	localThirdAppConfig IThirdAppConfig
+	localMerchantAppConfig IMerchantAppConfig
+	localThirdAppConfig    IThirdAppConfig
+	localGateway           IGateway
+	localTicket            ITicket
+	localConsumer          IConsumer
 )
 
 func Gateway() IGateway {
@@ -62,6 +79,28 @@ func Ticket() ITicket {
 
 func RegisterTicket(i ITicket) {
 	localTicket = i
+}
+
+func Consumer() IConsumer {
+	if localConsumer == nil {
+		panic("implement not found for interface IConsumer, forgot register?")
+	}
+	return localConsumer
+}
+
+func RegisterConsumer(i IConsumer) {
+	localConsumer = i
+}
+
+func MerchantAppConfig() IMerchantAppConfig {
+	if localMerchantAppConfig == nil {
+		panic("implement not found for interface IMerchantAppConfig, forgot register?")
+	}
+	return localMerchantAppConfig
+}
+
+func RegisterMerchantAppConfig(i IMerchantAppConfig) {
+	localMerchantAppConfig = i
 }
 
 func ThirdAppConfig() IThirdAppConfig {

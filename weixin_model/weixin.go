@@ -32,14 +32,14 @@ type MessageRRequest struct {
 
 // EventMessageBody 事件推送
 type EventMessageBody struct {
-	AppId                        string `xml:"AppId" json:"app_id"`
-	CreateTime                   int    `xml:"CreateTime" json:"create_time"`
-	InfoType                     string `xml:"InfoType" json:"info_type"`
-	ComponentVerifyTicket        string `xml:"ComponentVerifyTicket" json:"component_verify_ticket"`
-	AuthorizerAppid              string `xml:"AuthorizerAppid" json:"authorizer_appid"`
-	AuthorizationCode            string `xml:"AuthorizationCode" json:"authorization_code"`
-	AuthorizationCodeExpiredTime string `xml:"AuthorizationCodeExpiredTime" json:"authorization_code_expired_time"`
-	PreAuthCode                  string `xml:"PreAuthCode" json:"pre_auth_code"`
+	AppId                        string `xml:"AppId" json:"app_id"   dc:"第三方平台 appid"`
+	CreateTime                   int    `xml:"CreateTime" json:"create_time" dc:"时间戳" `
+	InfoType                     string `xml:"InfoType" json:"info_type"  dc:"通知类型" `
+	ComponentVerifyTicket        string `xml:"ComponentVerifyTicket" json:"component_verify_ticket" dc:"票据内容"`
+	AuthorizerAppid              string `xml:"AuthorizerAppid" json:"authorizer_appid" dc:"公众号或小程序的appid"`
+	AuthorizationCode            string `xml:"AuthorizationCode" json:"authorization_code" dc:"授权码，可用于获取授权信息"`
+	AuthorizationCodeExpiredTime string `xml:"AuthorizationCodeExpiredTime" json:"authorization_code_expired_time" dc:"授权码过期时间 单位秒"`
+	PreAuthCode                  string `xml:"PreAuthCode" json:"pre_auth_code" dc:"预授权码"`
 }
 
 /*
@@ -70,26 +70,4 @@ type ProAuthCodeRes struct {
 type ProAuthCodeReq struct {
 	ComponentAppid       string `json:"component_appid" dc:"第三方平台 appid"`
 	ComponentAccessToken string `json:"component_access_token" dc:"第三方平台接口的调用凭据 component_access_token "`
-}
-
-// AuthorizationCodeRes 授权结束后返回的回调数据
-type AuthorizationCodeRes struct {
-	AuthorizationCode string `json:"authorization_code" dc:"授权码"`
-	ExpiresIn         int    `json:"expires_in" dc:"有效期，单位：秒"`
-}
-
-// AuthorizerAccessTokenRes 接口调用凭据
-type AuthorizerAccessTokenRes struct {
-	AuthorizerAccessToken string `json:"authorizer_access_token" dc:"接口调用凭据 authorizer_access_token"`
-	ExpiresIn             int    `json:"expires_in" dc:"有效期，单位：秒"`
-}
-
-type AuthorizationCodeReq struct {
-	AppId                        string `json:"app_id" dc:" 第三方平台 appid"`
-	CreateTime                   int    `json:"create_time" dc:"时间戳"`
-	InfoType                     string `json:"info_type" dc:"通知类型，详见InfoType 说明"`
-	AuthorizerAppid              string `json:"authorizer_appid" dc:"公众号或小程序的 appid"`
-	AuthorizationCode            string `json:"authorization_code" dc:"授权码，可用于获取授权信息"`
-	AuthorizationCodeExpiredTime int    `json:"authorization_code_expired_time" dc:"授权码过期时间 单位秒"`
-	PreAuthCode                  string `json:"pre_auth_code" dc:"预授权码"`
 }

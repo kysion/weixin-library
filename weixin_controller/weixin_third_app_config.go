@@ -87,7 +87,6 @@ func (s *cWeiXinThirdAppConfig) AppAuthReq(ctx context.Context, _ *v1.AppAuthReq
 	}
 	encode, _ := gjson.Encode(proAuthCodeReq)
 	proAuthCodeUrl := "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=" + app.AppAuthToken
-	fmt.Println(string(encode))
 
 	proAuthCode := g.Client().PostContent(ctx, proAuthCodeUrl, encode)
 	proAuthCodeRes := weixin_model.ProAuthCodeRes{}
@@ -100,7 +99,7 @@ func (s *cWeiXinThirdAppConfig) AppAuthReq(ctx context.Context, _ *v1.AppAuthReq
 	*/
 
 	// 5.引导用户进入授权页面
-	redirect_url := gurl.Encode("https://weixin.jditco.com/weixin/$APPID$/gateway.callback")
+	redirect_url := gurl.Encode("https://weixin.jditco.com/weixin/$APPID$/wx534d1a08aa84c529/gateway.callback")
 	authUrl := "https://mp.weixin.qq.com/cgi-bin/componentloginpage?" +
 		//authUrl := "https://mp.weixin.qq.com/safe/bindcomponent?" +
 		"component_appid=" + appId +
@@ -108,14 +107,15 @@ func (s *cWeiXinThirdAppConfig) AppAuthReq(ctx context.Context, _ *v1.AppAuthReq
 		"&redirect_url=" + redirect_url
 	fmt.Println("授权全链接：\n", authUrl)
 
-	g.RequestFromCtx(ctx).Response.Header().Set("referer", "https://douyin.jditco.com/weixin/gateway.services")
+	g.RequestFromCtx(ctx).Response.Header().Set("referer", "https://douyin.jditco.com/weixin/wx534d1a08aa84c529/gateway.services")
 
-	g.RequestFromCtx(ctx).Response.RedirectTo(authUrl)
-	//r.Response.Header().Set("Content-Type", "text/html; charset=UTF-8")
-	//r.Response.WriteTplContent(`<html lang="zh"><head><meta charset="utf-8"></head><body>测试页面：<a href="{{.url}}">{{.label}}</a></body></html>`, g.Map{
-	//	"url":   authUrl,
-	//	"label": "授权",
-	//})
+	// g.RequestFromCtx(ctx).Response.RedirectTo(authUrl) // 会报错：说请确认授权入口页所在域名和授权回调页所在域名相同
+
+	g.RequestFromCtx(ctx).Response.Header().Set("Content-Type", "text/html; charset=UTF-8")
+	g.RequestFromCtx(ctx).Response.WriteTplContent(`<html lang="zh"><head><meta charset="utf-8"></head><body>测试页面：<a href="{{.url}}">{{.label}}</a></body></html>`, g.Map{
+		"url":   authUrl,
+		"label": "授权",
+	})
 
 	return "", nil
 }

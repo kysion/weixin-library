@@ -38,7 +38,7 @@ func (c *cWeiXin) WeiXinServices(ctx context.Context, req *v1.ServicesReq) (v1.S
 // WeiXinCallback C端业务小消息   消费者支付.....
 func (c *cWeiXin) WeiXinCallback(ctx context.Context, req *v1.CallbackReq) (v1.StringRes, error) {
 
-	weixin_service.Gateway().Callback(ctx, &req.AuthorizationCodeRes)
+	weixin_service.Gateway().Callback(ctx, &req.AuthorizationCodeRes, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
 
 	return "", nil
 }
@@ -52,3 +52,11 @@ func (c *cWeiXin) WeiXinCallback(ctx context.Context, req *v1.CallbackReq) (v1.S
 // 用户网页授权
 
 // 获取用户基本信息
+
+func (c *cWeiXin) CheckSignature(ctx context.Context, req *v1.CheckSignatureReq) (v1.StringRes, error) {
+	// 时间戳，单位秒
+	// 时间戳，单位纳秒 UnixNano
+	//unix := time.Now().Unix()
+
+	return (v1.StringRes)(weixin_service.Gateway().WXCheckSignature(ctx, req.Signature, req.Signature, req.Nonce, req.Echostr)), nil
+}

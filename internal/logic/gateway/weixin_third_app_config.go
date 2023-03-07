@@ -2,13 +2,19 @@ package gateway
 
 import (
 	"context"
+	"fmt"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/utility/daoctl"
+	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_model"
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
+	"log"
+	"sort"
+	"strings"
 
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	"github.com/yitter/idgenerator-go/idgen"
@@ -109,9 +115,9 @@ func (s *sThirdAppConfig) UpdateState(ctx context.Context, id int64, state int) 
 // UpdateAppAuthToken 更新Token  服务商应用授权token
 func (s *sThirdAppConfig) UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateAppAuthToken) (bool, error) {
 	data := do.WeixinThirdAppConfig{}
-	gconv.Struct(info, data)
+	gconv.Struct(info, &data)
 
-	affected, err := daoctl.UpdateWithError(dao.WeixinThirdAppConfig.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinThirdAppConfig{Id: info.AppId}))
+	affected, err := daoctl.UpdateWithError(dao.WeixinThirdAppConfig.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinThirdAppConfig{AppId: info.AppId}))
 
 	if err != nil {
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "服务商应用Token修改失败", dao.WeixinThirdAppConfig.Table())
@@ -143,4 +149,35 @@ func (s *sThirdAppConfig) UpdateAppConfigHttps(ctx context.Context, info *weixin
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "服务商应用基础修改失败", dao.WeixinThirdAppConfig.Table())
 	}
 	return affected > 0, err
+}
+
+// WXCheckSignature 微信接入校验 设置Token需要验证
+func (s *sGateway) WXCheckSignature(ctx context.Context, signature, timestamp, nonce, echostr string) string {
+	// 与填写的服务器配置中的Token一致
+	const Token = "comjditcokuaimk"
+	fmt.Println(signature + "、" + timestamp + "、" + nonce + "、" + echostr)
+	arr := []string{timestamp, nonce, Token}
+	// 字典序排序
+	sort.Strings(arr)
+
+	n := len(timestamp) + len(nonce) + len(Token)
+	var b strings.Builder
+	b.Grow(n)
+	for i := 0; i < len(arr); i++ {
+		b.WriteString(arr[i])
+	}
+
+	sign := utility.Sha1(b.String())
+
+	ok := utility.CheckSignature(sign, timestamp, nonce, Token)
+
+	if !ok {
+		log.Println("微信公众号接入校验失败!")
+		return ""
+	}
+
+	log.Println("微信公众号接入校验成功!")
+
+	g.RequestFromCtx(ctx).Response.Write(echostr)
+	return echostr
 }

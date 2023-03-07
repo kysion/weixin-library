@@ -57,6 +57,7 @@ var (
 				group.Bind(
 					weixin_controller.WeiXin.WeiXinServices,
 					weixin_controller.WeiXin.WeiXinCallback,
+					weixin_controller.WeiXin.CheckSignature,
 				)
 
 				// 服务商应用配置

@@ -14,6 +14,9 @@ import (
 type (
 	IAppAuth interface {
 		AppAuth(ctx context.Context, info g.Map) bool
+		Authorized(ctx context.Context, info g.Map) bool
+		UpdateAuthorized(ctx context.Context, info g.Map) bool
+		Unauthorized(ctx context.Context, info g.Map) bool
 	}
 )
 
