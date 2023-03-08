@@ -23,46 +23,62 @@ type WeixinMerchantAppConfigDao struct {
 
 // WeixinMerchantAppConfigColumns defines and stores column names for table weixin_merchant_app_config.
 type WeixinMerchantAppConfigColumns struct {
-	Id           string // 授权商家id
-	Name         string // 授权商家name
-	AppId        string // 商家授权应用Id
-	AppName      string // 商家授权应用名称
-	AppType      string // 应用类型
-	AppAuthToken string // 授权应用token
-	IsFullProxy  string // 是否全权委托待开发：0否 1是
-	AuthState    string // 授权状态
-	ExpiresIn    string // 生效时间
-	ReExpiresIn  string // 失效时间
-	UserId       string // 用户账号id
-	UnionMainId  string // 关联主体id
-	SysUserId    string // 用户id
-	Tokens       string // token列表
-	ExtJson      string // 拓展字段
-	CreatedAt    string //
-	UpdatedAt    string //
-	DeletedAt    string //
+	Id             string // 商家id
+	Name           string // 商家name
+	AppId          string // 商家应用Id
+	AppName        string // 商家应用名称
+	AppType        string // 应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店
+	AppAuthToken   string // 应用token
+	IsFullProxy    string // 是否全权委托待开发：0否 1是
+	State          string // 状态： 0禁用 1启用
+	ExpiresIn      string // Token过期时间
+	ReExpiresIn    string // Token限期刷新时间
+	UserId         string // 用户账号id
+	UnionMainId    string // 关联主体id
+	SysUserId      string // 用户id
+	ExtJson        string // 拓展字段
+	AppGatewayUrl  string // 网关地址
+	AppCallbackUrl string // 回调地址
+	AppSecret      string // 服务器应用密钥
+	MsgVerfiyToken string // 消息校验Token
+	MsgEncryptKey  string // 消息加密解密密钥
+	MsgEncryptType string // 消息加密模式：1兼容模式 2明文模式 4安全模式
+	BusinessDomain string // 业务域名
+	JsDomain       string // JS接口安全域名
+	AuthDomain     string // 网页授权域名
+	Logo           string // 商家logo
+	HttpsCert      string // 域名证书
+	HttpsKey       string // 域名私钥
 }
 
 // weixinMerchantAppConfigColumns holds the columns for table weixin_merchant_app_config.
 var weixinMerchantAppConfigColumns = WeixinMerchantAppConfigColumns{
-	Id:           "id",
-	Name:         "name",
-	AppId:        "app_id",
-	AppName:      "app_name",
-	AppType:      "app_type",
-	AppAuthToken: "app_auth_token",
-	IsFullProxy:  "is_full_proxy",
-	AuthState:    "auth_state",
-	ExpiresIn:    "expires_in",
-	ReExpiresIn:  "re_expires_in",
-	UserId:       "user_id",
-	UnionMainId:  "union_main_id",
-	SysUserId:    "sys_user_id",
-	Tokens:       "tokens",
-	ExtJson:      "ext_json",
-	CreatedAt:    "created_at",
-	UpdatedAt:    "updated_at",
-	DeletedAt:    "deleted_at",
+	Id:             "id",
+	Name:           "name",
+	AppId:          "app_id",
+	AppName:        "app_name",
+	AppType:        "app_type",
+	AppAuthToken:   "app_auth_token",
+	IsFullProxy:    "is_full_proxy",
+	State:          "state",
+	ExpiresIn:      "expires_in",
+	ReExpiresIn:    "re_expires_in",
+	UserId:         "user_id",
+	UnionMainId:    "union_main_id",
+	SysUserId:      "sys_user_id",
+	ExtJson:        "ext_json",
+	AppGatewayUrl:  "app_gateway_url",
+	AppCallbackUrl: "app_callback_url",
+	AppSecret:      "app_secret",
+	MsgVerfiyToken: "msg_verfiy_token",
+	MsgEncryptKey:  "msg_encrypt_key",
+	MsgEncryptType: "msg_encrypt_type",
+	BusinessDomain: "business_domain",
+	JsDomain:       "js_domain",
+	AuthDomain:     "auth_domain",
+	Logo:           "logo",
+	HttpsCert:      "https_cert",
+	HttpsKey:       "https_key",
 }
 
 // NewWeixinMerchantAppConfigDao creates and returns a new DAO object for table data access.

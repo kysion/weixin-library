@@ -11,23 +11,31 @@ import (
 
 // WeixinMerchantAppConfig is the golang structure of table weixin_merchant_app_config for DAO operations like Where/Data.
 type WeixinMerchantAppConfig struct {
-	g.Meta       `orm:"table:weixin_merchant_app_config, do:true"`
-	Id           interface{} // 授权商家id
-	Name         interface{} // 授权商家name
-	AppId        interface{} // 商家授权应用Id
-	AppName      interface{} // 商家授权应用名称
-	AppType      interface{} // 应用类型
-	AppAuthToken interface{} // 授权应用token
-	IsFullProxy  interface{} // 是否全权委托待开发：0否 1是
-	AuthState    interface{} // 授权状态
-	ExpiresIn    *gtime.Time // 生效时间
-	ReExpiresIn  *gtime.Time // 失效时间
-	UserId       interface{} // 用户账号id
-	UnionMainId  interface{} // 关联主体id
-	SysUserId    interface{} // 用户id
-	Tokens       interface{} // token列表
-	ExtJson      interface{} // 拓展字段
-	CreatedAt    *gtime.Time //
-	UpdatedAt    *gtime.Time //
-	DeletedAt    *gtime.Time //
+	g.Meta         `orm:"table:weixin_merchant_app_config, do:true"`
+	Id             interface{} // 商家id
+	Name           interface{} // 商家name
+	AppId          interface{} // 商家应用Id
+	AppName        interface{} // 商家应用名称
+	AppType        interface{} // 应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店
+	AppAuthToken   interface{} // 应用token
+	IsFullProxy    interface{} // 是否全权委托待开发：0否 1是
+	State          interface{} // 状态： 0禁用 1启用
+	ExpiresIn      *gtime.Time // Token过期时间
+	ReExpiresIn    *gtime.Time // Token限期刷新时间
+	UserId         interface{} // 用户账号id
+	UnionMainId    interface{} // 关联主体id
+	SysUserId      interface{} // 用户id
+	ExtJson        interface{} // 拓展字段
+	AppGatewayUrl  interface{} // 网关地址
+	AppCallbackUrl interface{} // 回调地址
+	AppSecret      interface{} // 服务器应用密钥
+	MsgVerfiyToken interface{} // 消息校验Token
+	MsgEncryptKey  interface{} // 消息加密解密密钥
+	MsgEncryptType interface{} // 消息加密模式：1兼容模式 2明文模式 4安全模式
+	BusinessDomain interface{} // 业务域名
+	JsDomain       interface{} // JS接口安全域名
+	AuthDomain     interface{} // 网页授权域名
+	Logo           interface{} // 商家logo
+	HttpsCert      interface{} // 域名证书
+	HttpsKey       interface{} // 域名私钥
 }

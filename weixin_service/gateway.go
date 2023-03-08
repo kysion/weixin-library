@@ -33,10 +33,14 @@ type (
 	}
 	IMerchantAppConfig interface {
 		GetMerchantAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinMerchantAppConfig, error)
+		GetMerchantAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinMerchantAppConfig, error)
 		GetMerchantAppConfigBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinMerchantAppConfig, error)
-		CreateMerchantAppConfig(ctx context.Context, info weixin_model.WeixinMerchantAppConfig) (*weixin_model.WeixinMerchantAppConfig, error)
+		CreateMerchantAppConfig(ctx context.Context, info *weixin_model.WeixinMerchantAppConfig) (*weixin_model.WeixinMerchantAppConfig, error)
 		UpdateMerchantAppConfig(ctx context.Context, id int64, info weixin_model.UpdateMerchantAppConfig) (bool, error)
-		UpdateMerchantAppConfigAuthState(ctx context.Context, id int64, authState int) (bool, error)
+		UpdateState(ctx context.Context, id int64, state int) (bool, error)
+		UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateMerchantAppAuthToken) (bool, error)
+		UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigReq) (bool, error)
+		UpdateAppConfigHttps(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigHttpsReq) (bool, error)
 	}
 	IThirdAppConfig interface {
 		GetThirdAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinThirdAppConfig, error)
@@ -52,11 +56,11 @@ type (
 )
 
 var (
+	localConsumer          IConsumer
 	localMerchantAppConfig IMerchantAppConfig
 	localThirdAppConfig    IThirdAppConfig
 	localGateway           IGateway
 	localTicket            ITicket
-	localConsumer          IConsumer
 )
 
 func Gateway() IGateway {

@@ -7,6 +7,9 @@ import (
 	"github.com/kysion/base-library/base_hook"
 	"github.com/kysion/weixin-library/internal/logic/internal/weixin"
 	"github.com/kysion/weixin-library/weixin_service"
+	"log"
+	"sort"
+	"strings"
 
 	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_model"
@@ -130,4 +133,35 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 
 	// authorizer_access_token就又能调用各种接口了
 
+}
+
+// WXCheckSignature 微信接入校验 设置Token需要验证
+func (s *sGateway) WXCheckSignature(ctx context.Context, signature, timestamp, nonce, echostr string) string {
+	// 与填写的服务器配置中的Token一致
+	const Token = "comjditcokuaimk"
+	fmt.Println(signature + "、" + timestamp + "、" + nonce + "、" + echostr)
+	arr := []string{timestamp, nonce, Token}
+	// 字典序排序
+	sort.Strings(arr)
+
+	n := len(timestamp) + len(nonce) + len(Token)
+	var b strings.Builder
+	b.Grow(n)
+	for i := 0; i < len(arr); i++ {
+		b.WriteString(arr[i])
+	}
+
+	sign := utility.Sha1(b.String())
+
+	ok := utility.CheckSignature(sign, timestamp, nonce, Token)
+
+	if !ok {
+		log.Println("微信公众号接入校验失败!")
+		return ""
+	}
+
+	log.Println("微信公众号接入校验成功!")
+
+	g.RequestFromCtx(ctx).Response.Write(echostr)
+	return echostr
 }

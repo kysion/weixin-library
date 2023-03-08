@@ -31,6 +31,15 @@ func (s *sMerchantAppConfig) GetMerchantAppConfigById(ctx context.Context, id in
 	return daoctl.GetByIdWithError[weixin_model.WeixinMerchantAppConfig](dao.WeixinMerchantAppConfig.Ctx(ctx), id)
 }
 
+// GetMerchantAppConfigByAppId 根据AppId查找第三方应用配置信息
+func (s *sMerchantAppConfig) GetMerchantAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinMerchantAppConfig, error) {
+	data := weixin_model.WeixinMerchantAppConfig{}
+
+	err := dao.WeixinMerchantAppConfig.Ctx(ctx).Where(do.WeixinMerchantAppConfig{AppId: id}).Scan(&data)
+
+	return &data, err
+}
+
 // GetMerchantAppConfigBySysUserId  根据商家id查询商家应用配置信息
 func (s *sMerchantAppConfig) GetMerchantAppConfigBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinMerchantAppConfig, error) {
 	result := weixin_model.WeixinMerchantAppConfig{}
@@ -46,13 +55,15 @@ func (s *sMerchantAppConfig) GetMerchantAppConfigBySysUserId(ctx context.Context
 }
 
 // CreateMerchantAppConfig  创建商家应用配置信息
-func (s *sMerchantAppConfig) CreateMerchantAppConfig(ctx context.Context, info weixin_model.WeixinMerchantAppConfig) (*weixin_model.WeixinMerchantAppConfig, error) {
+func (s *sMerchantAppConfig) CreateMerchantAppConfig(ctx context.Context, info *weixin_model.WeixinMerchantAppConfig) (*weixin_model.WeixinMerchantAppConfig, error) {
 	data := do.WeixinMerchantAppConfig{}
 
 	gconv.Struct(info, &data)
 
 	data.Id = idgen.NextId()
-	data.AuthState = 1 // 授权状态默认正常
+	if data.ExtJson == "" {
+		data.ExtJson = nil
+	}
 	affected, err := daoctl.InsertWithError(
 		dao.WeixinMerchantAppConfig.Ctx(ctx),
 		data,
@@ -85,14 +96,53 @@ func (s *sMerchantAppConfig) UpdateMerchantAppConfig(ctx context.Context, id int
 	return affected > 0, nil
 }
 
-// UpdateMerchantAppConfigAuthState 修改商家授权状态
-func (s *sMerchantAppConfig) UpdateMerchantAppConfigAuthState(ctx context.Context, id int64, authState int) (bool, error) {
+// UpdateState 修改应用状态
+func (s *sMerchantAppConfig) UpdateState(ctx context.Context, id int64, state int) (bool, error) {
 	affected, err := daoctl.UpdateWithError(dao.WeixinMerchantAppConfig.Ctx(ctx).Data(do.WeixinMerchantAppConfig{
-		AuthState: authState,
+		State: state,
 	}).OmitNilData().Where(do.WeixinMerchantAppConfig{Id: id}))
 
 	if err != nil {
-		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商家应用配置状态修改失败", dao.WeixinMerchantAppConfig.Table())
+		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "第三方应用配置状态修改失败", dao.WeixinMerchantAppConfig.Table())
+	}
+	return affected > 0, err
+}
+
+// UpdateAppAuthToken 更新Token  商家应用授权token
+func (s *sMerchantAppConfig) UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateMerchantAppAuthToken) (bool, error) {
+	data := do.WeixinMerchantAppConfig{}
+	gconv.Struct(info, &data)
+
+	affected, err := daoctl.UpdateWithError(dao.WeixinMerchantAppConfig.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinMerchantAppConfig{AppId: info.AppId}))
+
+	if err != nil {
+		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商家应用Token修改失败", dao.WeixinMerchantAppConfig.Table())
+	}
+	return affected > 0, err
+}
+
+// UpdateAppConfig 修改商家基础信息
+func (s *sMerchantAppConfig) UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigReq) (bool, error) {
+	data := do.WeixinMerchantAppConfig{}
+	gconv.Struct(info, &data)
+
+	affected, err := daoctl.UpdateWithError(dao.WeixinMerchantAppConfig.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinMerchantAppConfig{Id: info.Id}))
+
+	if err != nil {
+		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商家应用基础修改失败", dao.WeixinMerchantAppConfig.Table())
+	}
+	return affected > 0, err
+}
+
+// UpdateAppConfigHttps 修改商家应用Https配置
+func (s *sMerchantAppConfig) UpdateAppConfigHttps(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigHttpsReq) (bool, error) {
+	data := do.WeixinMerchantAppConfig{}
+	gconv.Struct(info, &data)
+
+	affected, err := daoctl.UpdateWithError(dao.WeixinMerchantAppConfig.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinMerchantAppConfig{Id: info.Id}))
+
+	if err != nil {
+		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商家应用基础修改失败", dao.WeixinMerchantAppConfig.Table())
 	}
 	return affected > 0, err
 }

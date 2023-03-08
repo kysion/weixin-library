@@ -36,6 +36,7 @@ var (
 					// 文件上传
 					group.Group("/common/sys_file", func(group *ghttp.RouterGroup) { group.Bind(sys_controller.SysFile) })
 				})
+
 				// 匿名路由绑定
 				group.Group("/", func(group *ghttp.RouterGroup) {
 					// 鉴权：登录，注册，找回密码等
@@ -60,8 +61,14 @@ var (
 					weixin_controller.WeiXin.CheckSignature,
 				)
 
-				// 服务商应用配置
-				group.Bind(weixin_controller.WeiXinThirdAppConfig)
+				group.Group("/third_app", func(group *ghttp.RouterGroup) {
+					// 服务商应用配置
+					group.Bind(weixin_controller.WeiXinThirdAppConfig)
+				})
+
+				group.Group("/merchant_app", func(group *ghttp.RouterGroup) {
+					group.Bind(weixin_controller.WeiXinMerchantAppConfig)
+				})
 
 				// 引入用户进入授权页
 				// https://weixin.jditco.com/weixin/gateway.call

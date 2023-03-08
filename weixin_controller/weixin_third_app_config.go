@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/encoding/gurl"
 	"github.com/gogf/gf/v2/frame/g"
 	v1 "github.com/kysion/weixin-library/api/weixin_v1"
+	"github.com/kysion/weixin-library/api/weixin_v1/weixin_third_app"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
 )
@@ -18,7 +19,7 @@ var WeiXinThirdAppConfig = cWeiXinThirdAppConfig{}
 type cWeiXinThirdAppConfig struct{}
 
 // UpdateState 修改状态
-func (s *cWeiXinThirdAppConfig) UpdateState(ctx context.Context, req *v1.UpdateStateReq) (api_v1.BoolRes, error) {
+func (s *cWeiXinThirdAppConfig) UpdateState(ctx context.Context, req *weixin_third_app.UpdateStateReq) (api_v1.BoolRes, error) {
 	return funs.CheckPermission(ctx,
 		func() (api_v1.BoolRes, error) {
 			ret, err := weixin_service.ThirdAppConfig().UpdateState(ctx, req.Id, req.State)
@@ -30,7 +31,7 @@ func (s *cWeiXinThirdAppConfig) UpdateState(ctx context.Context, req *v1.UpdateS
 }
 
 // CreateThirdAppConfig  创建第三方应用配置信息
-func (s *cWeiXinThirdAppConfig) CreateThirdAppConfig(ctx context.Context, req *v1.CreateThirdAppConfigReq) (*v1.ThirdAppConfigRes, error) {
+func (s *cWeiXinThirdAppConfig) CreateThirdAppConfig(ctx context.Context, req *weixin_third_app.CreateThirdAppConfigReq) (*weixin_third_app.ThirdAppConfigRes, error) {
 	//return funs.CheckPermission(ctx,
 	//	func() (*v1.ThirdAppConfigRes, error) {
 	//		ret, err := weixin_service.ThirdAppConfig().CreateThirdAppConfig(ctx, &req.WeixinThirdAppConfig)
@@ -41,15 +42,15 @@ func (s *cWeiXinThirdAppConfig) CreateThirdAppConfig(ctx context.Context, req *v
 	//)
 
 	ret, err := weixin_service.ThirdAppConfig().CreateThirdAppConfig(ctx, &req.WeixinThirdAppConfig)
-	return (*v1.ThirdAppConfigRes)(ret), err
+	return (*weixin_third_app.ThirdAppConfigRes)(ret), err
 }
 
 // GetThirdAppConfigByAppId 根据AppId查找第三方应用配置信息
-func (s *cWeiXinThirdAppConfig) GetThirdAppConfigByAppId(ctx context.Context, req *v1.GetThirdAppConfigByIdReq) (*v1.ThirdAppConfigRes, error) {
+func (s *cWeiXinThirdAppConfig) GetThirdAppConfigByAppId(ctx context.Context, req *weixin_third_app.GetThirdAppConfigByIdReq) (*weixin_third_app.ThirdAppConfigRes, error) {
 	return funs.CheckPermission(ctx,
-		func() (*v1.ThirdAppConfigRes, error) {
+		func() (*weixin_third_app.ThirdAppConfigRes, error) {
 			ret, err := weixin_service.ThirdAppConfig().GetThirdAppConfigById(ctx, req.Id)
-			return (*v1.ThirdAppConfigRes)(ret), err
+			return (*weixin_third_app.ThirdAppConfigRes)(ret), err
 		},
 		// 记得添加权限
 		// weixin_permission.ThirdAppConfig.PermissionType.Update,
@@ -58,7 +59,7 @@ func (s *cWeiXinThirdAppConfig) GetThirdAppConfigByAppId(ctx context.Context, re
 }
 
 // UpdateAppConfig 修改服务商基础信息
-func (s *cWeiXinThirdAppConfig) UpdateAppConfig(ctx context.Context, req *v1.UpdateThirdAppConfigReq) (api_v1.BoolRes, error) {
+func (s *cWeiXinThirdAppConfig) UpdateAppConfig(ctx context.Context, req *weixin_third_app.UpdateThirdAppConfigReq) (api_v1.BoolRes, error) {
 	return funs.CheckPermission(ctx,
 		func() (api_v1.BoolRes, error) {
 			ret, err := weixin_service.ThirdAppConfig().UpdateAppConfig(ctx, &req.UpdateThirdAppConfigReq)
@@ -74,7 +75,7 @@ func (s *cWeiXinThirdAppConfig) UpdateAppConfig(ctx context.Context, req *v1.Upd
 }
 
 // AppAuthReq 应用授权
-func (s *cWeiXinThirdAppConfig) AppAuthReq(ctx context.Context, _ *v1.AppAuthReq) (v1.StringRes, error) {
+func (s *cWeiXinThirdAppConfig) AppAuthReq(ctx context.Context, _ *weixin_third_app.AppAuthReq) (v1.StringRes, error) {
 	// 通过appId将具体第三方应用配置信息从数据库获取出来
 
 	appId := g.RequestFromCtx(ctx).Get("appId").String()
@@ -99,7 +100,8 @@ func (s *cWeiXinThirdAppConfig) AppAuthReq(ctx context.Context, _ *v1.AppAuthReq
 	*/
 
 	// 5.引导用户进入授权页面
-	redirect_url := gurl.Encode("https://weixin.jditco.com/weixin/$APPID$/wx534d1a08aa84c529/gateway.callback")
+	//redirect_url := gurl.Encode("https://weixin.jditco.com/weixin/$APPID$/wx534d1a08aa84c529/gateway.callback")
+	redirect_url := gurl.Encode("https://weixin.kuaimk.com/weixin/$APPID$/wx534d1a08aa84c529/gateway.callback")
 	authUrl := "https://mp.weixin.qq.com/cgi-bin/componentloginpage?" +
 		//authUrl := "https://mp.weixin.qq.com/safe/bindcomponent?" +
 		"component_appid=" + appId +
@@ -121,7 +123,7 @@ func (s *cWeiXinThirdAppConfig) AppAuthReq(ctx context.Context, _ *v1.AppAuthReq
 }
 
 // UpdateThirdAppConfigHttps 修改服务商应用Https配置
-func (s *cWeiXinThirdAppConfig) UpdateThirdAppConfigHttps(ctx context.Context, req *v1.UpdateThirdAppConfigHttpsReq) (api_v1.BoolRes, error) {
+func (s *cWeiXinThirdAppConfig) UpdateThirdAppConfigHttps(ctx context.Context, req *weixin_third_app.UpdateThirdAppConfigHttpsReq) (api_v1.BoolRes, error) {
 	ret, err := weixin_service.ThirdAppConfig().UpdateAppConfigHttps(ctx, &req.UpdateThirdAppConfigHttpsReq)
 	return ret == true, err
 }

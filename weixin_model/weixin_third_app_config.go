@@ -24,9 +24,11 @@ type WeixinThirdAppConfig struct {
 	BusinessDomain string      `json:"businessDomain" dc:"业务域名"`
 	AuthTestAppIds string      `json:"authTestAppIds" dc:"授权测试应用列表"`
 	PlatformSite   string      `json:"platformSite"   dc:"平台官方"`
-	Logo           string      `json:"logo"           description:"服务商logo"`
-	State          int         `json:"state"          description:"状态：0禁用 1启用"`
-	ReleaseState   int         `json:"releaseState"   description:"发布状态：0未发布 1已发布"`
+	Logo           string      `json:"logo"           dc:"服务商logo"`
+	State          int         `json:"state"          dc:"状态：0禁用 1启用"`
+	ReleaseState   int         `json:"releaseState"   dc:"发布状态：0未发布 1已发布"`
+	HttpsCert      string      `json:"httpsCert"      dc:"域名证书"`
+	HttpsKey       string      `json:"httpsKey"       dc:"域名私钥"`
 }
 
 type UpdateThirdAppConfig struct {
