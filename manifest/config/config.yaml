@@ -1,5 +1,5 @@
 server:
-  address: ":7855"
+  address: ":80"
   serverRoot: "/resources"
   dumpRouterMap: true
   routeOverWrite: true
@@ -80,4 +80,6 @@ database:
 redis:
   # 单实例配置示例1
   default:
-    address: 127.0.0.1:6379
+    address: 10.168.173.250:6379
+    pass: "d3d3Lm1pYW5sYWppZS5jb20="
+    db: 1

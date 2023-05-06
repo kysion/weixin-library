@@ -10,8 +10,8 @@ import (
 
 // WeixinThirdAppConfig is the golang structure for table weixin_third_app_config.
 type WeixinThirdAppConfig struct {
-	Id             int64       `json:"id"             description:"授权商家id"`
-	Name           string      `json:"name"           description:"服务商名称"`
+	Id             int64       `json:"id"             description:"服务商id"`
+	Name           string      `json:"name"           description:"服务商name"`
 	AppId          string      `json:"appId"          description:"服务商应用Id"`
 	AppName        string      `json:"appName"        description:"服务商应用名称"`
 	AppType        int         `json:"appType"        description:"服务商应用类型"`
@@ -36,4 +36,8 @@ type WeixinThirdAppConfig struct {
 	ReleaseState   int         `json:"releaseState"   description:"发布状态：0未发布 1已发布"`
 	HttpsCert      string      `json:"httpsCert"      description:"域名证书"`
 	HttpsKey       string      `json:"httpsKey"       description:"域名私钥"`
+	UpdatedAt      *gtime.Time `json:"updatedAt"      description:""`
+	AppIdMd5       string      `json:"appIdMd5"       description:"应用id加密md5后的结果"`
+	UserId         int64       `json:"userId"         description:"应用所属账号"`
+	RefreshToken   string      `json:"refreshToken"   description:"刷新应用Token"`
 }

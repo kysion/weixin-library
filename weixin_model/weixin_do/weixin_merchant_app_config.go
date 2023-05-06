@@ -17,20 +17,20 @@ type WeixinMerchantAppConfig struct {
 	AppId          interface{} // 商家应用Id
 	AppName        interface{} // 商家应用名称
 	AppType        interface{} // 应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店
-	AppAuthToken   interface{} // 应用token
+	AppAuthToken   interface{} // 商家授权应用token
 	IsFullProxy    interface{} // 是否全权委托待开发：0否 1是
 	State          interface{} // 状态： 0禁用 1启用
 	ExpiresIn      *gtime.Time // Token过期时间
 	ReExpiresIn    *gtime.Time // Token限期刷新时间
-	UserId         interface{} // 用户账号id
+	UserId         interface{} // 应用所属账号
 	UnionMainId    interface{} // 关联主体id
 	SysUserId      interface{} // 用户id
 	ExtJson        interface{} // 拓展字段
 	AppGatewayUrl  interface{} // 网关地址
 	AppCallbackUrl interface{} // 回调地址
-	AppSecret      interface{} // 服务器应用密钥
+	AppSecret      interface{} // 商家应用密钥
 	MsgVerfiyToken interface{} // 消息校验Token
-	MsgEncryptKey  interface{} // 消息加密解密密钥
+	MsgEncryptKey  interface{} // 消息加密解密密钥（EncodingAESKey）
 	MsgEncryptType interface{} // 消息加密模式：1兼容模式 2明文模式 4安全模式
 	BusinessDomain interface{} // 业务域名
 	JsDomain       interface{} // JS接口安全域名
@@ -38,4 +38,16 @@ type WeixinMerchantAppConfig struct {
 	Logo           interface{} // 商家logo
 	HttpsCert      interface{} // 域名证书
 	HttpsKey       interface{} // 域名私钥
+	ServerDomain   interface{} // 服务器域名
+	AppIdMd5       interface{} // 应用id加密md5后的结果
+	ThirdAppId     interface{} // 服务商appId
+	NotifyUrl      interface{} // 异步通知地址，允许业务层追加相关参数
+	ServerRate     interface{} // 手续费比例，默认0.6%
+	UnionMainType  interface{} // 应用关联主体类型，和user_type保持一致
+	Version        interface{} // 应用版本
+	PrivacyPolicy  interface{} // 隐私协议
+	UserPolicy     interface{} // 用户协议
+	DevState       interface{} // 开发状态：0未上线 1已上线
+	UpdatedAt      *gtime.Time //
+	RefreshToken   interface{} // 刷新商家授权应用Token
 }

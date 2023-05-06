@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/kysion/base-library/base_hook"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_model/weixin_hook"
@@ -16,9 +17,10 @@ import (
 
 type (
 	IGateway interface {
-		InstallHook(infoType weixin_enum.InfoType, hookFunc weixin_hook.ServiceMsgHookFunc)
-		Services(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq)
-		Callback(ctx context.Context, info *weixin_model.AuthorizationCodeRes, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq)
+		GetCallbackMsgHook() *base_hook.BaseHook[weixin_enum.CallbackMsgType, weixin_hook.ServiceMsgHookFunc]
+		GetServiceNotifyTypeHook() *base_hook.BaseHook[weixin_enum.ServiceNotifyType, weixin_hook.ServiceNotifyHookFunc]
+		Services(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error)
+		Callback(ctx context.Context, info *weixin_model.AuthorizationCodeRes, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error)
 		WXCheckSignature(ctx context.Context, signature, timestamp, nonce, echostr string) string
 	}
 	ITicket interface {
@@ -56,11 +58,11 @@ type (
 )
 
 var (
+	localGateway           IGateway
+	localTicket            ITicket
 	localConsumer          IConsumer
 	localMerchantAppConfig IMerchantAppConfig
 	localThirdAppConfig    IThirdAppConfig
-	localGateway           IGateway
-	localTicket            ITicket
 )
 
 func Gateway() IGateway {

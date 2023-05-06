@@ -3,9 +3,12 @@ package gateway
 import (
 	"context"
 	"fmt"
+	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/kysion/base-library/base_hook"
 	"github.com/kysion/weixin-library/internal/logic/internal/weixin"
+	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_service"
 	"log"
 	"sort"
@@ -13,12 +16,15 @@ import (
 
 	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_model"
-	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_model/weixin_hook"
 )
 
 type sGateway struct {
-	base_hook.BaseHook[weixin_enum.InfoType, weixin_hook.ServiceMsgHookFunc]
+	// 回调消息Hook
+	CallbackMsgHook base_hook.BaseHook[weixin_enum.CallbackMsgType, weixin_hook.ServiceMsgHookFunc]
+
+	// 应用通知Hook
+	ServiceNotifyTypeHook base_hook.BaseHook[weixin_enum.ServiceNotifyType, weixin_hook.ServiceNotifyHookFunc]
 }
 
 func NewGateway() *sGateway {
@@ -26,15 +32,23 @@ func NewGateway() *sGateway {
 	return &sGateway{}
 }
 
-func (s *sGateway) InstallHook(infoType weixin_enum.InfoType, hookFunc weixin_hook.ServiceMsgHookFunc) {
-	s.BaseHook.InstallHook(infoType, hookFunc)
+func (s *sGateway) GetCallbackMsgHook() *base_hook.BaseHook[weixin_enum.CallbackMsgType, weixin_hook.ServiceMsgHookFunc] {
+	return &s.CallbackMsgHook
+}
+
+func (s *sGateway) GetServiceNotifyTypeHook() *base_hook.BaseHook[weixin_enum.ServiceNotifyType, weixin_hook.ServiceNotifyHookFunc] {
+	return &s.ServiceNotifyTypeHook
 }
 
 // Services 接收消息通知
-func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) {
+func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error) {
 	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
+	appIdLen := len(pathAppId)
+	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
 
-	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, pathAppId)
+	appId := "wx" + utility.Base32ToHex(subAppId)
+
+	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
 
 	if err == nil && config != nil {
 		// 1.验签
@@ -42,49 +56,51 @@ func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEn
 		if !ok {
 			fmt.Println("验签失败")
 			g.RequestFromCtx(ctx).Response.Write("success")
-			return
+			return "验签失败", nil
 		}
 
 		// 2.解密
 		data := weixin.Decrypt(ctx, *eventInfo, *msgInfo)
 		fmt.Println("解密后的内容：", data)
-
-		if data.AppId != pathAppId { // 说明跨服务商应用操作了
-			return
+		if data != nil && data.AppId != appId { // 说明跨服务商应用操作了
+			return "不可跨服务商应用操作了", nil
 		}
-
-		s.Iterator(func(key weixin_enum.InfoType, value weixin_hook.ServiceMsgHookFunc) {
+		s.ServiceNotifyTypeHook.Iterator(func(key weixin_enum.ServiceNotifyType, value weixin_hook.ServiceNotifyHookFunc) {
 			if data.InfoType == key.Code() {
 				g.Try(ctx, func(ctx context.Context) {
 					info := g.Map{
 						"MsgType": data.InfoType,
 						"info":    data,
 					}
+					sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin应用通知广播： ------- "+data.InfoType, "sGateway")
 					value(ctx, info)
 				})
 			}
 		})
-		g.RequestFromCtx(ctx).Response.Write("success")
-		return
+
 	}
 
-	//
-	//// 找出服务商
-	//service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, gconv.Int64(data.AppId))
-	//// 更新Token
+	// 找出服务商 Hook
+	// 更新Token Hook
 
 	g.RequestFromCtx(ctx).Response.Write("success")
+
+	return "success", nil
 }
 
 // Callback 接收回调  C端消息 例如授权通知等。。。
-func (s *sGateway) Callback(ctx context.Context, info *weixin_model.AuthorizationCodeRes, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) {
+func (s *sGateway) Callback(ctx context.Context, info *weixin_model.AuthorizationCodeRes, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error) {
 	// 处理授权
 	fmt.Println("callback....")
 	fmt.Println("授权码：\n", info)
 
 	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
+	appIdLen := len(pathAppId)
+	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
 
-	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, pathAppId)
+	appId := "wx" + utility.Base32ToHex(subAppId)
+
+	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
 
 	if err == nil && config != nil {
 		// 1.验签
@@ -92,39 +108,39 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 		if !ok {
 			fmt.Println("验签失败")
 			g.RequestFromCtx(ctx).Response.Write("success")
-			return
+			return "验签失败", nil
 		}
 
 		// 2.解密
 		data := weixin.Decrypt(ctx, *eventInfo, *msgInfo)
 		fmt.Println("解密后的内容：", data)
 
-		if data.AppId != pathAppId { // 说明跨服务商应用操作了
-			return
+		if data.AppId != appId { // 说明跨服务商应用操作了
+			return "不可跨服务商应用操作了", nil
 		}
 
 		/*
-			授权通知类型InfoType ：
+			应用授权通知类型InfoType ：
 				authorized 授权成功
 				updateauthorized 更新授权
 				unauthorized 取消授权
 		*/
-		s.Iterator(func(key weixin_enum.InfoType, value weixin_hook.ServiceMsgHookFunc) {
+		s.CallbackMsgHook.Iterator(func(key weixin_enum.CallbackMsgType, value weixin_hook.ServiceMsgHookFunc) {
 			if data.InfoType == key.Code() {
 				g.Try(ctx, func(ctx context.Context) {
 					info := g.Map{
 						"MsgType":   data.InfoType,
 						"info":      data,
 						"thirdInfo": config,
+						// "code"
+						// "openid"
 					}
+					sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin回调消息广播： ------- "+data.InfoType, "sGateway")
 					value(ctx, info)
 				})
 			}
 		})
 
-		g.RequestFromCtx(ctx).Response.Write("success")
-
-		return
 	}
 
 	// 授权码 过期时间 authorization_code + 时间
@@ -133,6 +149,10 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 
 	// authorizer_access_token就又能调用各种接口了
 
+	// 存储authorizer_access_token至数据库
+	g.RequestFromCtx(ctx).Response.Write("success")
+
+	return "success", err
 }
 
 // WXCheckSignature 微信接入校验 设置Token需要验证

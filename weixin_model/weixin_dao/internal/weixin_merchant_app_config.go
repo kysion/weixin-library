@@ -28,20 +28,20 @@ type WeixinMerchantAppConfigColumns struct {
 	AppId          string // 商家应用Id
 	AppName        string // 商家应用名称
 	AppType        string // 应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店
-	AppAuthToken   string // 应用token
+	AppAuthToken   string // 商家授权应用token
 	IsFullProxy    string // 是否全权委托待开发：0否 1是
 	State          string // 状态： 0禁用 1启用
 	ExpiresIn      string // Token过期时间
 	ReExpiresIn    string // Token限期刷新时间
-	UserId         string // 用户账号id
+	UserId         string // 应用所属账号
 	UnionMainId    string // 关联主体id
 	SysUserId      string // 用户id
 	ExtJson        string // 拓展字段
 	AppGatewayUrl  string // 网关地址
 	AppCallbackUrl string // 回调地址
-	AppSecret      string // 服务器应用密钥
+	AppSecret      string // 商家应用密钥
 	MsgVerfiyToken string // 消息校验Token
-	MsgEncryptKey  string // 消息加密解密密钥
+	MsgEncryptKey  string // 消息加密解密密钥（EncodingAESKey）
 	MsgEncryptType string // 消息加密模式：1兼容模式 2明文模式 4安全模式
 	BusinessDomain string // 业务域名
 	JsDomain       string // JS接口安全域名
@@ -49,6 +49,18 @@ type WeixinMerchantAppConfigColumns struct {
 	Logo           string // 商家logo
 	HttpsCert      string // 域名证书
 	HttpsKey       string // 域名私钥
+	ServerDomain   string // 服务器域名
+	AppIdMd5       string // 应用id加密md5后的结果
+	ThirdAppId     string // 服务商appId
+	NotifyUrl      string // 异步通知地址，允许业务层追加相关参数
+	ServerRate     string // 手续费比例，默认0.6%
+	UnionMainType  string // 应用关联主体类型，和user_type保持一致
+	Version        string // 应用版本
+	PrivacyPolicy  string // 隐私协议
+	UserPolicy     string // 用户协议
+	DevState       string // 开发状态：0未上线 1已上线
+	UpdatedAt      string //
+	RefreshToken   string // 刷新商家授权应用Token
 }
 
 // weixinMerchantAppConfigColumns holds the columns for table weixin_merchant_app_config.
@@ -79,6 +91,18 @@ var weixinMerchantAppConfigColumns = WeixinMerchantAppConfigColumns{
 	Logo:           "logo",
 	HttpsCert:      "https_cert",
 	HttpsKey:       "https_key",
+	ServerDomain:   "server_domain",
+	AppIdMd5:       "app_id_md5",
+	ThirdAppId:     "third_app_id",
+	NotifyUrl:      "notify_url",
+	ServerRate:     "server_rate",
+	UnionMainType:  "union_main_type",
+	Version:        "version",
+	PrivacyPolicy:  "privacy_policy",
+	UserPolicy:     "user_policy",
+	DevState:       "dev_state",
+	UpdatedAt:      "updated_at",
+	RefreshToken:   "refresh_token",
 }
 
 // NewWeixinMerchantAppConfigDao creates and returns a new DAO object for table data access.

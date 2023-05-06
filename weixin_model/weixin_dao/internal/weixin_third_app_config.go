@@ -23,8 +23,8 @@ type WeixinThirdAppConfigDao struct {
 
 // WeixinThirdAppConfigColumns defines and stores column names for table weixin_third_app_config.
 type WeixinThirdAppConfigColumns struct {
-	Id             string // 授权商家id
-	Name           string // 服务商名称
+	Id             string // 服务商id
+	Name           string // 服务商name
 	AppId          string // 服务商应用Id
 	AppName        string // 服务商应用名称
 	AppType        string // 服务商应用类型
@@ -49,6 +49,10 @@ type WeixinThirdAppConfigColumns struct {
 	ReleaseState   string // 发布状态：0未发布 1已发布
 	HttpsCert      string // 域名证书
 	HttpsKey       string // 域名私钥
+	UpdatedAt      string //
+	AppIdMd5       string // 应用id加密md5后的结果
+	UserId         string // 应用所属账号
+	RefreshToken   string // 刷新应用Token
 }
 
 // weixinThirdAppConfigColumns holds the columns for table weixin_third_app_config.
@@ -79,6 +83,10 @@ var weixinThirdAppConfigColumns = WeixinThirdAppConfigColumns{
 	ReleaseState:   "release_state",
 	HttpsCert:      "https_cert",
 	HttpsKey:       "https_key",
+	UpdatedAt:      "updated_at",
+	AppIdMd5:       "app_id_md5",
+	UserId:         "user_id",
+	RefreshToken:   "refresh_token",
 }
 
 // NewWeixinThirdAppConfigDao creates and returns a new DAO object for table data access.

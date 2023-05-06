@@ -25,12 +25,14 @@ func NewTicket() *sTicket {
 }
 
 func (s *sTicket) injectHook() {
-	weixin_service.Gateway().InstallHook(weixin_enum.Info.Type.Ticket, s.Ticket)
+	notifyHook := weixin_service.Gateway().GetServiceNotifyTypeHook()
+
+	notifyHook.InstallHook(weixin_enum.Info.ServiceType.Ticket, s.Ticket)
 }
 
 // Ticket 票据具体服务
 func (s *sTicket) Ticket(ctx context.Context, info g.Map) bool {
-	if info["MsgType"] != weixin_enum.Info.Type.Ticket.Code() {
+	if info["MsgType"] != weixin_enum.Info.ServiceType.Ticket.Code() {
 		return false
 	}
 
@@ -62,6 +64,7 @@ func getComponentAccessToken(ctx context.Context, data *weixin_model.EventMessag
 	tokenReqJson, _ := json.Marshal(tokenReq) // post请求参数不能直接拼接在URL，应该使用json序列化数据
 
 	componentAccessToken := g.Client().PostContent(ctx, tokenUrl, tokenReqJson)
+	fmt.Println("获取令牌返回数据：", componentAccessToken)
 
 	componentAccessTokenRes := weixin_model.ComponentAccessTokenRes{}
 	gjson.DecodeTo(componentAccessToken, &componentAccessTokenRes)
@@ -97,5 +100,5 @@ func getComponentAccessToken(ctx context.Context, data *weixin_model.EventMessag
 		weixin_service.ThirdAppConfig().UpdateAppAuthToken(ctx, &tokenData)
 	}
 
-	return false
+	return true
 }

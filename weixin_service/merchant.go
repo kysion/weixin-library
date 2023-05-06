@@ -18,10 +18,12 @@ type (
 		UpdateAuthorized(ctx context.Context, info g.Map) bool
 		Unauthorized(ctx context.Context, info g.Map) bool
 	}
+	IUserAuth interface{}
 )
 
 var (
-	localAppAuth IAppAuth
+	localAppAuth  IAppAuth
+	localUserAuth IUserAuth
 )
 
 func AppAuth() IAppAuth {
@@ -33,4 +35,15 @@ func AppAuth() IAppAuth {
 
 func RegisterAppAuth(i IAppAuth) {
 	localAppAuth = i
+}
+
+func UserAuth() IUserAuth {
+	if localUserAuth == nil {
+		panic("implement not found for interface IUserAuth, forgot register?")
+	}
+	return localUserAuth
+}
+
+func RegisterUserAuth(i IUserAuth) {
+	localUserAuth = i
 }

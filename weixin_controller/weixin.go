@@ -31,27 +31,26 @@ func (c *cWeiXin) WeiXinServices(ctx context.Context, req *v1.ServicesReq) (v1.S
 		wx534d1a08aa84c529
 		tF7U9rjAzZQ5wJpBRmHjMndBHOyjOwu+70mty1IUStw5opir+5ShBdQJWi048GEwoEqbplaw+w7xS4a7xotTTJQJa29+0yiKsSb8HURhMT4HsFVkTIBC53xN10R5iE/uxnrJ57FCaN1en7VTAWjrwpjJ/p604Pmfcq7lV7bgd5jOsLyYLSUlPqL7m6VpY+RbNeg3VT22zSQJAeCvuyjvO9mgp9FBx59mB3mK9qD/ItAB0RxxbPBYmQNEQAwThmWEyhAeVRpGyEErEvA43vuLNrmC5MeDu+bko8/1GnY1B26OYT8JyD5DPBCawFf8ktn12HbYPL0lYde/p1iUYCln5Axod2Hwo91nIyFbINkOWXuFieF2J4wnOxAFIZ6v7h+nd5a2nvi+zxIkyKdKfYT9FQ6Ke6R/UXGZ/kC1oUP+oHh3U/h3QUwfQYNhPWwzqXXTfUGhhi2Oqt9jGBwL0Pw==
 	*/
-	weixin_service.Gateway().Services(ctx, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
-	return "", nil
+	_, err := weixin_service.Gateway().Services(ctx, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
+
+	return "success", err
 }
 
 // WeiXinCallback C端业务小消息   消费者支付.....
 func (c *cWeiXin) WeiXinCallback(ctx context.Context, req *v1.CallbackReq) (v1.StringRes, error) {
 
-	weixin_service.Gateway().Callback(ctx, &req.AuthorizationCodeRes, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
+	_, err := weixin_service.Gateway().Callback(ctx, &req.AuthorizationCodeRes, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
 
-	return "", nil
+	return "success", err
 }
 
-// AlipayAuthUserInfo 用户登录信息
+// WeiXinCallbackPost C端业务小消息   消费者支付.....
+func (c *cWeiXin) WeiXinCallbackPost(ctx context.Context, req *v1.CallbackPostReq) (v1.StringRes, error) {
 
-// 获取用户openId
+	_, err := weixin_service.Gateway().Callback(ctx, &req.AuthorizationCodeRes, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
 
-// 获取用户unionID
-
-// 用户网页授权
-
-// 获取用户基本信息
+	return "success", err
+}
 
 func (c *cWeiXin) CheckSignature(ctx context.Context, req *v1.CheckSignatureReq) (v1.StringRes, error) {
 	// 时间戳，单位秒

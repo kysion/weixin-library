@@ -12,8 +12,8 @@ import (
 // WeixinThirdAppConfig is the golang structure of table weixin_third_app_config for DAO operations like Where/Data.
 type WeixinThirdAppConfig struct {
 	g.Meta         `orm:"table:weixin_third_app_config, do:true"`
-	Id             interface{} // 授权商家id
-	Name           interface{} // 服务商名称
+	Id             interface{} // 服务商id
+	Name           interface{} // 服务商name
 	AppId          interface{} // 服务商应用Id
 	AppName        interface{} // 服务商应用名称
 	AppType        interface{} // 服务商应用类型
@@ -38,4 +38,8 @@ type WeixinThirdAppConfig struct {
 	ReleaseState   interface{} // 发布状态：0未发布 1已发布
 	HttpsCert      interface{} // 域名证书
 	HttpsKey       interface{} // 域名私钥
+	UpdatedAt      *gtime.Time //
+	AppIdMd5       interface{} // 应用id加密md5后的结果
+	UserId         interface{} // 应用所属账号
+	RefreshToken   interface{} // 刷新应用Token
 }

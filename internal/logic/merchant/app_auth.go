@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_service"
 )
 
+// 应用授权
 type sAppAuth struct {
 }
 
@@ -25,11 +27,14 @@ func init() {
 }
 
 func (s *sAppAuth) injectHook() {
-	weixin_service.Gateway().InstallHook(weixin_enum.Info.Type.ComponentAccessToken, s.AppAuth)
+	callHook := weixin_service.Gateway().GetCallbackMsgHook()
+	//notifyHook := weixin_service.Gateway().GetServiceNotifyTypeHook()
 
-	weixin_service.Gateway().InstallHook(weixin_enum.Info.Type.Authorized, s.Authorized)             // 授权成功
-	weixin_service.Gateway().InstallHook(weixin_enum.Info.Type.UpdateAuthorized, s.UpdateAuthorized) // 授权更新
-	weixin_service.Gateway().InstallHook(weixin_enum.Info.Type.Unauthorized, s.Unauthorized)         // 取消授权
+	callHook.InstallHook(weixin_enum.Info.CallbackType.ComponentAccessToken, s.AppAuth) // 应用授权
+
+	callHook.InstallHook(weixin_enum.Info.CallbackType.Authorized, s.Authorized)             // 授权成功
+	callHook.InstallHook(weixin_enum.Info.CallbackType.UpdateAuthorized, s.UpdateAuthorized) // 授权更新
+	callHook.InstallHook(weixin_enum.Info.CallbackType.Unauthorized, s.Unauthorized)         // 取消授权
 }
 
 func NewAppAuth() *sAppAuth {
@@ -43,12 +48,13 @@ func NewAppAuth() *sAppAuth {
 // AppAuth 应用授权具体服务
 func (s *sAppAuth) AppAuth(ctx context.Context, info g.Map) bool {
 	//getComponentAccessToken(ctx, gconv.String(info))
-	return true
+	// TODO 需要补充应用授权相关代码
+	return false
 }
 
 // Authorized 授权成功
 func (s *sAppAuth) Authorized(ctx context.Context, info g.Map) bool {
-	if info["MsgType"] != weixin_enum.Info.Type.Authorized.Code() {
+	if info["MsgType"] != weixin_enum.Info.CallbackType.Authorized.Code() {
 		return false
 	}
 
@@ -97,6 +103,19 @@ func (s *sAppAuth) Authorized(ctx context.Context, info g.Map) bool {
 	fmt.Println("商家接口调用Token：", tokenResData.AuthorizerAccessToken)
 
 	// 有了authorizer_access_token就又能调用各种商家的API接口了
+
+	// 存储authorizer_access_token至数据库
+	_, err := weixin_service.MerchantAppConfig().UpdateAppAuthToken(ctx, &weixin_model.UpdateMerchantAppAuthToken{
+		AppId:        data.AppId,
+		AppAuthToken: tokenResData.AuthorizerAccessToken,
+		ExpiresIn:    gtime.New(tokenResData.ExpiresIn),
+		//ReExpiresIn:  gtime.New(tokenResData.AuthorizerRefreshToken),
+		RefreshToken: tokenResData.AuthorizerRefreshToken,
+	})
+
+	if err != nil {
+		return false
+	}
 
 	return true
 }
