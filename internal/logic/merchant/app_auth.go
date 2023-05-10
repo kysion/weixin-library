@@ -111,6 +111,7 @@ func (s *sAppAuth) AppAuth(ctx context.Context, info g.Map) bool {
 		ExpiresIn:    gtime.Now().Add(time.Hour * 2), // token 有效期两小时
 		ReExpiresIn:  gtime.NewFromStr(tokenReTime),
 		RefreshToken: tokenResData.AuthorizerRefreshToken,
+		ThirdAppId:   thirdData.AppId, // 第三方应用appId
 	})
 
 	if err != nil {

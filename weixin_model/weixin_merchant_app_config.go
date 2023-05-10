@@ -66,6 +66,7 @@ type UpdateMerchantAppAuthToken struct {
 	ExpiresIn    *gtime.Time `json:"expiresIn"      description:"Token过期时间"`
 	ReExpiresIn  *gtime.Time `json:"reExpiresIn"    description:"Token限期刷新时间"`
 	RefreshToken string      `json:"refreshToken"   description:"刷新应用Token"`
+	ThirdAppId   string      `json:"thirdAppId"     description:"服务商appId"`
 }
 
 // UpdateMerchantAppConfigReq 修改商家应用基础信息
