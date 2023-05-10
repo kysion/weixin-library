@@ -18,7 +18,9 @@ type (
 		UpdateAuthorized(ctx context.Context, info g.Map) bool
 		Unauthorized(ctx context.Context, info g.Map) bool
 	}
-	IUserAuth interface{}
+	IUserAuth interface {
+		UserAuthCallback(ctx context.Context, info g.Map) bool
+	}
 )
 
 var (

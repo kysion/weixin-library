@@ -35,7 +35,7 @@ func (s *sUserAuth) injectHook() {
 	//notifyHook := weixin_service.Gateway().GetServiceNotifyTypeHook()
 	callHook := weixin_service.Gateway().GetCallbackMsgHook()
 
-	callHook.InstallHook(weixin_enum.Info.CallbackType.UserAuth, UserAuthCallback)
+	callHook.InstallHook(weixin_enum.Info.CallbackType.UserAuth, s.UserAuthCallback)
 }
 
 func NewUserAuth() *sUserAuth {
@@ -47,7 +47,7 @@ func NewUserAuth() *sUserAuth {
 }
 
 // UserAuthCallback 处理授权回调请求
-func UserAuthCallback(ctx context.Context, info g.Map) bool {
+func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) bool {
 	from := gmap.NewStrAnyMapFrom(info)
 
 	// 1.拿到code

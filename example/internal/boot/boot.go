@@ -10,6 +10,7 @@ import (
 	"github.com/gogf/gf/v2/os/gcmd"
 	_ "github.com/kysion/weixin-library/example/internal/boot/internal"
 	"github.com/kysion/weixin-library/weixin_controller"
+	"github.com/kysion/weixin-library/weixin_controller/merchant"
 )
 
 var (
@@ -56,9 +57,28 @@ var (
 
 				// 微信网关
 				group.Bind(
-					weixin_controller.WeiXin.WeiXinServices,
-					weixin_controller.WeiXin.WeiXinCallback,
+					weixin_controller.WeiXin.WeiXinServices,     // 消息接收
+					weixin_controller.WeiXin.WeiXinCallback,     // 网关回调
+					weixin_controller.WeiXin.WeiXinCallbackPost, // 网关回调
 					weixin_controller.WeiXin.CheckSignature,
+
+					// 商家授权
+					merchant.MerchantService.AppAuthReq,
+
+					// 用户授权
+					merchant.MerchantService.UserAuth,
+
+					// 应用授权回调地址
+					merchant.MerchantService.AuthRes,
+
+					// 用户授权回调地址
+					merchant.MerchantService.UserAuthRes,
+
+					// 获取用户信息
+					merchant.UserInfo.GetUserInfo,
+
+					// 小程序开发管理
+					merchant.AppVersionManager,
 				)
 
 				group.Group("/third_app", func(group *ghttp.RouterGroup) {
