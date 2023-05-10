@@ -64,6 +64,9 @@ var (
 				group.Group("/third_app", func(group *ghttp.RouterGroup) {
 					// 服务商应用配置
 					group.Bind(weixin_controller.WeiXinThirdAppConfig)
+
+					// 服务商服务 （WeiXin）
+					group.Bind(weixin_controller.ThirdService)
 				})
 
 				group.Group("/merchant_app", func(group *ghttp.RouterGroup) {
