@@ -48,3 +48,10 @@ type CheckSignatureReq struct {
 type StartPushTicketReq struct {
 	g.Meta `path:"/:appId/api_start_push_ticket" method:"get" summary:"让微信重新推送票据" tags:"WeiXin"`
 }
+
+type AuthResReq struct { // AppAuth 应用授权接收地址
+	g.Meta `path:"/:appId/gateway.authRes" method:"get" summary:"授权响应" tags:"WeiXin"`
+
+	AuthCode  string `json:"auth_code"`
+	ExpiresIn string `json:"expires_in"`
+}

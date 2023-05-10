@@ -3,7 +3,10 @@ package weixin_controller
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/text/gstr"
 	v1 "github.com/kysion/weixin-library/api/weixin_v1"
+	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_service"
 )
 
@@ -58,4 +61,25 @@ func (c *cWeiXin) CheckSignature(ctx context.Context, req *v1.CheckSignatureReq)
 	//unix := time.Now().Unix()
 
 	return (v1.StringRes)(weixin_service.Gateway().WXCheckSignature(ctx, req.Signature, req.Signature, req.Nonce, req.Echostr)), nil
+}
+
+// AuthRes 商家应用授权变更等消息推送
+func (c *cWeiXin) AuthRes(ctx context.Context, req *v1.AuthResReq) (v1.StringRes, error) {
+	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
+	appIdLen := len(pathAppId)
+	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
+
+	appId := "wx" + utility.Base32ToHex(subAppId)
+
+	fmt.Println("认证code：", req.AuthCode)
+
+	fmt.Println("推送消息：", req.ExpiresIn)
+
+	weixin_service.AppAuth().AppAuth(ctx, g.Map{
+		"appId":      appId,
+		"auth_code":  req.AuthCode,
+		"expires_in": req.ExpiresIn,
+	})
+
+	return "success", nil
 }

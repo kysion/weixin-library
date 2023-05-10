@@ -3,13 +3,16 @@ package merchant
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/kysion/base-library/utility/format_utils"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_service"
+	"time"
 )
 
 // 应用授权
@@ -49,7 +52,72 @@ func NewAppAuth() *sAppAuth {
 func (s *sAppAuth) AppAuth(ctx context.Context, info g.Map) bool {
 	//getComponentAccessToken(ctx, gconv.String(info))
 	// TODO 需要补充应用授权相关代码
-	return false
+
+	from := gmap.NewStrAnyMapFrom(info)
+
+	appId := gconv.String(from.Get("appId"))
+	authCode := gconv.String(from.Get("auth_code"))
+	//expiresIn := gconv.String(from.Get("expires_in"))
+
+	thirdData, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
+	if err != nil {
+		return false
+	}
+
+	// 1.使用授权码获取授权方信息
+	authorizerInfoUrl := "https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=" + thirdData.AppAuthToken
+	authorizerInfoReq := weixin_model.AuthorizerInfoReq{
+		ComponentAppid:    thirdData.AppId,
+		AuthorizationCode: authCode,
+	}
+	encode, _ := gjson.Encode(authorizerInfoReq)
+	authorizerInfo := g.Client().PostContent(ctx, authorizerInfoUrl, encode)
+	authorizerInfoRes := weixin_model.AuthorizationInfoRes{}
+	gjson.DecodeTo(authorizerInfo, &authorizerInfoRes)
+	fmt.Println("授权方基本信息：", authorizerInfoRes)
+
+	// 2.获取授权方商家的authorizer_access_token
+	queryTokenUrl := "https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token=" + thirdData.AppAuthToken
+	//https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token=ACCESS_TOKEN
+	tokenReq := weixin_model.AuthorizerAccessTokenReq{
+		//ComponentAccessToken:   thirdData.AppAuthToken, url参数
+		ComponentAppid:         thirdData.AppId,
+		AuthorizerAppid:        authorizerInfoRes.AuthorizationInfo.AuthorizerAppid,
+		AuthorizerRefreshToken: authorizerInfoRes.AuthorizationInfo.AuthorizerRefreshToken,
+	}
+
+	tokenReqJson, _ := gjson.Encode(tokenReq)
+
+	tokenRes := g.Client().PostContent(ctx, queryTokenUrl, tokenReqJson)
+	tokenResData := weixin_model.AuthorizerAccessTokenRes{}
+
+	gjson.DecodeTo(tokenRes, &tokenResData)
+	fmt.Println("商家接口调用Token：", tokenResData.AuthorizerAccessToken)
+
+	// 有了authorizer_access_token就又能调用各种商家的API接口了
+
+	// 将秒数转化为 duration 对象
+	tokenReExpiresIn := format_utils.SecondToDuration(authorizerInfoRes.AuthorizationInfo.ExpiresIn)
+
+	// 计算未来时间
+	tokenReTime := gtime.Now().Add(tokenReExpiresIn).Format("Y-m-d H:i:s")
+	fmt.Println("增加后的时间：", tokenReTime)
+
+	// 存储authorizer_access_token至数据库
+	_, err = weixin_service.MerchantAppConfig().UpdateAppAuthToken(ctx, &weixin_model.UpdateMerchantAppAuthToken{
+		AppId:        authorizerInfoRes.AuthorizationInfo.AuthorizerAppid,
+		AppAuthToken: tokenResData.AuthorizerAccessToken,
+		//expiresIn := gtime.NewFromTimeStamp(tokenResData.ExpiresIn)
+		ExpiresIn:    gtime.Now().Add(time.Hour * 2), // token 有效期两小时
+		ReExpiresIn:  gtime.NewFromStr(tokenReTime),
+		RefreshToken: tokenResData.AuthorizerRefreshToken,
+	})
+
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 // Authorized 授权成功
@@ -77,13 +145,20 @@ func (s *sAppAuth) Authorized(ctx context.Context, info g.Map) bool {
 	//gconv.Struct(merchantInfo, &merchantData)
 
 	// 获取授权方的帐号基本信息 http请求方式: POST（请使用https协议）可选
+	//https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token= (获取授权方账号基本信息)
+	//https: //api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token=ACCESS_TOKEN (获取授权Token)
+	//https: //api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token= （查询授权）
+
 	authorizerInfoUrl := "https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token=" + thirdData.AppAuthToken
 	authorizerInfoReq := weixin_model.AuthorizerInfoReq{
 		ComponentAppid:    thirdData.AppId,
-		AuthorizationCode: "授权码",
+		AuthorizationCode: data.AuthorizationCode,
 	}
 	encode, _ := gjson.Encode(authorizerInfoReq)
-	g.Client().PostContent(ctx, authorizerInfoUrl, encode)
+	authorizerInfo := g.Client().PostContent(ctx, authorizerInfoUrl, encode)
+	authorizerInfoRes := weixin_model.AuthorizationInfoRes{}
+	gjson.DecodeTo(authorizerInfo, &authorizerInfoRes)
+	fmt.Println("授权方基本信息：", authorizerInfoRes)
 
 	// 获取商家接口调用凭据 authorizer_access_token  + authorizer_refresh_token + 时间
 	//	POST https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=COMPONENT_ACCESS_TOKEN
@@ -100,17 +175,17 @@ func (s *sAppAuth) Authorized(ctx context.Context, info g.Map) bool {
 
 	tokenResData := weixin_model.AuthorizationInfoRes{}
 	gjson.DecodeTo(tokenRes, &tokenResData)
-	fmt.Println("商家接口调用Token：", tokenResData.AuthorizerAccessToken)
+	fmt.Println("商家接口调用Token：", tokenResData.AuthorizationInfo.AuthorizerAccessToken)
 
 	// 有了authorizer_access_token就又能调用各种商家的API接口了
 
 	// 存储authorizer_access_token至数据库
 	_, err := weixin_service.MerchantAppConfig().UpdateAppAuthToken(ctx, &weixin_model.UpdateMerchantAppAuthToken{
 		AppId:        data.AppId,
-		AppAuthToken: tokenResData.AuthorizerAccessToken,
-		ExpiresIn:    gtime.New(tokenResData.ExpiresIn),
-		//ReExpiresIn:  gtime.New(tokenResData.AuthorizerRefreshToken),
-		RefreshToken: tokenResData.AuthorizerRefreshToken,
+		AppAuthToken: tokenResData.AuthorizationInfo.AuthorizerAccessToken,
+		ExpiresIn:    gtime.New(tokenResData.AuthorizationInfo.ExpiresIn),
+		//ReExpiresIn:  gtime.New(tokenResData.AuthorizationInfo.AuthorizerRefreshToken),
+		RefreshToken: tokenResData.AuthorizationInfo.AuthorizerRefreshToken,
 	})
 
 	if err != nil {

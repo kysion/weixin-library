@@ -40,6 +40,12 @@ func (s *cMerchantService) AppAuthReq(ctx context.Context, _ *weixin_merchant_ap
 
 	appId := "wx" + utility.Base32ToHex(subAppId)
 
+	//https://www.kuaimk.com/weixin/wx56j8q12l89h99/gateway.services
+	//https://www.kuaimk.com/weixin/wx56j8q12l89h99/gateway.services
+	//
+	//https://www.kuaimk.com/weixin/wx534d1a08aa84c529/wx56j8q12l89h99/gateway.callback
+	//https://www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
+
 	app, _ := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
 
 	// 4.获取与授权码
@@ -60,13 +66,21 @@ func (s *cMerchantService) AppAuthReq(ctx context.Context, _ *weixin_merchant_ap
 		}
 	*/
 
+	redirect_url := gurl.Encode("https://www.kuaimk.com/weixin/wx56j8q12l89h99/gateway.authRes")
+	//authUrl := "https://mp.weixin.qq.com/cgi-bin/componentloginpage?" +
+	//	//authUrl := "https://mp.weixin.qq.com/safe/bindcomponent?" +
+	//	"component_appid=" + appId +
+	//	"&pre_auth_code=" + proAuthCodeRes.PreAuthCode +
+	//	"&redirect_url=" + redirect_url
+
 	// 5.引导用户进入授权页面
-	redirect_url := gurl.Encode(app.AppCallbackUrl)
-	authUrl := "https://mp.weixin.qq.com/cgi-bin/componentloginpage?" +
-		//authUrl := "https://mp.weixin.qq.com/safe/bindcomponent?" +
-		"component_appid=" + appId +
+	authUrl := "https://open.weixin.qq.com/wxaopen/safe/bindcomponent?" +
+		"action=bindcomponent&no_scan=1&component_appid=" + appId +
 		"&pre_auth_code=" + proAuthCodeRes.PreAuthCode +
-		"&redirect_url=" + redirect_url
+		"&redirect_uri=" + redirect_url +
+		"&auth_type=3" +
+		//"&biz_appid=xxxx" +
+		"#wechat_redirect"
 	fmt.Println("授权全链接：\n", authUrl)
 
 	g.RequestFromCtx(ctx).Response.Header().Set("referer", "https://www.kauimk.com/weixin/wx56j8q12l89h99/gateway.services") // https://www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
