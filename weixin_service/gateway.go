@@ -29,16 +29,18 @@ type (
 	IConsumer interface {
 		GetConsumerById(ctx context.Context, id int64) (*weixin_model.WeixinConsumerConfig, error)
 		GetConsumerBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinConsumerConfig, error)
-		CreateConsumer(ctx context.Context, info weixin_model.WeixinConsumerConfig) (*weixin_model.WeixinConsumerConfig, error)
-		UpdateConsumer(ctx context.Context, id int64, info weixin_model.UpdateConsumerReq) (bool, error)
+		GetConsumerByOpenId(ctx context.Context, openId string, unionId ...string) (*weixin_model.WeixinConsumerConfig, error)
+		CreateConsumer(ctx context.Context, info *weixin_model.WeixinConsumerConfig) (*weixin_model.WeixinConsumerConfig, error)
+		UpdateConsumer(ctx context.Context, id int64, info *weixin_model.UpdateConsumerReq) (bool, error)
 		UpdateConsumerState(ctx context.Context, id int64, state int) (bool, error)
+		UpdateConsumerToken(ctx context.Context, openId string, info *weixin_model.UpdateConsumerTokenReq) (bool, error)
 	}
 	IMerchantAppConfig interface {
 		GetMerchantAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinMerchantAppConfig, error)
 		GetMerchantAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinMerchantAppConfig, error)
 		GetMerchantAppConfigBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinMerchantAppConfig, error)
 		CreateMerchantAppConfig(ctx context.Context, info *weixin_model.WeixinMerchantAppConfig) (*weixin_model.WeixinMerchantAppConfig, error)
-		UpdateMerchantAppConfig(ctx context.Context, id int64, info weixin_model.UpdateMerchantAppConfig) (bool, error)
+		UpdateMerchantAppConfig(ctx context.Context, id int64, info *weixin_model.UpdateMerchantAppConfig) (bool, error)
 		UpdateState(ctx context.Context, id int64, state int) (bool, error)
 		UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateMerchantAppAuthToken) (bool, error)
 		UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigReq) (bool, error)
@@ -58,11 +60,11 @@ type (
 )
 
 var (
-	localGateway           IGateway
-	localTicket            ITicket
 	localConsumer          IConsumer
 	localMerchantAppConfig IMerchantAppConfig
 	localThirdAppConfig    IThirdAppConfig
+	localGateway           IGateway
+	localTicket            ITicket
 )
 
 func Gateway() IGateway {
