@@ -108,15 +108,24 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 		if !ok {
 			fmt.Println("验签失败")
 			g.RequestFromCtx(ctx).Response.Write("success")
-			return "验签失败", nil
+			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n验签失败： ", "sGateway")
+			return "success", nil
 		}
 
 		// 2.解密
 		data := weixin.Decrypt(ctx, *eventInfo, *msgInfo)
 		fmt.Println("解密后的内容：", data)
+		if data == nil {
+			g.RequestFromCtx(ctx).Response.Write("success")
+			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n解密失败： "+data.InfoType, "sGateway")
+			return "success", nil
+		}
 
-		if data.AppId != appId { // 说明跨服务商应用操作了
-			return "不可跨服务商应用操作了", nil
+		if data != nil && data.AppId != appId { // 说明跨服务商应用操作了
+			g.RequestFromCtx(ctx).Response.Write("success")
+			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n不可跨服务商操作： "+data.InfoType, "sGateway")
+
+			return "success", nil
 		}
 
 		/*
@@ -152,7 +161,7 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 	// 存储authorizer_access_token至数据库
 	g.RequestFromCtx(ctx).Response.Write("success")
 
-	return "success", err
+	return "success", nil
 }
 
 // WXCheckSignature 微信接入校验 设置Token需要验证

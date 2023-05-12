@@ -92,7 +92,7 @@ func (s *sThirdAppConfig) UpdateThirdAppConfig(ctx context.Context, id int64, in
 	gconv.Struct(info, &data)
 
 	model := dao.WeixinThirdAppConfig.Ctx(ctx)
-	affected, err := daoctl.UpdateWithError(model.Data(model).OmitNilData().Where(do.WeixinThirdAppConfig{Id: id}))
+	affected, err := daoctl.UpdateWithError(model.Data(data).OmitNilData().Where(do.WeixinThirdAppConfig{Id: id}))
 
 	if err != nil {
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "第三方应用配置信息更新失败", dao.WeixinThirdAppConfig.Table())

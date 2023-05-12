@@ -98,7 +98,7 @@ func (s *sMerchantAppConfig) CreateMerchantAppConfig(ctx context.Context, info *
 }
 
 // UpdateMerchantAppConfig 更新商家应用配置信息
-func (s *sMerchantAppConfig) UpdateMerchantAppConfig(ctx context.Context, id int64, info weixin_model.UpdateMerchantAppConfig) (bool, error) {
+func (s *sMerchantAppConfig) UpdateMerchantAppConfig(ctx context.Context, id int64, info *weixin_model.UpdateMerchantAppConfig) (bool, error) {
 	// 首先判断商家应用配置信息是否存在
 	consumerInfo, err := daoctl.GetByIdWithError[entity.WeixinMerchantAppConfig](dao.WeixinMerchantAppConfig.Ctx(ctx), id)
 	if err != nil || consumerInfo == nil {
@@ -108,7 +108,7 @@ func (s *sMerchantAppConfig) UpdateMerchantAppConfig(ctx context.Context, id int
 	gconv.Struct(info, &data)
 
 	model := dao.WeixinMerchantAppConfig.Ctx(ctx)
-	affected, err := daoctl.UpdateWithError(model.Data(model).OmitNilData().Where(do.WeixinMerchantAppConfig{Id: id}))
+	affected, err := daoctl.UpdateWithError(model.Data(data).OmitNilData().Where(do.WeixinMerchantAppConfig{Id: id}))
 
 	if err != nil {
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商家应用配置信息更新失败", dao.WeixinMerchantAppConfig.Table())
