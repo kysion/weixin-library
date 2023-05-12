@@ -9,6 +9,8 @@ import (
 	"context"
 
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/kysion/base-library/base_hook"
+	hook "github.com/kysion/weixin-library/weixin_model/weixin_hook"
 )
 
 type (
@@ -19,13 +21,16 @@ type (
 		Unauthorized(ctx context.Context, info g.Map) bool
 	}
 	IUserAuth interface {
+		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
+		GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
 		UserAuthCallback(ctx context.Context, info g.Map) bool
+		UserLogin(ctx context.Context, info g.Map) (string, error)
 	}
 )
 
 var (
-	localAppAuth  IAppAuth
 	localUserAuth IUserAuth
+	localAppAuth  IAppAuth
 )
 
 func AppAuth() IAppAuth {

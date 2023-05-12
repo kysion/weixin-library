@@ -13,20 +13,22 @@ import (
 type WeixinConsumerConfig struct {
 	g.Meta             `orm:"table:weixin_consumer_config, do:true"`
 	Id                 interface{} // id
-	UserId             interface{} // 用户账号id
+	OpenId             interface{} // 微信用户openId，不同应用下的用户具备不同的openId
 	SysUserId          interface{} // 用户id
 	Avatar             interface{} // 头像
 	Province           interface{} // 省份
 	City               interface{} // 城市
 	NickName           interface{} // 昵称
-	IsStudentCertified interface{} // 学生认证
-	UserType           interface{} // 用户账号类型
+	IsStudentCertified interface{} // 是否学生认证
+	UserType           interface{} // 用户账号类型，和sysUserType保持一致
 	UserState          interface{} // 状态：0未激活、1正常、-1封号、-2异常、-3已注销
 	IsCertified        interface{} // 是否实名认证
 	Sex                interface{} // 性别：0女 1男
-	AuthToken          interface{} // 授权token
+	AccessToken        interface{} // 授权token
 	ExtJson            interface{} // 拓展字段
 	CreatedAt          *gtime.Time //
 	UpdatedAt          *gtime.Time //
 	DeletedAt          *gtime.Time //
+	UnionId            interface{} // 微信用户union_id，同一个公众号下的用户只有一个unionId
+	SessionKey         interface{} // 微信用户会话key
 }

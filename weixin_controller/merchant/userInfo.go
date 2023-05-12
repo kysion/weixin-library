@@ -18,18 +18,11 @@ var UserInfo = cUserInfo{}
 type cUserInfo struct{}
 
 // 构建授权链接
-func buildAuthURL(redirectURI, appID string) (string, error) {
+func buildUserInfoURL(redirectURI, appID string) (string, error) {
 	redirectURIEncoded := url.QueryEscape(redirectURI)
 	//若该参数被设置为 'snsapi_base'，则只能获取到用户的 openid 和 unionid 等基本信息；若设置为 'snsapi_userinfo' 则可以获取到用户的昵称、头像和性别等完整资料信息。
 
-	authURL := "https://open.weixin.qq.com/connect/oauth2/authorize?" +
-		"appid=" + appID +
-		"&redirect_uri=" + redirectURIEncoded +
-		"&response_type=code" +
-		//"&scope=snsapi_userinfo" +
-		"&scope=snsapi_base" +
-		"&state=STATE" +
-		"#wechat_redirect"
+	authURL := "" + redirectURIEncoded
 
 	return authURL, nil
 }
@@ -47,7 +40,7 @@ func (c *cUserInfo) GetUserInfo(ctx context.Context, _ *weixin_merchant_app_v1.G
 	//thirdApp, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, merchantApp.ThirdAppId)
 
 	redirect_url := gurl.Encode("https://www.kuaimk.com/weixin/wx56j8q12l89h99/gateway.userAuthRes")
-	authURL, err := buildAuthURL(redirect_url, appId)
+	authURL, err := buildUserInfoURL(redirect_url, appId)
 	if err != nil {
 		return "", err
 	}

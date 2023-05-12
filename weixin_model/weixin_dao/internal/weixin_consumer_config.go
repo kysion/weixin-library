@@ -24,28 +24,30 @@ type WeixinConsumerConfigDao struct {
 // WeixinConsumerConfigColumns defines and stores column names for table weixin_consumer_config.
 type WeixinConsumerConfigColumns struct {
 	Id                 string // id
-	UserId             string // 用户账号id
+	OpenId             string // 微信用户openId，不同应用下的用户具备不同的openId
 	SysUserId          string // 用户id
 	Avatar             string // 头像
 	Province           string // 省份
 	City               string // 城市
 	NickName           string // 昵称
-	IsStudentCertified string // 学生认证
-	UserType           string // 用户账号类型
+	IsStudentCertified string // 是否学生认证
+	UserType           string // 用户账号类型，和sysUserType保持一致
 	UserState          string // 状态：0未激活、1正常、-1封号、-2异常、-3已注销
 	IsCertified        string // 是否实名认证
 	Sex                string // 性别：0女 1男
-	AuthToken          string // 授权token
+	AccessToken        string // 授权token
 	ExtJson            string // 拓展字段
 	CreatedAt          string //
 	UpdatedAt          string //
 	DeletedAt          string //
+	UnionId            string // 微信用户union_id，同一个公众号下的用户只有一个unionId
+	SessionKey         string // 微信用户会话key
 }
 
 // weixinConsumerConfigColumns holds the columns for table weixin_consumer_config.
 var weixinConsumerConfigColumns = WeixinConsumerConfigColumns{
 	Id:                 "id",
-	UserId:             "user_id",
+	OpenId:             "open_id",
 	SysUserId:          "sys_user_id",
 	Avatar:             "avatar",
 	Province:           "province",
@@ -56,11 +58,13 @@ var weixinConsumerConfigColumns = WeixinConsumerConfigColumns{
 	UserState:          "user_state",
 	IsCertified:        "is_certified",
 	Sex:                "sex",
-	AuthToken:          "auth_token",
+	AccessToken:        "access_token",
 	ExtJson:            "ext_json",
 	CreatedAt:          "created_at",
 	UpdatedAt:          "updated_at",
 	DeletedAt:          "deleted_at",
+	UnionId:            "union_id",
+	SessionKey:         "session_key",
 }
 
 // NewWeixinConsumerConfigDao creates and returns a new DAO object for table data access.

@@ -74,6 +74,9 @@ var (
 					// 用户授权回调地址
 					merchant.MerchantService.UserAuthRes,
 
+					// 用户登陆
+					merchant.MerchantService.UserLogin,
+
 					// 获取用户信息
 					merchant.UserInfo.GetUserInfo,
 
@@ -92,52 +95,6 @@ var (
 				group.Group("/merchant_app", func(group *ghttp.RouterGroup) {
 					group.Bind(weixin_controller.WeiXinMerchantAppConfig)
 				})
-
-				// 引入用户进入授权页
-				// https://weixin.jditco.com/weixin/gateway.call
-				//group.GET("/:appId/gateway.auth", func(r *ghttp.Request) {
-				//	// 通过appId将具体第三方应用配置信息从数据库获取出来
-				//
-				//	appId := g.RequestFromCtx(r.Context()).Get("appId").Int64()
-				//	app, _ := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
-				//
-				//	// 4.获取与授权码
-				//	proAuthCodeReq := weixin_model.ProAuthCodeReq{
-				//		ComponentAppid: weixin_consts.Global.AppId,
-				//		// ComponentAccessToken: token,  // 不能写json结构体里面，一半数据写在上面url上，一半数据写在json结构体
-				//	}
-				//	encode, _ := gjson.Encode(proAuthCodeReq)
-				//	proAuthCodeUrl := "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=" + token
-				//	fmt.Println(string(encode))
-				//
-				//	proAuthCode := g.Client().PostContent(ctx, proAuthCodeUrl, encode)
-				//	proAuthCodeRes := weixin_model.ProAuthCodeRes{}
-				//	gjson.DecodeTo(proAuthCode, &proAuthCodeRes)
-				//	/*
-				//		{
-				//			"pre_auth_code": "preauthcode@@@pxvu7JW0hDQqNf38HcEXF6ejB4pnzVnA_GXlqqb1XcSmS3GjEhy-TfJOIqjAODk3MmmTZpNHi7Brgc_ugz0RCg",
-				//			"expires_in": 1800
-				//		}
-				//	*/
-				//
-				//	// 5.引导用户进入授权页面
-				//	redirect_url := gurl.Encode("https://weixin.jditco.com/weixin/$APPID$/gateway.callback")
-				//	//authUrl := "https://mp.weixin.qq.com/cgi-bin/componentloginpage?" +
-				//	authUrl := "https://mp.weixin.qq.com/safe/bindcomponent?" +
-				//		"component_appid=" + weixin_consts.Global.AppId +
-				//		"&no_scan=1&auth_type=3&pre_auth_code=" + proAuthCodeRes.PreAuthCode +
-				//		"&redirect_url=" + redirect_url
-				//	fmt.Println("授权全链接：\n", authUrl)
-				//
-				//	r.Response.Header().Set("referer", "https://douyin.jditco.com/weixin/gateway.services")
-				//
-				//	r.Response.RedirectTo(authUrl)
-				//	//r.Response.Header().Set("Content-Type", "text/html; charset=UTF-8")
-				//	//r.Response.WriteTplContent(`<html lang="zh"><head><meta charset="utf-8"></head><body>测试页面：<a href="{{.url}}">{{.label}}</a></body></html>`, g.Map{
-				//	//	"url":   authUrl,
-				//	//	"label": "授权",
-				//	//})
-				//})
 
 			})
 

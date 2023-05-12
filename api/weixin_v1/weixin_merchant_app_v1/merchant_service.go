@@ -30,3 +30,10 @@ type UserAuthResReq struct { // UserAuth 用户授权响应接收地址 （后�
 type GetUserInfoReq struct {
 	g.Meta `path:"/:appId/userInfo" method:"get" summary:"获取用户信息" tags:"WeiXin商户服务"`
 }
+
+type UserLoginReq struct {
+	g.Meta `path:"/:appId/userLogin" method:"get" summary:"用户登录" tags:"WeiXin商户服务"`
+
+	Code      string `json:"code"`
+	ExpiresIn string `json:"expires_in"`
+}
