@@ -31,6 +31,13 @@ type GetUserInfoReq struct {
 	g.Meta `path:"/:appId/userInfo" method:"get" summary:"获取用户信息" tags:"WeiXin商户服务"`
 }
 
+// GetTinyAppUserInfoReq 获取小程序用户信息，相当于静默登录
+type GetTinyAppUserInfoReq struct {
+	g.Meta        `path:"/:appId/userTinyAppInfo" method:"get" summary:"获取小程序用户信息" tags:"WeiXin商户服务"`
+	EncryptedData string `json:"encrypted_data" dc:"wx.getUserInfo()接口获取到的用户加密数据"`
+	IV            string `json:"iv" dc:"iv,加密算法的初始向量"`
+}
+
 type UserLoginReq struct {
 	g.Meta `path:"/:appId/userLogin" method:"get" summary:"用户登录" tags:"WeiXin商户服务"`
 

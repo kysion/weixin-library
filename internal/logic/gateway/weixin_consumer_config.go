@@ -51,7 +51,7 @@ func (s *sConsumer) GetConsumerByOpenId(ctx context.Context, openId string, unio
 	model := dao.WeixinConsumerConfig.Ctx(ctx)
 
 	if len(unionId) > 0 {
-		model.Where(dao.WeixinConsumerConfig.Columns().UnionId, unionId[0])
+		model = model.Where(dao.WeixinConsumerConfig.Columns().UnionId, unionId[0])
 	}
 
 	err := model.Where(dao.WeixinConsumerConfig.Columns().OpenId, openId).Scan(&result)

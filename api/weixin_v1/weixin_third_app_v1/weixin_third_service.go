@@ -11,3 +11,5 @@ type GetAuthorizerListReq struct {
 	g.Meta `path:"/getAuthorizerList" method:"post" summary:"获取已授权账号列表" tags:"WeiXin服务商服务"`
 	weixin_model.GetAuthorizerList
 }
+
+// 获取公众号关联的小程序
