@@ -40,7 +40,7 @@ type WeixinConsumerConfigColumns struct {
 	CreatedAt          string //
 	UpdatedAt          string //
 	DeletedAt          string //
-	UnionId            string // 微信用户union_id，同一个公众号下的用户只有一个unionId
+	UnionId            string // 微信用户union_id，同一个开放平台帐号下的用户只有一个unionId
 	SessionKey         string // 微信用户会话key
 }
 

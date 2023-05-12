@@ -29,6 +29,6 @@ type WeixinConsumerConfig struct {
 	CreatedAt          *gtime.Time //
 	UpdatedAt          *gtime.Time //
 	DeletedAt          *gtime.Time //
-	UnionId            interface{} // 微信用户union_id，同一个公众号下的用户只有一个unionId
+	UnionId            interface{} // 微信用户union_id，同一个开放平台帐号下的用户只有一个unionId
 	SessionKey         interface{} // 微信用户会话key
 }

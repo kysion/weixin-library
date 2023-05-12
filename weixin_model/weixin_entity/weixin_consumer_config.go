@@ -27,6 +27,6 @@ type WeixinConsumerConfig struct {
 	CreatedAt          *gtime.Time `json:"createdAt"          description:""`
 	UpdatedAt          *gtime.Time `json:"updatedAt"          description:""`
 	DeletedAt          *gtime.Time `json:"deletedAt"          description:""`
-	UnionId            string      `json:"unionId"            description:"微信用户union_id，同一个公众号下的用户只有一个unionId"`
+	UnionId            string      `json:"unionId"            description:"微信用户union_id，同一个开放平台帐号下的用户只有一个unionId"`
 	SessionKey         string      `json:"sessionKey"         description:"微信用户会话key"`
 }
