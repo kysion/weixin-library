@@ -15,6 +15,10 @@ type AuthResReq struct { // AppAuth 应用授权响应接收地址 （后续会�
 	ExpiresIn string `json:"expires_in"`
 }
 
+type RefreshTokenReq struct {
+	g.Meta `path:"/:appId/refreshAppToken" method:"get" summary:"刷新应用授权Token" tags:"WeiXin商户服务"`
+}
+
 type UserAuthReq struct {
 	g.Meta `path:"/:appId/userAuth" method:"get" summary:"用户授权" tags:"WeiXin商户服务"`
 }

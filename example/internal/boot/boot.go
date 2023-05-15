@@ -62,6 +62,9 @@ var (
 					weixin_controller.WeiXin.WeiXinCallbackPost, // 网关回调
 					weixin_controller.WeiXin.CheckSignature,
 
+					// 刷新授权Token
+					merchant.MerchantService.RefreshToken,
+
 					// 商家授权
 					merchant.MerchantService.AppAuthReq,
 

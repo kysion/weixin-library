@@ -74,10 +74,15 @@ func (c *cMerchantService) UserAuth(ctx context.Context, _ *weixin_merchant_app_
 	appId := "wx" + utility.Base32ToHex(subAppId)
 
 	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+	if err != nil {
+		return "", err
+	}
+
 	thirdApp, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, merchantApp.ThirdAppId)
 	if err != nil {
 		return "", err
 	}
+
 	// 问题：小程序不能正常用户授权，提示此公众号并没有这些scope的权限，错误码:10005，小程序需要使用wx.login方式
 	//      公众号可以，因为这就是公众号网页授权方式
 
@@ -157,6 +162,30 @@ func (c *cMerchantService) UserLogin(ctx context.Context, req *weixin_merchant_a
 	})
 
 	return "success", nil
+}
+
+// RefreshToken 刷新Token
+func (c *cMerchantService) RefreshToken(ctx context.Context, _ *weixin_merchant_app_v1.RefreshTokenReq) (api_v1.BoolRes, error) {
+	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
+	appIdLen := len(pathAppId)
+	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
+
+	appId := "wx" + utility.Base32ToHex(subAppId)
+
+	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+	if err != nil {
+		return false, err
+	}
+
+	thirdApp, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, merchantApp.ThirdAppId)
+
+	if err != nil {
+		return false, err
+	}
+
+	ret, err := weixin_service.AppAuth().RefreshToken(ctx, appId, thirdApp.AppId)
+
+	return ret == true, err
 }
 
 // AppAuthReq 应用授权

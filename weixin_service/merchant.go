@@ -15,18 +15,19 @@ import (
 )
 
 type (
+	IAppAuth interface {
+		RefreshToken(ctx context.Context, merchantAppId, thirdAppId string) (bool, error)
+		AppAuth(ctx context.Context, info g.Map) bool
+		Authorized(ctx context.Context, info g.Map) bool
+		UpdateAuthorized(ctx context.Context, info g.Map) bool
+		Unauthorized(ctx context.Context, info g.Map) bool
+	}
 	IUserAuth interface {
 		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
 		GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
 		UserAuthCallback(ctx context.Context, info g.Map) bool
 		UserLogin(ctx context.Context, info g.Map) (string, error)
 		GetTinyAppUserInfo(ctx context.Context, sessionKey, encryptedData, iv, appId string) (*weixin_model.UserInfoRes, error)
-	}
-	IAppAuth interface {
-		AppAuth(ctx context.Context, info g.Map) bool
-		Authorized(ctx context.Context, info g.Map) bool
-		UpdateAuthorized(ctx context.Context, info g.Map) bool
-		Unauthorized(ctx context.Context, info g.Map) bool
 	}
 )
 
