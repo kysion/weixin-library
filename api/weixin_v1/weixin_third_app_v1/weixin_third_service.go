@@ -12,4 +12,9 @@ type GetAuthorizerListReq struct {
 	weixin_model.GetAuthorizerList
 }
 
+// GetOpenAccountReq 该 API 用于获取公众号或小程序所绑定的开放平台帐号。
+type GetOpenAccountReq struct {
+	g.Meta `path:"/:appId/getOpenAccount" method:"post" summary:"获取App应用绑定的开放平台账号" tags:"WeiXin服务商服务"`
+}
+
 // 获取公众号关联的小程序

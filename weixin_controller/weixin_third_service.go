@@ -2,7 +2,10 @@ package weixin_controller
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/kysion/weixin-library/api/weixin_v1/weixin_third_app_v1"
+	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
 )
@@ -14,6 +17,21 @@ type cThirdService struct{}
 // GetAuthorizerList 拉取已授权的账号列表
 func (c *cThirdService) GetAuthorizerList(ctx context.Context, req *weixin_third_app_v1.GetAuthorizerListReq) (*weixin_model.GetAuthorizerListRes, error) {
 	ret, err := weixin_service.ThirdService().GetAuthorizerList(ctx, &req.GetAuthorizerList)
+
+	return ret, err
+}
+
+// GetOpenAccount 获取绑定的开放平台账号
+func (c *cThirdService) GetOpenAccount(ctx context.Context, req *weixin_third_app_v1.GetOpenAccountReq) (*weixin_model.GetOpenAccountRes, error) {
+	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
+	appIdLen := len(pathAppId)
+	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
+
+	appId := "wx" + utility.Base32ToHex(subAppId)
+
+	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+
+	ret, err := weixin_service.ThirdService().GetOpenAccount(ctx, appId, merchantApp.AppAuthToken)
 
 	return ret, err
 }

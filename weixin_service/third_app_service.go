@@ -14,6 +14,7 @@ import (
 type (
 	IThirdService interface {
 		GetAuthorizerList(ctx context.Context, info *weixin_model.GetAuthorizerList) (*weixin_model.GetAuthorizerListRes, error)
+		GetOpenAccount(ctx context.Context, appId, authorizerAccessToken string) (*weixin_model.GetOpenAccountRes, error)
 	}
 )
 

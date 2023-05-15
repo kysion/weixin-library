@@ -15,3 +15,9 @@ type List struct {
 	RefreshToken    string `json:"refresh_token" dc:"刷新令牌authorizer_refresh_token"`
 	AuthTime        int    `json:"auth_time" dc:"授权的时间"`
 }
+
+type GetOpenAccountRes struct {
+	OpenAppid string `json:"open_appid" dc:"应用绑定的开放平台账号AppID"`
+	Errcode   int    `json:"errcode"`
+	Errmsg    string `json:"errmsg"`
+}
