@@ -92,6 +92,14 @@ var (
 					group.Bind(merchant.WeiXinPay)
 				})
 
+				group.Group("/weixin_pay", func(group *ghttp.RouterGroup) {
+					// 微信支付商户号
+					group.Bind(weixin_controller.WeiXinPayMerchant)
+
+					// 微信支付特约商户
+					group.Bind(weixin_controller.WeiXinPaySubMerchant)
+				})
+
 				group.Group("/third_app", func(group *ghttp.RouterGroup) {
 					// 服务商应用配置
 					group.Bind(weixin_controller.WeiXinThirdAppConfig)
