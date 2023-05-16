@@ -9,6 +9,7 @@ require (
 	github.com/kysion/base-library v0.0.12
 	github.com/kysion/gopay v0.0.3
 	github.com/kysion/pay-share-library v0.1.11
+	github.com/wechatpay-apiv3/wechatpay-go v0.2.16
 	github.com/yitter/idgenerator-go v1.3.2
 )
 

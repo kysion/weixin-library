@@ -22,6 +22,17 @@ type (
 		UpdateAuthorized(ctx context.Context, info g.Map) bool
 		Unauthorized(ctx context.Context, info g.Map) bool
 	}
+	IMerchantNotify interface {
+		NotifyServices(ctx context.Context) (string, error)
+	}
+	IWeiXinPay interface {
+		TestSDK(ctx context.Context)
+		JsapiCreateOrder(ctx context.Context, info *weixin_model.TradeOrder) (tradeNo string, err error)
+		QueryOrderByIdMchID(ctx context.Context, mchId string)
+		QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo string)
+		CloseOrder(ctx context.Context, mchId string)
+		DownloadAccountBill(ctx context.Context, mchId string)
+	}
 	IUserAuth interface {
 		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
 		GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
@@ -32,9 +43,22 @@ type (
 )
 
 var (
-	localAppAuth  IAppAuth
-	localUserAuth IUserAuth
+	localWeiXinPay      IWeiXinPay
+	localUserAuth       IUserAuth
+	localAppAuth        IAppAuth
+	localMerchantNotify IMerchantNotify
 )
+
+func UserAuth() IUserAuth {
+	if localUserAuth == nil {
+		panic("implement not found for interface IUserAuth, forgot register?")
+	}
+	return localUserAuth
+}
+
+func RegisterUserAuth(i IUserAuth) {
+	localUserAuth = i
+}
 
 func AppAuth() IAppAuth {
 	if localAppAuth == nil {
@@ -47,13 +71,24 @@ func RegisterAppAuth(i IAppAuth) {
 	localAppAuth = i
 }
 
-func UserAuth() IUserAuth {
-	if localUserAuth == nil {
-		panic("implement not found for interface IUserAuth, forgot register?")
+func MerchantNotify() IMerchantNotify {
+	if localMerchantNotify == nil {
+		panic("implement not found for interface IMerchantNotify, forgot register?")
 	}
-	return localUserAuth
+	return localMerchantNotify
 }
 
-func RegisterUserAuth(i IUserAuth) {
-	localUserAuth = i
+func RegisterMerchantNotify(i IMerchantNotify) {
+	localMerchantNotify = i
+}
+
+func WeiXinPay() IWeiXinPay {
+	if localWeiXinPay == nil {
+		panic("implement not found for interface IWeiXinPay, forgot register?")
+	}
+	return localWeiXinPay
+}
+
+func RegisterWeiXinPay(i IWeiXinPay) {
+	localWeiXinPay = i
 }
