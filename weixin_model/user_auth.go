@@ -1,5 +1,7 @@
 package weixin_model
 
+import "github.com/gogf/gf/v2/os/gtime"
+
 // AccessTokenRes 微信AccessToken返回数据结构
 type AccessTokenRes struct {
 	ErrCode int    `json:"errcode,omitempty"`
@@ -15,8 +17,13 @@ type AccessTokenRes struct {
 
 // UserInfoRes 微信用户信息返回数据结构
 type UserInfoRes struct {
-	OpenID  string `json:"openid" dc:"用户openId"`
-	UnionID string `json:"unionid" dc:"用户unionId"`
+	OpenID     string `json:"openid" dc:"用户openId"`
+	SessionKey string `json:"session_key"`
+	UnionID    string `json:"unionid" dc:"用户unionId"`
+
+	AccessToken  string      `json:"accessToken"        description:"授权token"`
+	RefreshToken string      `json:"refreshToken"       description:"微信用户授权刷新Token"`
+	ExpiresIn    *gtime.Time `json:"expiresIn"          description:"令牌过期时间"`
 
 	NickName   string `json:"nickname" dc:"昵称"`
 	Sex        int    `json:"sex" dc:"性别"`

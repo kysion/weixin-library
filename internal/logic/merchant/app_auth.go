@@ -96,12 +96,12 @@ func GetToken(ctx context.Context, thirdAppId, componentAccessToken string, merc
 }
 
 // RefreshToken 刷新Token
-func (s *sAppAuth) RefreshToken(ctx context.Context, merchantAppId, thirdAppId string) (bool, error) {
+func (s *sAppAuth) RefreshToken(ctx context.Context, merchantAppId, thirdAppId, refreshToken string) (bool, error) {
 
-	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, merchantAppId)
-	if err != nil {
-		return false, err
-	}
+	//merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, merchantAppId)
+	//if err != nil {
+	//	return false, err
+	//}
 
 	thirdApp, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, thirdAppId)
 	if err != nil {
@@ -109,7 +109,7 @@ func (s *sAppAuth) RefreshToken(ctx context.Context, merchantAppId, thirdAppId s
 	}
 
 	// 2.获取授权方商家的authorizer_access_token
-	return GetToken(ctx, thirdApp.AppId, thirdApp.AppAuthToken, merchantAppId, merchantApp.RefreshToken)
+	return GetToken(ctx, thirdApp.AppId, thirdApp.AppAuthToken, merchantAppId, refreshToken)
 
 }
 

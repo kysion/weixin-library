@@ -159,6 +159,9 @@ func (c *cMerchantService) UserLogin(ctx context.Context, req *weixin_merchant_a
 	weixin_service.UserAuth().UserLogin(ctx, g.Map{
 		"code":   req.Code,
 		"app_id": appId,
+		//"sys_user_id": sysUserId,
+		// TODO
+		//"merchant_id": companyRes.Id,
 	})
 
 	return "success", nil
@@ -183,7 +186,7 @@ func (c *cMerchantService) RefreshToken(ctx context.Context, _ *weixin_merchant_
 		return false, err
 	}
 
-	ret, err := weixin_service.AppAuth().RefreshToken(ctx, appId, thirdApp.AppId)
+	ret, err := weixin_service.AppAuth().RefreshToken(ctx, appId, thirdApp.AppId, merchantApp.RefreshToken)
 
 	return ret == true, err
 }

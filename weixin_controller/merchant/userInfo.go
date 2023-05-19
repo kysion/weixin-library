@@ -80,7 +80,7 @@ func (c *cUserInfo) GetTinyAppUserInfo(ctx context.Context, req *weixin_merchant
 
 	// weixin_service.Consumer().GetConsumerByOpenId(ctx, req.OpenId)
 
-	res, err := weixin_service.UserAuth().GetTinyAppUserInfo(ctx, wConsumer.SessionKey, req.EncryptedData, req.IV, appId)
+	res, err := weixin_service.UserAuth().GetTinyAppUserInfo(ctx, wConsumer.SessionKey, req.EncryptedData, req.IV, appId, wConsumer.OpenId)
 
 	return res, err
 }
