@@ -60,6 +60,7 @@ var (
 					weixin_controller.WeiXin.WeiXinServices,     // 消息接收
 					weixin_controller.WeiXin.WeiXinCallback,     // 网关回调
 					weixin_controller.WeiXin.WeiXinCallbackPost, // 网关回调
+					weixin_controller.WeiXin.NotifyServices,     // 支付异步通知
 					weixin_controller.WeiXin.CheckSignature,
 
 					// 刷新授权Token

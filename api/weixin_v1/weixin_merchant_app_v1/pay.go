@@ -5,11 +5,12 @@ import (
 	"github.com/kysion/weixin-library/weixin_model"
 )
 
-type TestSDKReq struct {
-	g.Meta `path:"/testSDK" method:"get" summary:"测试SDK" tags:"WeiXin支付"`
+type DownloadCertificatesReq struct {
+	g.Meta `path:"/:appId/downloadCertificates" method:"get" summary:"获取平台证书" tags:"WeiXin支付"`
 }
 
-type JsapiCreateOrderReq struct {
-	g.Meta `path:"/:appId/jsapiCreateOrder" method:"get" summary:"JsApi下单" tags:"WeiXin支付"`
+type PayTradeCreateReq struct {
+	g.Meta `path:"/:appId/payTradeCreate" method:"post" summary:"支付下单" tags:"WeiXin支付"`
+	OpenId string `json:"open_id" dc:"微信用户OpenId"`
 	weixin_model.TradeOrder
 }

@@ -1,5 +1,17 @@
 package weixin_consts
 
+type global struct {
+	PayCertP12Path       string // 包含私钥的证书文件
+	PayPublicKeyPemPath  string // 公钥
+	PayPrivateKeyPemPath string // 私钥
+
+	TradeHookExpireAt int64 // 交易Hook过期时间
+}
+
+var (
+	Global = global{}
+)
+
 //type global struct {
 //	AppId      string
 //	AppSecret  string

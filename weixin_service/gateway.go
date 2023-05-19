@@ -16,6 +16,37 @@ import (
 )
 
 type (
+	IMerchantAppConfig interface {
+		GetMerchantAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinMerchantAppConfig, error)
+		GetMerchantAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinMerchantAppConfig, error)
+		GetMerchantAppConfigBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinMerchantAppConfig, error)
+		CreateMerchantAppConfig(ctx context.Context, info *weixin_model.WeixinMerchantAppConfig) (*weixin_model.WeixinMerchantAppConfig, error)
+		UpdateMerchantAppConfig(ctx context.Context, id int64, info *weixin_model.UpdateMerchantAppConfig) (bool, error)
+		UpdateState(ctx context.Context, id int64, state int) (bool, error)
+		UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateMerchantAppAuthToken) (bool, error)
+		UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigReq) (bool, error)
+		UpdateAppConfigHttps(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigHttpsReq) (bool, error)
+	}
+	IPayMerchant interface {
+		GetPayMerchantById(ctx context.Context, id int64) (*weixin_model.PayMerchant, error)
+		GetPayMerchantByMchid(ctx context.Context, id int) (*weixin_model.PayMerchant, error)
+		GetPayMerchantBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.PayMerchant, error)
+		CreatePayMerchant(ctx context.Context, info *weixin_model.PayMerchant) (*weixin_model.PayMerchant, error)
+		UpdatePayMerchant(ctx context.Context, id int64, info *weixin_model.UpdatePayMerchant) (bool, error)
+		SetCertAndKey(ctx context.Context, id int64, info *weixin_model.SetCertAndKey) (bool, error)
+		SetAuthPath(ctx context.Context, info *weixin_model.SetAuthPath) (bool, error)
+		SetPayMerchantUnionId(ctx context.Context, info *weixin_model.SetPayMerchantUnionId) (bool, error)
+		SetBankcardAccount(ctx context.Context, info *weixin_model.SetBankcardAccount) (bool, error)
+	}
+	IPaySubMerchant interface {
+		GetPaySubMerchantById(ctx context.Context, id int64) (*weixin_model.WeixinPaySubMerchant, error)
+		GetPaySubMerchantByAppId(ctx context.Context, appId string) (*weixin_model.WeixinPaySubMerchant, error)
+		GetPaySubMerchantByMchid(ctx context.Context, id int) (*weixin_model.WeixinPaySubMerchant, error)
+		GetPaySubMerchantBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinPaySubMerchant, error)
+		CreatePaySubMerchant(ctx context.Context, info *weixin_model.WeixinPaySubMerchant) (*weixin_model.WeixinPaySubMerchant, error)
+		UpdatePaySubMerchant(ctx context.Context, id int64, info *weixin_model.UpdatePaySubMerchant) (bool, error)
+		SetAuthPath(ctx context.Context, info *weixin_model.SetSubMerchantAuthPath) (bool, error)
+	}
 	IThirdAppConfig interface {
 		GetThirdAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinThirdAppConfig, error)
 		GetThirdAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinThirdAppConfig, error)
@@ -41,85 +72,23 @@ type (
 		GetConsumerById(ctx context.Context, id int64) (*weixin_model.WeixinConsumerConfig, error)
 		GetConsumerBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinConsumerConfig, error)
 		GetConsumerByOpenId(ctx context.Context, openId string, unionId ...string) (*weixin_model.WeixinConsumerConfig, error)
+		QueryConsumerByUnionId(ctx context.Context, unionId string) (*weixin_model.WeixinConsumerConfigListRes, error)
 		CreateConsumer(ctx context.Context, info *weixin_model.WeixinConsumerConfig) (*weixin_model.WeixinConsumerConfig, error)
 		UpdateConsumer(ctx context.Context, id int64, info *weixin_model.UpdateConsumerReq) (bool, error)
 		UpdateConsumerState(ctx context.Context, id int64, state int) (bool, error)
 		UpdateConsumerToken(ctx context.Context, openId string, info *weixin_model.UpdateConsumerTokenReq) (bool, error)
 	}
-	IMerchantAppConfig interface {
-		GetMerchantAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinMerchantAppConfig, error)
-		GetMerchantAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinMerchantAppConfig, error)
-		GetMerchantAppConfigBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinMerchantAppConfig, error)
-		CreateMerchantAppConfig(ctx context.Context, info *weixin_model.WeixinMerchantAppConfig) (*weixin_model.WeixinMerchantAppConfig, error)
-		UpdateMerchantAppConfig(ctx context.Context, id int64, info *weixin_model.UpdateMerchantAppConfig) (bool, error)
-		UpdateState(ctx context.Context, id int64, state int) (bool, error)
-		UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateMerchantAppAuthToken) (bool, error)
-		UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigReq) (bool, error)
-		UpdateAppConfigHttps(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigHttpsReq) (bool, error)
-	}
-	IPayMerchant interface {
-		GetPayMerchantById(ctx context.Context, id int64) (*weixin_model.PayMerchant, error)
-		GetPayMerchantByMchid(ctx context.Context, id int) (*weixin_model.PayMerchant, error)
-		GetPayMerchantBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.PayMerchant, error)
-		CreatePayMerchant(ctx context.Context, info *weixin_model.PayMerchant) (*weixin_model.PayMerchant, error)
-		UpdatePayMerchant(ctx context.Context, id int64, info *weixin_model.UpdatePayMerchant) (bool, error)
-		SetCertAndKey(ctx context.Context, mchId int64, info *weixin_model.SetCertAndKey) (bool, error)
-		SetAuthPath(ctx context.Context, info *weixin_model.SetAuthPath) (bool, error)
-		SetPayMerchantUnionId(ctx context.Context, info *weixin_model.SetPayMerchantUnionId) (bool, error)
-		SetBankcardAccount(ctx context.Context, info *weixin_model.SetBankcardAccount) (bool, error)
-	}
-	IPaySubMerchant interface {
-		GetPaySubMerchantById(ctx context.Context, id int64) (*weixin_model.WeixinPaySubMerchant, error)
-		GetPaySubMerchantByMchid(ctx context.Context, id int) (*weixin_model.WeixinPaySubMerchant, error)
-		GetPaySubMerchantBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinPaySubMerchant, error)
-		CreatePaySubMerchant(ctx context.Context, info *weixin_model.WeixinPaySubMerchant) (*weixin_model.WeixinPaySubMerchant, error)
-		UpdatePaySubMerchant(ctx context.Context, id int64, info *weixin_model.UpdatePaySubMerchant) (bool, error)
-		SetAuthPath(ctx context.Context, info *weixin_model.SetSubMerchantAuthPath) (bool, error)
-	}
 )
 
 var (
+	localPayMerchant       IPayMerchant
+	localPaySubMerchant    IPaySubMerchant
 	localThirdAppConfig    IThirdAppConfig
 	localGateway           IGateway
 	localTicket            ITicket
 	localConsumer          IConsumer
 	localMerchantAppConfig IMerchantAppConfig
-	localPayMerchant       IPayMerchant
-	localPaySubMerchant    IPaySubMerchant
 )
-
-func Gateway() IGateway {
-	if localGateway == nil {
-		panic("implement not found for interface IGateway, forgot register?")
-	}
-	return localGateway
-}
-
-func RegisterGateway(i IGateway) {
-	localGateway = i
-}
-
-func Ticket() ITicket {
-	if localTicket == nil {
-		panic("implement not found for interface ITicket, forgot register?")
-	}
-	return localTicket
-}
-
-func RegisterTicket(i ITicket) {
-	localTicket = i
-}
-
-func Consumer() IConsumer {
-	if localConsumer == nil {
-		panic("implement not found for interface IConsumer, forgot register?")
-	}
-	return localConsumer
-}
-
-func RegisterConsumer(i IConsumer) {
-	localConsumer = i
-}
 
 func MerchantAppConfig() IMerchantAppConfig {
 	if localMerchantAppConfig == nil {
@@ -163,4 +132,37 @@ func ThirdAppConfig() IThirdAppConfig {
 
 func RegisterThirdAppConfig(i IThirdAppConfig) {
 	localThirdAppConfig = i
+}
+
+func Gateway() IGateway {
+	if localGateway == nil {
+		panic("implement not found for interface IGateway, forgot register?")
+	}
+	return localGateway
+}
+
+func RegisterGateway(i IGateway) {
+	localGateway = i
+}
+
+func Ticket() ITicket {
+	if localTicket == nil {
+		panic("implement not found for interface ITicket, forgot register?")
+	}
+	return localTicket
+}
+
+func RegisterTicket(i ITicket) {
+	localTicket = i
+}
+
+func Consumer() IConsumer {
+	if localConsumer == nil {
+		panic("implement not found for interface IConsumer, forgot register?")
+	}
+	return localConsumer
+}
+
+func RegisterConsumer(i IConsumer) {
+	localConsumer = i
 }

@@ -48,3 +48,9 @@ type CheckSignatureReq struct {
 type StartPushTicketReq struct {
 	g.Meta `path:"/:appId/api_start_push_ticket" method:"get" summary:"让微信重新推送票据" tags:"WeiXin"`
 }
+
+// https://www.kuaimk.com/weixin/wxfuvfrnkh1lkm7/gateway.notify
+
+type NotifyServicesReq struct {
+	g.Meta `path:"/:appId/gateway.notify" method:"post" summary:"支付异步通知" tags:"WeiXin"`
+}
