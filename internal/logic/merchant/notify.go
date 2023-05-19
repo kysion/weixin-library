@@ -101,12 +101,15 @@ func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
 		transactionJson, _ := gjson.Encode(transaction)
 		{
 			// a. 将交易元数据存储至 kmk_order
+			outTradeNo := gconv.Int64(transaction.OutTradeNo)  // 商户订单号，是我们自己指定的，OutTradeNo = orderId
+			tradeId := gconv.String(transaction.TransactionId) // 微信交易凭证id。
+			tradeJson := gconv.String(transactionJson)         // 交易元数据
+
 			info := pay_model.UpdateOrderTradeInfo{
-				Id:              gconv.Int64(transaction.OutTradeNo),     // 商户订单号，是我们自己指定的，OutTradeNo = orderId
-				PlatformOrderId: gconv.String(transaction.TransactionId), // 微信交易凭证id。
-				TradeSource:     gconv.String(transactionJson),           // 交易元数据
+				PlatformOrderId: &tradeId,   // 微信交易凭证id。
+				TradeSource:     &tradeJson, // 交易元数据
 			}
-			_, err := pay_service.Order().UpdateOrderTradeSource(ctx, &info)
+			_, err := pay_service.Order().UpdateOrderTradeSource(ctx, outTradeNo, &info)
 			if err != nil {
 				return err
 			}

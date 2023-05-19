@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/pay-share-library/pay_model/pay_enum"
 	"github.com/kysion/pay-share-library/pay_service"
@@ -12,7 +13,6 @@ import (
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/certificates"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/partnerpayments/jsapi"
 	"log"
@@ -100,7 +100,7 @@ func (s *sWeiXinPay) makePayParams(ctx context.Context, orderId, appId, prepay_i
 		AppId:     appId,
 		TimeStamp: strconv.FormatInt(time.Now().Unix(), 10),
 		NonceStr:  utility.Md5Hash(orderId),
-		Package:   prepay_id,
+		Package:   "prepay_id=" + prepay_id,
 		SignType:  "RSA",
 		PaySign:   "",
 	}
@@ -115,7 +115,7 @@ func (s *sWeiXinPay) makePayParams(ctx context.Context, orderId, appId, prepay_i
 	var content = ret.AppId + "\n" +
 		ret.TimeStamp + "\n" +
 		ret.NonceStr + "\n" +
-		"prepay_id=" + ret.Package + "\n"
+		ret.Package + "\n"
 
 	// 2.计算签名值paySign = appId、timeStamp、nonceStr、package ==》 通过私钥进行SHA256 with RSA签名 ==》 对签名结果进行Base64编码得到签名值
 	privateKey, err := weixin.LoadPrivateKey(spMerchant.PayPrivateKeyPem)
@@ -263,8 +263,14 @@ func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.Tr
 // TODO 补充下单 （Native、JSAPI、APP等不同场景生成交易串调起支付。）
 
 // QueryOrderByIdMchID 查询订单 （1.根据tradeNo 2.根据mchId）
-func (s *sWeiXinPay) QueryOrderByIdMchID(ctx context.Context, transactionId string) (*weixin_model.TradeOrderRes, error) {
-	appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+func (s *sWeiXinPay) QueryOrderByIdMchID(ctx context.Context, transactionId string, appID ...string) (*weixin_model.TradeOrderRes, error) {
+	appId := ""
+	if appID[0] == "" && !gstr.HasPrefix(appID[0], "wx") {
+		appId = utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	}
+	appId = appID[0]
+	//
+	//appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 
 	// 通过AppId拿到特约商户商户号
 	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
@@ -306,8 +312,12 @@ func (s *sWeiXinPay) QueryOrderByIdMchID(ctx context.Context, transactionId stri
 }
 
 // QueryOrderByIdOutTradeNo 根据支付编号查询订单
-func (s *sWeiXinPay) QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo string) (*weixin_model.TradeOrderRes, error) {
-	appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+func (s *sWeiXinPay) QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo string, appID ...string) (*weixin_model.TradeOrderRes, error) {
+	appId := ""
+	if appID[0] == "" && !gstr.HasPrefix(appID[0], "wx") {
+		appId = utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	}
+	appId = appID[0]
 
 	// 通过AppId拿到特约商户商户号
 	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
@@ -352,8 +362,13 @@ func (s *sWeiXinPay) QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo st
 // 接收支付结果通知接口 NotifyUrl
 
 // CloseOrder 关闭订单接口
-func (s *sWeiXinPay) CloseOrder(ctx context.Context, outTradeNo string) (bool, error) {
-	appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+func (s *sWeiXinPay) CloseOrder(ctx context.Context, outTradeNo string, appID ...string) (bool, error) {
+	//appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	appId := ""
+	if appID[0] == "" && !gstr.HasPrefix(appID[0], "wx") {
+		appId = utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	}
+	appId = appID[0]
 
 	// 通过AppId拿到特约商户商户号
 	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
@@ -367,18 +382,9 @@ func (s *sWeiXinPay) CloseOrder(ctx context.Context, outTradeNo string) (bool, e
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "该应用没有对应的商户号", "WeiXin-Pay")
 	}
 
-	mchPrivateKey, _ := weixin.LoadPrivateKey(spMerchant.PayPrivateKeyPem)
+	payClient, _ := weixin.NewPayClient(ctx, gconv.String(spMerchant.Mchid), spMerchant.PayPrivateKeyPem, spMerchant.CertSerialNumber, spMerchant.ApiV3Key)
 
-	// 使用商户私钥等初始化 client，并使它具有自动定时获取微信支付平台证书的能力
-	opts := []core.ClientOption{
-		option.WithWechatPayAutoAuthCipher(gconv.String(subMerchant.SubMchid), spMerchant.CertSerialNumber, mchPrivateKey, spMerchant.ApiV3Key),
-	}
-	client, err := core.NewClient(ctx, opts...)
-	if err != nil {
-		log.Printf("new wechat pay client err:%s", err)
-	}
-
-	svc := jsapi.JsapiApiService{Client: client}
+	svc := jsapi.JsapiApiService{Client: payClient}
 	result, err := svc.CloseOrder(ctx,
 		jsapi.CloseOrderRequest{
 			OutTradeNo: core.String(outTradeNo),
