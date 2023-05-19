@@ -63,6 +63,18 @@ func (s *sConsumer) GetConsumerByOpenId(ctx context.Context, openId string, unio
 	return &result, nil
 }
 
+// QueryConsumerByUnionId  根据用户unionId查询消费者|列表
+func (s *sConsumer) QueryConsumerByUnionId(ctx context.Context, unionId string) (*weixin_model.WeixinConsumerConfigListRes, error) {
+	daoModel := dao.WeixinConsumerConfig.Ctx(ctx).Where(dao.WeixinConsumerConfig.Columns().UnionId, unionId)
+
+	result, err := daoctl.Query[weixin_model.WeixinConsumerConfig](daoModel, nil, true) // 不分页
+	if err != nil {
+		return &weixin_model.WeixinConsumerConfigListRes{}, err
+	}
+
+	return (*weixin_model.WeixinConsumerConfigListRes)(result), nil
+}
+
 // CreateConsumer  创建消费者信息
 func (s *sConsumer) CreateConsumer(ctx context.Context, info *weixin_model.WeixinConsumerConfig) (*weixin_model.WeixinConsumerConfig, error) {
 	data := do.WeixinConsumerConfig{}

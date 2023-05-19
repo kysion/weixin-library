@@ -42,6 +42,8 @@ type WeixinConsumerConfigColumns struct {
 	DeletedAt          string //
 	UnionId            string // 微信用户union_id，同一个开放平台帐号下的用户只有一个unionId
 	SessionKey         string // 微信用户会话key
+	RefreshToken       string // 微信用户授权刷新Token
+	ExpiresIn          string // 令牌过期时间
 }
 
 // weixinConsumerConfigColumns holds the columns for table weixin_consumer_config.
@@ -65,6 +67,8 @@ var weixinConsumerConfigColumns = WeixinConsumerConfigColumns{
 	DeletedAt:          "deleted_at",
 	UnionId:            "union_id",
 	SessionKey:         "session_key",
+	RefreshToken:       "refresh_token",
+	ExpiresIn:          "expires_in",
 }
 
 // NewWeixinConsumerConfigDao creates and returns a new DAO object for table data access.

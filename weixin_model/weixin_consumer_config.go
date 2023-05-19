@@ -1,6 +1,9 @@
 package weixin_model
 
-import "github.com/gogf/gf/v2/os/gtime"
+import (
+	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/kysion/base-library/base_model"
+)
 
 type WeixinConsumerConfig struct {
 	Id                 int64       `json:"id"                 description:"id"`
@@ -22,6 +25,8 @@ type WeixinConsumerConfig struct {
 	DeletedAt          *gtime.Time `json:"deletedAt"          description:""`
 	UnionId            string      `json:"unionId"            description:"微信用户union_id，同一个公众号下的用户只有一个unionId"`
 	SessionKey         string      `json:"sessionKey"         description:"微信用户会话key"`
+	RefreshToken       string      `json:"refreshToken"       description:"微信用户授权刷新Token"`
+	ExpiresIn          *gtime.Time `json:"expiresIn"          description:"令牌过期时间"`
 }
 
 type UpdateConsumerReq struct {
@@ -37,6 +42,11 @@ type UpdateConsumerTokenReq struct {
 	// Id     int64  `json:"id"                 dc:"id"`
 	// OpenId string `json:"openId"             description:"微信用户openId，不同应用下的用户具备不同的openId"`
 	// UnionId     string `json:"unionId"            description:"微信用户union_id，同一个公众号下的用户只有一个unionId"`
-	AccessToken *string `json:"accessToken"        description:"授权token"`
-	SessionKey  *string `json:"sessionKey"         description:"微信用户会话key"`
+	AccessToken  *string     `json:"accessToken"        description:"授权token"`
+	RefreshToken *string     `json:"refreshToken"       description:"微信用户授权刷新Token"`
+	ExpiresIn    *gtime.Time `json:"expiresIn"          description:"令牌过期时间"`
+
+	SessionKey *string `json:"sessionKey"         description:"微信用户会话key"`
 }
+
+type WeixinConsumerConfigListRes base_model.CollectRes[WeixinConsumerConfig]

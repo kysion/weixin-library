@@ -29,4 +29,6 @@ type WeixinConsumerConfig struct {
 	DeletedAt          *gtime.Time `json:"deletedAt"          description:""`
 	UnionId            string      `json:"unionId"            description:"微信用户union_id，同一个开放平台帐号下的用户只有一个unionId"`
 	SessionKey         string      `json:"sessionKey"         description:"微信用户会话key"`
+	RefreshToken       string      `json:"refreshToken"       description:"微信用户授权刷新Token"`
+	ExpiresIn          *gtime.Time `json:"expiresIn"          description:"令牌过期时间"`
 }

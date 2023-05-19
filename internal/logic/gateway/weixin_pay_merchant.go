@@ -2,9 +2,16 @@ package gateway
 
 import (
 	"context"
+	"fmt"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
+	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/utility/daoctl"
+	"github.com/kysion/weixin-library/utility/file"
+	"github.com/kysion/weixin-library/weixin_consts"
 	"github.com/kysion/weixin-library/weixin_model"
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
@@ -55,8 +62,11 @@ func (s *sPayMerchant) CreatePayMerchant(ctx context.Context, info *weixin_model
 	gconv.Struct(info, &data)
 
 	data.Id = idgen.NextId()
-	if data.UnionAppid == "" {
+	if len(info.UnionAppid) == 0 {
 		data.UnionAppid = nil
+	} else {
+		// 生产指定切片，并去重
+		data.UnionAppid = garray.NewSortedStrArrayFrom(info.UnionAppid).Unique().Slice()
 	}
 
 	affected, err := daoctl.InsertWithError(
@@ -91,12 +101,60 @@ func (s *sPayMerchant) UpdatePayMerchant(ctx context.Context, id int64, info *we
 	return affected > 0, nil
 }
 
-// SetCertAndKey  设置商户号证书及密钥文件
-func (s *sPayMerchant) SetCertAndKey(ctx context.Context, mchId int64, info *weixin_model.SetCertAndKey) (bool, error) {
-	data := do.WeixinPayMerchant{}
-	gconv.Struct(info, &data)
+// 从配置文件中获取文件路径
+func getFilePath() {
+	weixin_consts.Global.PayCertP12Path = g.Cfg().MustGet(context.Background(), "service.payCertP12").String()
+	weixin_consts.Global.PayPublicKeyPemPath = g.Cfg().MustGet(context.Background(), "service.payPublicKeyPem").String()
+	weixin_consts.Global.PayPrivateKeyPemPath = g.Cfg().MustGet(context.Background(), "service.payPrivateKeyPem").String()
+}
 
-	affected, err := daoctl.UpdateWithError(dao.WeixinPayMerchant.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinPayMerchant{Mchid: mchId}))
+// 加载文件内容
+func loadFileData(info *weixin_model.SetCertAndKey) *weixin_model.SetCertAndKey {
+
+	//// 硬编码 加载商户号证书密钥文件
+	//getFilePath()
+	//PayCertP12Data, _ := file.GetFile(weixin_consts.Global.PayCertP12Path)
+	//PayPublicKeyPemData, _ := file.GetFile(weixin_consts.Global.PayPublicKeyPemPath)
+	//PayPrivateKeyPemData, _ := file.GetFile(weixin_consts.Global.PayPrivateKeyPemPath)
+
+	res := weixin_model.SetCertAndKey{
+		ApiV3Key:         info.ApiV3Key,
+		ApiV2Key:         info.ApiV2Key,
+		PayCertP12:       info.PayCertP12,
+		PayPublicKeyPem:  info.PayPublicKeyPem,
+		PayPrivateKeyPem: info.PayPrivateKeyPem,
+		CertSerialNumber: info.CertSerialNumber,
+	}
+
+	if gfile.IsFile(info.PayCertP12) {
+		//p12Data, _ := file.GetFile(info.PayCertP12)
+		//res.PayCertP12 = string(p12Data)
+	}
+
+	if gfile.IsFile(info.PayPublicKeyPem) {
+		pubData, _ := file.GetFile(info.PayPublicKeyPem)
+		res.PayPublicKeyPem = string(pubData)
+	}
+
+	if gfile.IsFile(info.PayPrivateKeyPem) {
+		priData, _ := file.GetFile(info.PayPrivateKeyPem)
+		res.PayPrivateKeyPem = string(priData)
+	}
+
+	fmt.Println(info)
+
+	return &res
+}
+
+// SetCertAndKey  设置商户号证书及密钥文件
+func (s *sPayMerchant) SetCertAndKey(ctx context.Context, id int64, info *weixin_model.SetCertAndKey) (bool, error) {
+	fileData := loadFileData(info)
+
+	// 读取文件
+	data := do.WeixinPayMerchant{}
+	gconv.Struct(fileData, &data)
+
+	affected, err := daoctl.UpdateWithError(dao.WeixinPayMerchant.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinPayMerchant{Id: id}))
 
 	if err != nil {
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "设置商户号证书及密钥文件失败", dao.WeixinPayMerchant.Table())
@@ -119,17 +177,29 @@ func (s *sPayMerchant) SetAuthPath(ctx context.Context, info *weixin_model.SetAu
 
 // SetPayMerchantUnionId 设置商户号关联的AppId
 func (s *sPayMerchant) SetPayMerchantUnionId(ctx context.Context, info *weixin_model.SetPayMerchantUnionId) (bool, error) {
-	// TODO AppId需要进行排查，已经存在的不设置，不存在的进行设置，是一个数组结构 "["wx13r3453534","wx908989fsf7s9f9s"]"
-	//data := do.WeixinPayMerchant{}
-	//gconv.Struct(info, &data)
-	//
-	//affected, err := daoctl.UpdateWithError(dao.WeixinPayMerchant.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinPayMerchant{Id: info.Id}))
-	//
-	//if err != nil {
-	//	return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商户号基础修改失败", dao.WeixinPayMerchant.Table())
-	//}
-	//return affected > 0, err
-	return true, nil
+	selectInfo, err := s.GetPayMerchantByMchid(ctx, info.Mchid)
+	if err != nil {
+		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商户号不存在，请检查", dao.WeixinPayMerchant.Table())
+	}
+
+	if len(info.UnionAppid) != 0 {
+		if len(selectInfo.UnionAppid) > 0 {
+			// 将指定切片复制，并去重
+			info.UnionAppid = garray.NewSortedStrArrayFrom(append(info.UnionAppid, selectInfo.UnionAppid...)).Unique().Slice()
+		}
+	}
+
+	data := do.WeixinPayMerchant{}
+	gconv.Struct(info, &data)
+
+	data.UnionAppid, _ = gjson.Encode(info.UnionAppid)
+
+	affected, err := daoctl.UpdateWithError(dao.WeixinPayMerchant.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinPayMerchant{Mchid: info.Mchid}))
+
+	if err != nil {
+		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商户号基础修改失败", dao.WeixinPayMerchant.Table())
+	}
+	return affected > 0, err
 }
 
 // SetBankcardAccount 设置商户号银行卡号

@@ -19,8 +19,9 @@ type PayMerchant struct {
 	UnionMainId       int64       `json:"unionMainId"       description:"用户关联主体"`
 	UnionMainType     int         `json:"unionMainType"     description:"用户类型"`
 	BankcardAccount   string      `json:"bankcardAccount"   description:"银行结算账户,用于交易和提现"`
-	UnionAppid        string      `json:"unionAppid"        description:"该商户号关联的AppId，微信支付接入模式属于直连模式，限制只能是同一主体下的App列表"`
+	UnionAppid        []string    `json:"unionAppid"        description:"该商户号关联的AppId，微信支付接入模式属于直连模式，限制只能是同一主体下的App列表"`
 	UpdatedAt         *gtime.Time `json:"updatedAt"         description:""`
+	AppId             string      `json:"appId"             description:"商户号 对应的公众号的服务号APPID"`
 }
 
 type PayMerchantRes PayMerchant
@@ -39,9 +40,9 @@ type SetPayMerchantUnionId struct {
 type SetCertAndKey struct {
 	ApiV3Key         *string `json:"apiV3Key"          description:"用于ApiV3平台证书解密、回调信息解密"`
 	ApiV2Key         *string `json:"apiV2Key"          description:"用于ApiV2平台证书解密、回调信息解密"`
-	PayCertP12       *string `json:"payCertP12"        description:"支付证书文件"`
-	PayPublicKeyPem  *string `json:"payPublicKeyPem"   description:"公钥文件"`
-	PayPrivateKeyPem *string `json:"payPrivateKeyPem"  description:"私钥文件"`
+	PayCertP12       string  `json:"payCertP12"        description:"支付证书文件"`
+	PayPublicKeyPem  string  `json:"payPublicKeyPem"   description:"公钥文件"`
+	PayPrivateKeyPem string  `json:"payPrivateKeyPem"  description:"私钥文件"`
 	CertSerialNumber *string `json:"certSerialNumber"  description:"证书序列号"`
 }
 

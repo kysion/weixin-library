@@ -41,6 +41,7 @@ type WeixinPayMerchantColumns struct {
 	BankcardAccount   string // 银行结算账户,用于交易和提现
 	UnionAppid        string // 该商户号关联的AppId，微信支付接入模式属于直连模式，限制只能是同一主体下的App列表
 	UpdatedAt         string //
+	AppId             string // 商户号 对应的公众号的服务号APPID
 }
 
 // weixinPayMerchantColumns holds the columns for table weixin_pay_merchant.
@@ -63,6 +64,7 @@ var weixinPayMerchantColumns = WeixinPayMerchantColumns{
 	BankcardAccount:   "bankcard_account",
 	UnionAppid:        "union_appid",
 	UpdatedAt:         "updated_at",
+	AppId:             "app_id",
 }
 
 // NewWeixinPayMerchantDao creates and returns a new DAO object for table data access.

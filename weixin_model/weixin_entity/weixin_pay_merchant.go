@@ -28,4 +28,5 @@ type WeixinPayMerchant struct {
 	BankcardAccount   string      `json:"bankcardAccount"   description:"银行结算账户,用于交易和提现"`
 	UnionAppid        string      `json:"unionAppid"        description:"该商户号关联的AppId，微信支付接入模式属于直连模式，限制只能是同一主体下的App列表"`
 	UpdatedAt         *gtime.Time `json:"updatedAt"         description:""`
+	AppId             string      `json:"appId"             description:"商户号 对应的公众号的服务号APPID"`
 }

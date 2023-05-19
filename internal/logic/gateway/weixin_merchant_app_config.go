@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/os/gcache"
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/utility/daoctl"
@@ -12,6 +13,7 @@ import (
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
+	"github.com/kysion/weixin-library/weixin_service"
 	"github.com/yitter/idgenerator-go/idgen"
 	"time"
 )
@@ -38,8 +40,18 @@ func (s *sMerchantAppConfig) GetMerchantAppConfigByAppId(ctx context.Context, id
 	data := weixin_model.WeixinMerchantAppConfig{}
 
 	err := dao.WeixinMerchantAppConfig.Ctx(ctx).Where(do.WeixinMerchantAppConfig{AppId: id}).Scan(&data)
+	if err != nil {
+		return nil, err
+	}
 
-	return &data, err
+	if gtime.Now().After(data.ExpiresIn) { // 如果Token已经过期
+		_, err := weixin_service.AppAuth().RefreshToken(ctx, id, data.ThirdAppId, data.RefreshToken)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return s.GetMerchantAppConfigById(ctx, data.Id)
 }
 
 // GetMerchantAppConfigBySysUserId  根据商家id查询商家应用配置信息

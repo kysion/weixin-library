@@ -25,6 +25,15 @@ func (s *sPaySubMerchant) GetPaySubMerchantById(ctx context.Context, id int64) (
 	return daoctl.GetByIdWithError[weixin_model.WeixinPaySubMerchant](dao.WeixinPaySubMerchant.Ctx(ctx), id)
 }
 
+// GetPaySubMerchantByAppId 根据AppId查找特约商户配置信息
+func (s *sPaySubMerchant) GetPaySubMerchantByAppId(ctx context.Context, appId string) (*weixin_model.WeixinPaySubMerchant, error) {
+	data := weixin_model.WeixinPaySubMerchant{}
+
+	err := dao.WeixinPaySubMerchant.Ctx(ctx).Where(do.WeixinPaySubMerchant{SubAppid: appId}).Scan(&data)
+
+	return &data, err
+}
+
 // GetPaySubMerchantByMchid 根据Mchid查找特约商户配置信息
 func (s *sPaySubMerchant) GetPaySubMerchantByMchid(ctx context.Context, id int) (*weixin_model.WeixinPaySubMerchant, error) {
 	data := weixin_model.WeixinPaySubMerchant{}

@@ -31,4 +31,6 @@ type WeixinConsumerConfig struct {
 	DeletedAt          *gtime.Time //
 	UnionId            interface{} // 微信用户union_id，同一个开放平台帐号下的用户只有一个unionId
 	SessionKey         interface{} // 微信用户会话key
+	RefreshToken       interface{} // 微信用户授权刷新Token
+	ExpiresIn          *gtime.Time // 令牌过期时间
 }
