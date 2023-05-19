@@ -13,26 +13,10 @@ import (
 	"github.com/kysion/weixin-library/weixin_model"
 	hook "github.com/kysion/weixin-library/weixin_model/weixin_hook"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/certificates"
+	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
 )
 
 type (
-	IWeiXinPay interface {
-		PayTradeCreate(ctx context.Context, info *weixin_model.TradeOrder, openId string) (*weixin_model.PayParamsRes, error)
-		DownloadCertificates(ctx context.Context) (*certificates.DownloadCertificatesResponse, error)
-		JsapiCreateOrder(ctx context.Context, info *weixin_model.TradeOrder, openId string) (tradeNo string, err error)
-		QueryOrderByIdMchID(ctx context.Context, transactionId string) (*weixin_model.TradeOrderRes, error)
-		QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo string) (*weixin_model.TradeOrderRes, error)
-		CloseOrder(ctx context.Context, outTradeNo string) (bool, error)
-		DownloadAccountBill(ctx context.Context, mchId string)
-	}
-	IUserAuth interface {
-		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
-		GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
-		GetMiniAppUserInfo(ctx context.Context, authCode string, appId string, getDetail bool) (*weixin_model.UserInfoRes, error)
-		UserAuthCallback(ctx context.Context, info g.Map) bool
-		UserLogin(ctx context.Context, info g.Map) (string, error)
-		GetTinyAppUserInfo(ctx context.Context, sessionKey, encryptedData, iv, appId string, openId string) (*weixin_model.UserInfoRes, error)
-	}
 	IAppAuth interface {
 		RefreshToken(ctx context.Context, merchantAppId, thirdAppId, refreshToken string) (bool, error)
 		AppAuth(ctx context.Context, info g.Map) bool
@@ -44,16 +28,46 @@ type (
 		WechatpayDownloadCerts(ctx context.Context)
 	}
 	IMerchantNotify interface {
+		InstallNotifyHook(hookKey hook.NotifyKey, hookFunc hook.NotifyHookFunc)
+		InstallTradeHook(hookKey hook.TradeHookKey, hookFunc hook.TradeHookFunc)
 		NotifyServices(ctx context.Context) (string, error)
+	}
+	IWeiXinPay interface {
+		PayTradeCreate(ctx context.Context, info *weixin_model.TradeOrder, openId string) (*weixin_model.PayParamsRes, error)
+		DownloadCertificates(ctx context.Context) (*certificates.DownloadCertificatesResponse, error)
+		JsapiCreateOrder(ctx context.Context, info *weixin_model.TradeOrder, openId string) (tradeNo string, err error)
+		QueryOrderByIdMchID(ctx context.Context, transactionId string, appID ...string) (*weixin_model.TradeOrderRes, error)
+		QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo string, appID ...string) (*weixin_model.TradeOrderRes, error)
+		CloseOrder(ctx context.Context, outTradeNo string, appID ...string) (bool, error)
+		DownloadAccountBill(ctx context.Context, mchId string)
+	}
+	ISubAccount interface {
+		GetSubAccountMaxRatio(ctx context.Context, appId string) (*weixin_model.QueryMerchantRatioRes, error)
+		QuerySubAccountOrder(ctx context.Context, appId string, info *weixin_model.QueryOrderRequest) (*profitsharing.OrdersEntity, error)
+		UnfreezeOrder(ctx context.Context, appId string, info *weixin_model.UnfreezeOrderRequest) (*profitsharing.OrdersEntity, error)
+		SubAccountRequest(ctx context.Context, appId string, info *weixin_model.SubAccountReq) (*profitsharing.OrdersEntity, error)
+		QueryOrderAmount(ctx context.Context, appId string, info *weixin_model.QueryOrderAmountRequest) (*profitsharing.QueryOrderAmountResponse, error)
+		AddReceiver(ctx context.Context, appId string, info weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error)
+		DeleteReceiver(ctx context.Context, appId string, info weixin_model.DeleteReceiverRequest) (*profitsharing.DeleteReceiverResponse, error)
+	}
+	IUserAuth interface {
+		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
+		GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
+		UserAuthCallback(ctx context.Context, info g.Map) bool
+		GetMiniAppUserInfo(ctx context.Context, authCode string, appId string, getDetail bool) (*weixin_model.UserInfoRes, error)
+		UserLogin(ctx context.Context, info g.Map) (string, error)
+		GetMinoUserAccessToken(ctx context.Context)
+		GetTinyAppUserInfo(ctx context.Context, sessionKey, encryptedData, iv, appId string, openId string) (*weixin_model.UserInfoRes, error)
 	}
 )
 
 var (
+	localUserAuth       IUserAuth
+	localAppAuth        IAppAuth
 	localWeiXinCert     IWeiXinCert
 	localMerchantNotify IMerchantNotify
 	localWeiXinPay      IWeiXinPay
-	localUserAuth       IUserAuth
-	localAppAuth        IAppAuth
+	localSubAccount     ISubAccount
 )
 
 func UserAuth() IUserAuth {
@@ -109,4 +123,15 @@ func WeiXinPay() IWeiXinPay {
 
 func RegisterWeiXinPay(i IWeiXinPay) {
 	localWeiXinPay = i
+}
+
+func SubAccount() ISubAccount {
+	if localSubAccount == nil {
+		panic("implement not found for interface ISubAccount, forgot register?")
+	}
+	return localSubAccount
+}
+
+func RegisterSubAccount(i ISubAccount) {
+	localSubAccount = i
 }
