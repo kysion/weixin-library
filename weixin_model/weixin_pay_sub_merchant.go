@@ -1,6 +1,9 @@
 package weixin_model
 
-import "github.com/gogf/gf/v2/os/gtime"
+import (
+	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/kysion/base-library/base_model"
+)
 
 type WeixinPaySubMerchant struct {
 	Id                   int64       `json:"id"                   description:"ID"`
@@ -17,6 +20,7 @@ type WeixinPaySubMerchant struct {
 	JsapiAuthPath        string      `json:"jsapiAuthPath"        description:"JSAPI支付授权目录"`
 	H5AuthPath           string      `json:"h5AuthPath"           description:"H5支付授权目录"`
 	UpdatedAt            *gtime.Time `json:"updatedAt"            description:""`
+	MerchantType         int         `json:"merchantType"         description:"商户号类型：1服务商、2商户、4门店商家"`
 }
 
 type PaySubMerchantRes WeixinPaySubMerchant
@@ -39,3 +43,5 @@ type SetSubMerchantAuthPath struct {
 	JsapiAuthPath *string `json:"jsapiAuthPath"     description:"JSAPI支付授权目录"`
 	H5AuthPath    *string `json:"h5AuthPath"           description:"H5支付授权目录"`
 }
+
+type WeixinPaySubMerchantList base_model.CollectRes[WeixinPaySubMerchant]

@@ -4,11 +4,13 @@ import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/kysion/base-library/base_model"
 	"github.com/kysion/base-library/utility/daoctl"
 	"github.com/kysion/weixin-library/weixin_model"
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
+	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/yitter/idgenerator-go/idgen"
 )
 
@@ -29,7 +31,8 @@ func (s *sPaySubMerchant) GetPaySubMerchantById(ctx context.Context, id int64) (
 func (s *sPaySubMerchant) GetPaySubMerchantByAppId(ctx context.Context, appId string) (*weixin_model.WeixinPaySubMerchant, error) {
 	data := weixin_model.WeixinPaySubMerchant{}
 
-	err := dao.WeixinPaySubMerchant.Ctx(ctx).Where(do.WeixinPaySubMerchant{SubAppid: appId}).Scan(&data)
+	// 应用技术开发的特约商户才会有AppID
+	err := dao.WeixinPaySubMerchant.Ctx(ctx).Where(do.WeixinPaySubMerchant{SubAppid: appId, MerchantType: weixin_enum.Pay.MerchantType.SubMerchant.Code()}).Scan(&data)
 
 	return &data, err
 }
@@ -55,6 +58,18 @@ func (s *sPaySubMerchant) GetPaySubMerchantBySysUserId(ctx context.Context, sysU
 	}
 
 	return &result, nil
+}
+
+// QueryPaySubMerchant 查询列表
+func (s *sPaySubMerchant) QueryPaySubMerchant(ctx context.Context, params *base_model.SearchParams, isExport bool) (*weixin_model.WeixinPaySubMerchantList, error) {
+	//result := weixin_model.WeixinPaySubMerchant{}
+	result, err := daoctl.Query[weixin_model.WeixinPaySubMerchant](dao.WeixinPaySubMerchant.Ctx(ctx), params, isExport)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return (*weixin_model.WeixinPaySubMerchantList)(result), nil
 }
 
 // CreatePaySubMerchant  创建特约商户配置信息

@@ -17,6 +17,25 @@ import (
 )
 
 type (
+	ISubAccount interface {
+		GetSubAccountMaxRatio(ctx context.Context, appId string) (*weixin_model.QueryMerchantRatioRes, error)
+		QuerySubAccountOrder(ctx context.Context, appId string, info *weixin_model.QueryOrderRequest) (*profitsharing.OrdersEntity, error)
+		UnfreezeOrder(ctx context.Context, appId string, info *weixin_model.UnfreezeOrderRequest) (*profitsharing.OrdersEntity, error)
+		SubAccountRequest(ctx context.Context, appId string, info *weixin_model.SubAccountReq) (*profitsharing.OrdersEntity, error)
+		QueryOrderAmount(ctx context.Context, appId string, info *weixin_model.QueryOrderAmountRequest) (*profitsharing.QueryOrderAmountResponse, error)
+		AddReceiver(ctx context.Context, appId string, info weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error)
+		AddProfitSharingReceivers(ctx context.Context, appId string, info []weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error)
+		DeleteReceiver(ctx context.Context, appId string, info weixin_model.DeleteReceiverRequest) (*profitsharing.DeleteReceiverResponse, error)
+	}
+	IUserAuth interface {
+		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
+		GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
+		UserAuthCallback(ctx context.Context, info g.Map) bool
+		GetMiniAppUserInfo(ctx context.Context, authCode string, appId string, getDetail bool) (*weixin_model.UserInfoRes, error)
+		UserLogin(ctx context.Context, info g.Map) (string, error)
+		GetMinoUserAccessToken(ctx context.Context)
+		GetTinyAppUserInfo(ctx context.Context, sessionKey, encryptedData, iv, appId string, openId string) (*weixin_model.UserInfoRes, error)
+	}
 	IAppAuth interface {
 		RefreshToken(ctx context.Context, merchantAppId, thirdAppId, refreshToken string) (bool, error)
 		AppAuth(ctx context.Context, info g.Map) bool
@@ -41,45 +60,16 @@ type (
 		CloseOrder(ctx context.Context, outTradeNo string, appID ...string) (bool, error)
 		DownloadAccountBill(ctx context.Context, mchId string)
 	}
-	ISubAccount interface {
-		GetSubAccountMaxRatio(ctx context.Context, appId string) (*weixin_model.QueryMerchantRatioRes, error)
-		QuerySubAccountOrder(ctx context.Context, appId string, info *weixin_model.QueryOrderRequest) (*profitsharing.OrdersEntity, error)
-		UnfreezeOrder(ctx context.Context, appId string, info *weixin_model.UnfreezeOrderRequest) (*profitsharing.OrdersEntity, error)
-		SubAccountRequest(ctx context.Context, appId string, info *weixin_model.SubAccountReq) (*profitsharing.OrdersEntity, error)
-		QueryOrderAmount(ctx context.Context, appId string, info *weixin_model.QueryOrderAmountRequest) (*profitsharing.QueryOrderAmountResponse, error)
-		AddReceiver(ctx context.Context, appId string, info weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error)
-		DeleteReceiver(ctx context.Context, appId string, info weixin_model.DeleteReceiverRequest) (*profitsharing.DeleteReceiverResponse, error)
-	}
-	IUserAuth interface {
-		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
-		GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
-		UserAuthCallback(ctx context.Context, info g.Map) bool
-		GetMiniAppUserInfo(ctx context.Context, authCode string, appId string, getDetail bool) (*weixin_model.UserInfoRes, error)
-		UserLogin(ctx context.Context, info g.Map) (string, error)
-		GetMinoUserAccessToken(ctx context.Context)
-		GetTinyAppUserInfo(ctx context.Context, sessionKey, encryptedData, iv, appId string, openId string) (*weixin_model.UserInfoRes, error)
-	}
 )
 
 var (
+	localWeiXinPay      IWeiXinPay
+	localSubAccount     ISubAccount
 	localUserAuth       IUserAuth
 	localAppAuth        IAppAuth
 	localWeiXinCert     IWeiXinCert
 	localMerchantNotify IMerchantNotify
-	localWeiXinPay      IWeiXinPay
-	localSubAccount     ISubAccount
 )
-
-func UserAuth() IUserAuth {
-	if localUserAuth == nil {
-		panic("implement not found for interface IUserAuth, forgot register?")
-	}
-	return localUserAuth
-}
-
-func RegisterUserAuth(i IUserAuth) {
-	localUserAuth = i
-}
 
 func AppAuth() IAppAuth {
 	if localAppAuth == nil {
@@ -134,4 +124,15 @@ func SubAccount() ISubAccount {
 
 func RegisterSubAccount(i ISubAccount) {
 	localSubAccount = i
+}
+
+func UserAuth() IUserAuth {
+	if localUserAuth == nil {
+		panic("implement not found for interface IUserAuth, forgot register?")
+	}
+	return localUserAuth
+}
+
+func RegisterUserAuth(i IUserAuth) {
+	localUserAuth = i
 }

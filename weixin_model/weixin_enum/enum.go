@@ -4,6 +4,7 @@ import (
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum/internal/consumer"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum/internal/info_type"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum/internal/notify"
+	"github.com/kysion/weixin-library/weixin_model/weixin_enum/internal/weixin_pay"
 )
 
 type (
@@ -19,6 +20,9 @@ type (
 	// ConsumerAction 消费者相关
 	ConsumerAction consumer.ActionEnum
 	Category       consumer.CategoryEnum
+
+	// MerchantType 微信支付
+	MerchantType weixin_pay.MerchantTypeEnum
 )
 
 var (
@@ -30,4 +34,7 @@ var (
 
 	// Consumer 消费者
 	Consumer = consumer.Consumer
+
+	// Pay 微信支付
+	Pay = weixin_pay.Pay
 )

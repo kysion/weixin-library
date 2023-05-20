@@ -32,7 +32,7 @@ func NewPayClient(ctx context.Context, mchId, privateKey, mchCertificateSerialNu
 
 	client, err = core.NewClient(ctx, opts...)
 	if err != nil {
-		log.Fatal("new pay client error")
+		//log.Fatal("new pay client error")
 		return nil, err
 	}
 

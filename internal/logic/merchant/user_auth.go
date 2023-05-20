@@ -537,6 +537,11 @@ func getOpenIDAndSessionKey(code string, appID, thirdAppId string, componentAcce
 	return &res, nil
 }
 
+// GetMinoUserAccessToken 获取小程序用户access_token TODO
+func (s *sUserAuth) GetMinoUserAccessToken(ctx context.Context) {
+
+}
+
 // TODO ----------------------------------------小程序用户信息，还没测试---------------------------------------------------------------------------------------------------------
 type wxUserInfo struct {
 	OpenID    string `json:"openId"`

@@ -117,7 +117,7 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 		fmt.Println("解密后的内容：", data)
 		if data == nil {
 			g.RequestFromCtx(ctx).Response.Write("success")
-			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n解密失败： "+data.InfoType, "sGateway")
+			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n解密失败： ", "sGateway")
 			return "success", nil
 		}
 

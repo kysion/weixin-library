@@ -214,7 +214,7 @@ func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.Tr
 		SpMchid:     core.String(gconv.String(spMchId)),
 		SubAppid:    core.String(subMerchant.SubAppid),
 		SubMchid:    core.String(gconv.String(subMchId)),
-		Description: core.String("筷满客充电站_"),
+		Description: core.String(info.Order.ProductName),
 		OutTradeNo:  core.String(gconv.String(info.Order.Id)), // out_trade_no = order.Id
 		NotifyUrl:   core.String(subApp.NotifyUrl),            // 支付成功后的异步通知地址
 
@@ -234,8 +234,8 @@ func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.Tr
 			StoreInfo: nil,
 		},
 
-		SettleInfo: &jsapi.SettleInfo{ // 是否指定分账
-			ProfitSharing: core.Bool(false),
+		SettleInfo: &jsapi.SettleInfo{ // TODO 是否指定分账 修改为分账
+			ProfitSharing: core.Bool(true),
 			//ProfitSharing: core.Bool(true),
 		},
 
@@ -246,6 +246,8 @@ func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.Tr
 		//SupportFapiao: core.String(), // 开票相关
 		//Detail:     &jsapi.Detail{}, // 优惠功能
 	}
+
+	log.Println("微信JASAPI支付下单数据：", req)
 
 	// 这里是预下单
 	resp, _, err := svc.Prepay(ctx, req) // wx18150015642076d683b4336866f9370000
@@ -347,7 +349,7 @@ func (s *sWeiXinPay) QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo st
 	if err == nil {
 		log.Println(resp)
 	} else {
-		log.Println(err)
+		log.Println("查询订单失败：outTRradeNo：",outTradeNo,err)
 		return &weixin_model.TradeOrderRes{}, sys_service.SysLogs().ErrorSimple(ctx, err, "查询支付订单失败！", "WeiXin-Pay")
 	}
 
@@ -388,18 +390,18 @@ func (s *sWeiXinPay) CloseOrder(ctx context.Context, outTradeNo string, appID ..
 	result, err := svc.CloseOrder(ctx,
 		jsapi.CloseOrderRequest{
 			OutTradeNo: core.String(outTradeNo),
-			SpMchid:    core.String(gconv.String(subMerchant.SubMchid)),
+			SpMchid:    core.String(gconv.String(subMerchant.SpMchid)),
 			SubMchid:   core.String(gconv.String(subMerchant.SubMchid)),
 		},
 	)
 
 	if err != nil {
 		// 处理错误
-		log.Printf("call CloseOrder err:%s", err)
+		log.Printf("关闭订单微信订单失败：call CloseOrder err:%s", err)
 		return false, err
 	} else {
 		// 处理返回结果
-		log.Printf("status=%d", result.Response.StatusCode)
+		log.Printf("关闭订单微信订单：status=%d", result.Response.StatusCode)
 	}
 
 	return result.Response.StatusCode == 200, nil
