@@ -26,4 +26,5 @@ type WeixinPaySubMerchant struct {
 	UpdatedAt            *gtime.Time `json:"updatedAt"            description:""`
 	MerchantType         int         `json:"merchantType"         description:"商户号类型：1服务商、2商户、4门店商家"`
 	MerchantUnionType    int         `json:"merchantUnionType"    description:"特约商户主体类型：1个体工商户、2企业、4事业单位、8社会组织、16政府机关"`
+	BankcardAccount      string      `json:"bankcardAccount"      description:"结算账号，添加特约商户的时候填写的结算银行账户"`
 }

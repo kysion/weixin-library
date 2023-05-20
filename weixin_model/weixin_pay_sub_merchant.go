@@ -21,6 +21,7 @@ type WeixinPaySubMerchant struct {
 	H5AuthPath           string      `json:"h5AuthPath"           description:"H5支付授权目录"`
 	UpdatedAt            *gtime.Time `json:"updatedAt"            description:""`
 	MerchantType         int         `json:"merchantType"         description:"商户号类型：1服务商、2商户、4门店商家"`
+	BankcardAccount      string      `json:"bankcardAccount"      description:"结算账号，添加特约商户的时候填写的结算银行账户"`
 }
 
 type PaySubMerchantRes WeixinPaySubMerchant

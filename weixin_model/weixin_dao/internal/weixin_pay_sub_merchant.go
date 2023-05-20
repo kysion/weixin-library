@@ -39,6 +39,7 @@ type WeixinPaySubMerchantColumns struct {
 	UpdatedAt            string //
 	MerchantType         string // 商户号类型：1服务商、2商户、4门店商家
 	MerchantUnionType    string // 特约商户主体类型：1个体工商户、2企业、4事业单位、8社会组织、16政府机关
+	BankcardAccount      string // 结算账号，添加特约商户的时候填写的结算银行账户
 }
 
 // weixinPaySubMerchantColumns holds the columns for table weixin_pay_sub_merchant.
@@ -59,6 +60,7 @@ var weixinPaySubMerchantColumns = WeixinPaySubMerchantColumns{
 	UpdatedAt:            "updated_at",
 	MerchantType:         "merchant_type",
 	MerchantUnionType:    "merchant_union_type",
+	BankcardAccount:      "bankcard_account",
 }
 
 // NewWeixinPaySubMerchantDao creates and returns a new DAO object for table data access.
