@@ -27,7 +27,7 @@ type WeixinPayMerchantColumns struct {
 	Mchid             string // 微信支付商户号
 	MerchantName      string // 商户号公司名称
 	MerchantShortName string // 商户号简称
-	MerchantType      string // 商户号类型：1服务商、2商户
+	MerchantType      string // 商户号类型：1服务商、2商户、4门店商家
 	ApiV3Key          string // 用于ApiV3平台证书解密、回调信息解密
 	ApiV2Key          string // 用于ApiV2平台证书解密、回调信息解密
 	PayCertP12        string // 支付证书文件
@@ -70,7 +70,7 @@ var weixinPayMerchantColumns = WeixinPayMerchantColumns{
 // NewWeixinPayMerchantDao creates and returns a new DAO object for table data access.
 func NewWeixinPayMerchantDao(proxy ...dao_interface.IDao) *WeixinPayMerchantDao {
 	var dao *WeixinPayMerchantDao
-	if proxy != nil {
+	if len(proxy) > 0 {
 		dao = &WeixinPayMerchantDao{
 			group:   proxy[0].Group(),
 			table:   proxy[0].Table(),

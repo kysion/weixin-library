@@ -56,7 +56,7 @@ var platformUserColumns = PlatformUserColumns{
 // NewPlatformUserDao creates and returns a new DAO object for table data access.
 func NewPlatformUserDao(proxy ...dao_interface.IDao) *PlatformUserDao {
 	var dao *PlatformUserDao
-	if proxy != nil {
+	if len(proxy) > 0 {
 		dao = &PlatformUserDao{
 			group:   proxy[0].Group(),
 			table:   proxy[0].Table(),

@@ -74,7 +74,7 @@ var weixinConsumerConfigColumns = WeixinConsumerConfigColumns{
 // NewWeixinConsumerConfigDao creates and returns a new DAO object for table data access.
 func NewWeixinConsumerConfigDao(proxy ...dao_interface.IDao) *WeixinConsumerConfigDao {
 	var dao *WeixinConsumerConfigDao
-	if proxy != nil {
+	if len(proxy) > 0 {
 		dao = &WeixinConsumerConfigDao{
 			group:   proxy[0].Group(),
 			table:   proxy[0].Table(),
