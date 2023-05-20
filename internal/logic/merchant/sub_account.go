@@ -3,13 +3,17 @@ package merchant
 import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
+	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/utility/kconv"
 	"github.com/kysion/weixin-library/internal/logic/internal/weixin"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
+	"io/ioutil"
 	"log"
 )
 
@@ -88,7 +92,9 @@ func newClient(ctx context.Context, appId string) (client *core.Client, err erro
 		return nil, sys_service.SysLogs().ErrorSimple(ctx, err, "该应用没有对应的商户号", "WeiXin-Pay")
 	}
 
-	return weixin.NewPayClient(ctx, mchID, spMerchant.PayPrivateKeyPem, spMerchant.CertSerialNumber, spMerchant.ApiV3Key)
+	//weixin.NewPayClient(ctx, spMerchantspMchId), spMerchant.PayPrivateKeyPem, spMerchant.CertSerialNumber, spMerchant.ApiV3Key)
+
+	return weixin.NewPayClient(ctx, gconv.String(spMerchant.Mchid), spMerchant.PayPrivateKeyPem, spMerchant.CertSerialNumber, spMerchant.ApiV3Key)
 }
 
 // GetSubAccountMaxRatio 查询最大分账比例
@@ -273,6 +279,45 @@ func (s *sSubAccount) AddReceiver(ctx context.Context, appId string, info weixin
 
 	return resp, nil
 
+}
+
+// AddProfitSharingReceivers 添加多个分账关系
+func (s *sSubAccount) AddProfitSharingReceivers(ctx context.Context, appId string, info []weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error) {
+
+	receivers := make([]weixin_model.AddReceiverRequest, 0)
+	receivers = append(receivers, info...)
+
+	reqBody := g.Map{
+		"receivers": receivers,
+	}
+
+	client, _ := newClient(ctx, appId)
+
+	result, err := client.Post(ctx, consts.WechatPayAPIServer+"/v3/profitsharing/receivers/add", reqBody)
+
+	if err != nil {
+		// 处理错误
+		log.Printf("call AddReceiver err:%s", err)
+		return nil, err
+	} else {
+		// 处理返回结果
+		log.Printf("status=%d resp=%s", result.Response.StatusCode, result)
+	}
+
+	// 处理成功响应结果方法1
+	body, err := ioutil.ReadAll(result.Response.Body)
+
+	res := profitsharing.AddReceiverResponse{}
+	gjson.DecodeTo(body, res)
+
+	// 处理成功响应结果方法2
+	//resp := new(profitsharing.AddReceiverResponse)
+	//err = core.UnMarshalResponse(result.Response, resp)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	return &res, nil
 }
 
 // DeleteReceiver 删除分账接收方（相当于分账关系解绑）
