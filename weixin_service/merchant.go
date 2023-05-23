@@ -23,9 +23,16 @@ type (
 		UnfreezeOrder(ctx context.Context, appId string, info *weixin_model.UnfreezeOrderRequest) (*profitsharing.OrdersEntity, error)
 		SubAccountRequest(ctx context.Context, appId string, info *weixin_model.SubAccountReq) (*profitsharing.OrdersEntity, error)
 		QueryOrderAmount(ctx context.Context, appId string, info *weixin_model.QueryOrderAmountRequest) (*profitsharing.QueryOrderAmountResponse, error)
-		AddReceiver(ctx context.Context, appId string, info weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error)
+		AddReceiver(ctx context.Context, appId string, info *weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error)
 		AddProfitSharingReceivers(ctx context.Context, appId string, info []weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error)
-		DeleteReceiver(ctx context.Context, appId string, info weixin_model.DeleteReceiverRequest) (*profitsharing.DeleteReceiverResponse, error)
+		DeleteReceiver(ctx context.Context, appId string, info *weixin_model.DeleteReceiverRequest) (*profitsharing.DeleteReceiverResponse, error)
+	}
+	ISubMerchant interface {
+		GetAuditStateByBusinessCode(ctx context.Context, spMchId, businessCode string) (*weixin_model.SubMerchantAuditStateRes, error)
+		GetAuditStateByApplymentId(ctx context.Context, spMchId, applymentId string) (*weixin_model.SubMerchantAuditStateRes, error)
+		GetSettlement(ctx context.Context, subMchId string) (*weixin_model.SettlementRes, error)
+		UpdateSettlement(ctx context.Context, subMchId string, info *weixin_model.UpdateSettlementReq) (string, error)
+		GetSettlementAuditState(ctx context.Context, subMchId, applicationNo string) (*weixin_model.SettlementRes, error)
 	}
 	IUserAuth interface {
 		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
@@ -43,6 +50,19 @@ type (
 		UpdateAuthorized(ctx context.Context, info g.Map) bool
 		Unauthorized(ctx context.Context, info g.Map) bool
 	}
+	IAppVersion interface {
+		SubmitAppVersionAudit(ctx context.Context, appId string, info *weixin_model.SubmitAppVersionAuditReq) (*weixin_model.AppVersionAuditRes, error)
+		CancelAppVersionAudit(ctx context.Context, appId string) (*weixin_model.CancelAppVersionAuditRes, error)
+		CancelAppVersion(ctx context.Context, appId string, info *weixin_model.CancelAppVersionReq) (*weixin_model.CancelAppVersionRes, error)
+		QueryAppVersionList(ctx context.Context, appId string) (*weixin_model.QueryAppVersionListRes, error)
+		GetAppVersionDetail(ctx context.Context, appId string) (*weixin_model.QueryAppVersionDetailRes, error)
+		GetAppLatestVersionAudit(ctx context.Context, appId string) (*weixin_model.GetAppLatestVersionAuditRes, error)
+		GetAllCategory(ctx context.Context, appId string) (*weixin_model.AppCategoryInfoRes, error)
+		GetAccountVBasicInfo(ctx context.Context, appId string) (*weixin_model.AccountVBasicInfoRes, error)
+		UploadAppMediaToAudit(ctx context.Context, appId string, mediaPath string) (*weixin_model.UploadAppMediaToAuditRes, error)
+		CommitAppAuditCode(ctx context.Context, appId string, info *weixin_model.CommitAppAuditCodeReq) (*weixin_model.CommitAppAuditCodeRes, error)
+		GetQrcode(ctx context.Context, appId string) (*weixin_model.CommitAppAuditCodeRes, error)
+	}
 	IWeiXinCert interface {
 		WechatpayDownloadCerts(ctx context.Context)
 	}
@@ -53,7 +73,7 @@ type (
 	}
 	IWeiXinPay interface {
 		PayTradeCreate(ctx context.Context, info *weixin_model.TradeOrder, openId string) (*weixin_model.PayParamsRes, error)
-		DownloadCertificates(ctx context.Context) (*certificates.DownloadCertificatesResponse, error)
+		DownloadCertificates(ctx context.Context, appID ...string) (*certificates.DownloadCertificatesResponse, error)
 		JsapiCreateOrder(ctx context.Context, info *weixin_model.TradeOrder, openId string) (tradeNo string, err error)
 		QueryOrderByIdMchID(ctx context.Context, transactionId string, appID ...string) (*weixin_model.TradeOrderRes, error)
 		QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo string, appID ...string) (*weixin_model.TradeOrderRes, error)
@@ -65,44 +85,13 @@ type (
 var (
 	localWeiXinPay      IWeiXinPay
 	localSubAccount     ISubAccount
+	localSubMerchant    ISubMerchant
 	localUserAuth       IUserAuth
 	localAppAuth        IAppAuth
+	localAppVersion     IAppVersion
 	localWeiXinCert     IWeiXinCert
 	localMerchantNotify IMerchantNotify
 )
-
-func AppAuth() IAppAuth {
-	if localAppAuth == nil {
-		panic("implement not found for interface IAppAuth, forgot register?")
-	}
-	return localAppAuth
-}
-
-func RegisterAppAuth(i IAppAuth) {
-	localAppAuth = i
-}
-
-func WeiXinCert() IWeiXinCert {
-	if localWeiXinCert == nil {
-		panic("implement not found for interface IWeiXinCert, forgot register?")
-	}
-	return localWeiXinCert
-}
-
-func RegisterWeiXinCert(i IWeiXinCert) {
-	localWeiXinCert = i
-}
-
-func MerchantNotify() IMerchantNotify {
-	if localMerchantNotify == nil {
-		panic("implement not found for interface IMerchantNotify, forgot register?")
-	}
-	return localMerchantNotify
-}
-
-func RegisterMerchantNotify(i IMerchantNotify) {
-	localMerchantNotify = i
-}
 
 func WeiXinPay() IWeiXinPay {
 	if localWeiXinPay == nil {
@@ -126,6 +115,17 @@ func RegisterSubAccount(i ISubAccount) {
 	localSubAccount = i
 }
 
+func SubMerchant() ISubMerchant {
+	if localSubMerchant == nil {
+		panic("implement not found for interface ISubMerchant, forgot register?")
+	}
+	return localSubMerchant
+}
+
+func RegisterSubMerchant(i ISubMerchant) {
+	localSubMerchant = i
+}
+
 func UserAuth() IUserAuth {
 	if localUserAuth == nil {
 		panic("implement not found for interface IUserAuth, forgot register?")
@@ -135,4 +135,48 @@ func UserAuth() IUserAuth {
 
 func RegisterUserAuth(i IUserAuth) {
 	localUserAuth = i
+}
+
+func AppAuth() IAppAuth {
+	if localAppAuth == nil {
+		panic("implement not found for interface IAppAuth, forgot register?")
+	}
+	return localAppAuth
+}
+
+func RegisterAppAuth(i IAppAuth) {
+	localAppAuth = i
+}
+
+func AppVersion() IAppVersion {
+	if localAppVersion == nil {
+		panic("implement not found for interface IAppVersion, forgot register?")
+	}
+	return localAppVersion
+}
+
+func RegisterAppVersion(i IAppVersion) {
+	localAppVersion = i
+}
+
+func WeiXinCert() IWeiXinCert {
+	if localWeiXinCert == nil {
+		panic("implement not found for interface IWeiXinCert, forgot register?")
+	}
+	return localWeiXinCert
+}
+
+func RegisterWeiXinCert(i IWeiXinCert) {
+	localWeiXinCert = i
+}
+
+func MerchantNotify() IMerchantNotify {
+	if localMerchantNotify == nil {
+		panic("implement not found for interface IMerchantNotify, forgot register?")
+	}
+	return localMerchantNotify
+}
+
+func RegisterMerchantNotify(i IMerchantNotify) {
+	localMerchantNotify = i
 }

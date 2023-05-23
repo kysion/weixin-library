@@ -83,9 +83,6 @@ var (
 
 					// 获取用户信息
 					merchant.UserInfo.GetUserInfo,
-
-					// 小程序开发管理
-					merchant.AppVersionManager,
 				)
 
 				group.Group("/pay", func(group *ghttp.RouterGroup) {
@@ -93,6 +90,13 @@ var (
 					group.Bind(merchant.WeiXinPay)
 				})
 
+
+				// 小程序开发管理
+				group.Group("/app_version_manager", func(group *ghttp.RouterGroup) {
+					group.Bind(merchant.AppVersionManager)
+				})
+
+				// 微信支付
 				group.Group("/weixin_pay", func(group *ghttp.RouterGroup) {
 					// 微信支付商户号
 					group.Bind(weixin_controller.WeiXinPayMerchant)

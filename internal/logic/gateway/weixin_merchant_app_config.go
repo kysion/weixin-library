@@ -35,7 +35,7 @@ func (s *sMerchantAppConfig) GetMerchantAppConfigById(ctx context.Context, id in
 	return daoctl.GetByIdWithError[weixin_model.WeixinMerchantAppConfig](dao.WeixinMerchantAppConfig.Ctx(ctx), id)
 }
 
-// GetMerchantAppConfigByAppId 根据AppId查找第三方应用配置信息
+// GetMerchantAppConfigByAppId 根据AppId查找商家应用配置信息
 func (s *sMerchantAppConfig) GetMerchantAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinMerchantAppConfig, error) {
 	data := weixin_model.WeixinMerchantAppConfig{}
 
@@ -136,7 +136,7 @@ func (s *sMerchantAppConfig) UpdateState(ctx context.Context, id int64, state in
 	}).OmitNilData().Where(do.WeixinMerchantAppConfig{Id: id}))
 
 	if err != nil {
-		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "第三方应用配置状态修改失败", dao.WeixinMerchantAppConfig.Table())
+		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商家应用配置状态修改失败", dao.WeixinMerchantAppConfig.Table())
 	}
 	return affected > 0, err
 }
@@ -178,4 +178,19 @@ func (s *sMerchantAppConfig) UpdateAppConfigHttps(ctx context.Context, info *wei
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商家应用基础修改失败", dao.WeixinMerchantAppConfig.Table())
 	}
 	return affected > 0, err
+}
+
+// GetPolicy 获取协议
+func (s *sMerchantAppConfig) GetPolicy(ctx context.Context, appId string) (*weixin_model.GetPolicyRes, error) {
+	res := weixin_model.GetPolicyRes{}
+
+	err := dao.WeixinMerchantAppConfig.Ctx(ctx).Fields(dao.WeixinMerchantAppConfig.Columns().PrivacyPolicy, dao.WeixinMerchantAppConfig.Columns().UserPolicy).Where(do.WeixinMerchantAppConfig{
+		AppId: appId,
+	}).Scan(&res)
+
+	if err != nil {
+		return nil, sys_service.SysLogs().ErrorSimple(ctx, nil, "该AppId商家应用不存在", dao.WeixinMerchantAppConfig.Table())
+	}
+
+	return &res, nil
 }
