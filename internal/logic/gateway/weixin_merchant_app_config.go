@@ -8,12 +8,12 @@ import (
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/utility/daoctl"
-	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_model"
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
 	"github.com/kysion/weixin-library/weixin_service"
+	"github.com/kysion/weixin-library/weixin_utility"
 	"github.com/yitter/idgenerator-go/idgen"
 	"time"
 )
@@ -74,9 +74,9 @@ func (s *sMerchantAppConfig) CreateMerchantAppConfig(ctx context.Context, info *
 
 	// wxcaf4b7b8d6620f00
 	appLen := len(info.AppId)
-	subAppId := gstr.SubStr(info.AppId, 2, appLen) // caf4b7b8d6620f00
-	appIdBase32 := utility.HexToBase32(subAppId)   // 十六进制转32进制
-	appId := "wx" + appIdBase32                    // wxclt5nn3b643o0
+	subAppId := gstr.SubStr(info.AppId, 2, appLen)      // caf4b7b8d6620f00
+	appIdBase32 := weixin_utility.HexToBase32(subAppId) // 十六进制转32进制
+	appId := "wx" + appIdBase32                         // wxclt5nn3b643o0
 
 	if info.ServerDomain != "" {
 		info.AppGatewayUrl = info.ServerDomain + "/weixin/" + appId + "/gateway.services"

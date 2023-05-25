@@ -67,3 +67,10 @@ func (c *cWeiXin) NotifyServices(ctx context.Context, _ *v1.NotifyServicesReq) (
 
 	return "success", err
 }
+
+// GetTicket 获取票据
+func (c *cWeiXin) GetTicket(ctx context.Context, _ *v1.GetTicketReq) (api_v1.StringRes, error) {
+	_, err := weixin_service.MerchantNotify().NotifyServices(ctx)
+
+	return "success", err
+}

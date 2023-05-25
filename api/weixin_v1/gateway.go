@@ -54,3 +54,7 @@ type StartPushTicketReq struct {
 type NotifyServicesReq struct {
 	g.Meta `path:"/:appId/gateway.notify" method:"post" summary:"支付异步通知" tags:"WeiXin"`
 }
+
+type GetTicketReq struct {
+	g.Meta `path:"/:appId/getTicket" method:"post" summary:"获取票据Ticket" tags:"WeiXin"`
+}

@@ -13,13 +13,19 @@ import (
 	"github.com/kysion/pay-share-library/pay_model"
 	"github.com/kysion/pay-share-library/pay_model/pay_enum"
 	"github.com/kysion/pay-share-library/pay_service"
+	"github.com/kysion/weixin-library/internal/logic/internal/weixin"
 	"github.com/kysion/weixin-library/weixin_consts"
+	"github.com/kysion/weixin-library/weixin_model"
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	hook "github.com/kysion/weixin-library/weixin_model/weixin_hook"
 	"github.com/kysion/weixin-library/weixin_service"
+	"github.com/kysion/weixin-library/weixin_utility"
+	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/downloader"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/notify"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/partnerpayments"
-	"net/http"
 	"time"
 )
 
@@ -94,13 +100,30 @@ func (s *sMerchantNotify) InstallTradeHook(hookKey hook.TradeHookKey, hookFunc h
 // NotifyServices 异步通知地址  用于接收支付宝推送给商户的支付/退款成功的消息。
 func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
 	sys_service.SysLogs().InfoSimple(ctx, nil, "\n----------微信支付异步通知", "WeiXin-Notify")
-	err := dao.WeixinConsumerConfig.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-		// 1.验签并解密，得到通知json数据
-		transaction := ParseNotifyRequestTransaction(ctx)
 
-		transactionJson, _ := gjson.Encode(transaction)
+	appId := weixin_utility.GetAppIdFormContext(ctx)
+
+	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
+	if err != nil {
+		return "", err
+	}
+
+	spMerchat, err := weixin_service.PayMerchant().GetPayMerchantByMchid(ctx, subMerchant.SpMchid)
+	if err != nil {
+		return "", err
+	}
+
+	err = dao.WeixinConsumerConfig.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		// 1.验签并解密，得到通知json数据  TODO 解决Bug
+		transaction, err := ParseNotifyRequestTransaction(ctx, spMerchat) // TODO 验签并解密失败
+
+		if err != nil {
+			return sys_service.SysLogs().ErrorSimple(ctx, err, "验签失败", "WeiXin-Notify")
+		}
+
 		{
 			// a. 将交易元数据存储至 kmk_order
+			transactionJson, _ := gjson.Encode(transaction)
 			outTradeNo := gconv.Int64(transaction.OutTradeNo)  // 商户订单号，是我们自己指定的，OutTradeNo = orderId
 			tradeId := gconv.String(transaction.TransactionId) // 微信交易凭证id。
 			tradeJson := gconv.String(transactionJson)         // 交易元数据
@@ -239,18 +262,39 @@ func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
 	return "success", nil
 }
 
+func new2NotifyHandler(ctx context.Context, spMerchant *weixin_model.PayMerchant) (*core.Client, *notify.Handler) {
+	pri, _ := weixin.LoadPrivateKey(spMerchant.PayPrivateKeyPem)
+	mchId := gconv.String(spMerchant.Mchid)
+
+	// 1. 使用商户私钥等初始化 client，并使它具有自动定时获取微信支付平台证书的能力
+	opts := []core.ClientOption{
+		option.WithWechatPayAutoAuthCipher(mchId, spMerchant.CertSerialNumber, pri, spMerchant.ApiV3Key),
+	}
+
+	client, _ := core.NewClient(ctx, opts...)
+
+	// 2. 获取商户号对应的微信支付平台证书访问器
+	certificateVisitor := downloader.MgrInstance().GetCertificateVisitor(mchId)
+	// 3. 使用证书访问器初始化 `notify.Handler`
+	handler := notify.NewNotifyHandler(spMerchant.ApiV3Key, verifiers.NewSHA256WithRSAVerifier(certificateVisitor))
+	// 4. 使用client进行接口调用
+	// ...
+	return client, handler
+}
+
 // ParseNotifyRequestTransaction 解析异步通知内容到结构体里面
-func ParseNotifyRequestTransaction(ctx context.Context) *partnerpayments.Transaction {
-	// 初始化
-	var handler notify.Handler
-	var request *http.Request
+func ParseNotifyRequestTransaction(ctx context.Context, spMerchant *weixin_model.PayMerchant) (*partnerpayments.Transaction, error) {
+	// 初始化 NotifyHandler
+	handler := weixin.NewNotifyHandler(ctx, spMerchant)
+	request := g.RequestFromCtx(ctx).Request
+	//var handler notify.Handler
 
 	content := new(partnerpayments.Transaction)
 	// 验签并解密报文
-	notifyReq, err := handler.ParseNotifyRequest(context.Background(), request, content)
+	notifyReq, err := handler.ParseNotifyRequest(ctx, request, content) //unsupported Wechatpay-Signature-Type: WECHATPAY2-SHA256-RSA2048
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil, err
 	}
 
 	// 处理通知内容
@@ -258,5 +302,5 @@ func ParseNotifyRequestTransaction(ctx context.Context) *partnerpayments.Transac
 
 	sys_service.SysLogs().InfoSimple(ctx, nil, fmt.Sprintf("支付的通知内容为：%s", content), "WeiXin-Notify")
 
-	return content
+	return content, nil
 }

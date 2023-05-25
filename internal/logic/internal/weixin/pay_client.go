@@ -10,7 +10,12 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/gogf/gf/v2/os/gfile"
+	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/downloader"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/notify"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 	"log"
@@ -98,4 +103,23 @@ func SignSHA256WithRSA(source string, privateKey *rsa.PrivateKey) (signature str
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(signatureByte), nil
+}
+
+// NewNotifyHandler 使用微信支付平台证书（验签）和商户 APIv3 密钥（解密）初始化 notify.Handler
+func NewNotifyHandler(ctx context.Context, spMerchant *weixin_model.PayMerchant) *notify.Handler {
+	// 1. 使用 `RegisterDownloaderWithPrivateKey` 注册下载器
+	pri, _ := LoadPrivateKey(spMerchant.PayPrivateKeyPem)
+	mchId := gconv.String(spMerchant.Mchid)
+
+	err := downloader.MgrInstance().RegisterDownloaderWithPrivateKey(ctx, pri, spMerchant.CertSerialNumber, mchId, spMerchant.ApiV3Key)
+	if err != nil {
+		return nil
+	}
+	// 2. 获取商户号对应的微信支付平台证书访问器
+	certificateVisitor := downloader.MgrInstance().GetCertificateVisitor(mchId)
+
+	// 3. 使用证书访问器初始化 `notify.Handler`
+	handler := notify.NewNotifyHandler(spMerchant.ApiV3Key, verifiers.NewSHA256WithRSAVerifier(certificateVisitor))
+
+	return handler
 }

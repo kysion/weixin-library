@@ -90,6 +90,15 @@ var (
 					group.Bind(merchant.WeiXinPay)
 				})
 
+				// 分账
+				group.Group("/sub_account", func(group *ghttp.RouterGroup) {
+					group.Bind(merchant.SubAccount)
+				})
+
+				// 商户进件
+				group.Group("/sub_merchant", func(group *ghttp.RouterGroup) {
+					group.Bind(merchant.SubMerchant)
+				})
 
 				// 小程序开发管理
 				group.Group("/app_version_manager", func(group *ghttp.RouterGroup) {

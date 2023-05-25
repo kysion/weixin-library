@@ -136,7 +136,7 @@ type GetAppLatestVersionAuditRes struct {
 	ErrorCommon
 
 	Auditid         int    `json:"auditid" dc:"最新的审核id"`
-	Status          int    `json:"status" dc:"审核状态"`
+	Status          int    `json:"status" dc:"审核状态：	0审核成功、1审核被拒绝、2审核中、3已撤回、4审核延后"`
 	Reason          string `json:"reason" dc:"当审核被拒绝时，返回的拒绝原因"`
 	ScreenShot      string `json:"ScreenShot" dc:"当审核被拒绝时，会返回审核失败的小程序截图示例。用 竖线I 分隔的 media_id 的列表，可通过获取永久素材接口拉取截图内容"`
 	UserVersion     string `json:"user_version" dc:"审核版本"`
@@ -165,3 +165,5 @@ type CommitAppAuditCodeReq struct {
 type CommitAppAuditCodeRes struct {
 	ErrorCommon
 }
+
+type ErrorCommonRes ErrorCommon

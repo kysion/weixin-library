@@ -10,12 +10,12 @@ import (
 	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/utility/daoctl"
-	"github.com/kysion/weixin-library/utility/file"
 	"github.com/kysion/weixin-library/weixin_consts"
 	"github.com/kysion/weixin-library/weixin_model"
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
+	"github.com/kysion/weixin-library/weixin_utility/file"
 	"github.com/yitter/idgenerator-go/idgen"
 )
 

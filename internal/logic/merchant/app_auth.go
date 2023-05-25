@@ -49,12 +49,11 @@ func NewAppAuth() *sAppAuth {
 	return result
 }
 
-// GetToken 获取商家授权应用 authorizer_access_token
-func GetToken(ctx context.Context, thirdAppId, componentAccessToken string, merchantAppId, refreshToken string) (bool, error) {
+// GetAuthorizerAccessToken 获取商家授权应用 authorizer_access_token
+func GetAuthorizerAccessToken(ctx context.Context, thirdAppId, componentAccessToken string, merchantAppId, refreshToken string) (bool, error) {
 	// 2.获取授权方商家的authorizer_access_token
 	queryTokenUrl := "https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token=" + componentAccessToken
 	tokenReq := weixin_model.AuthorizerAccessTokenReq{
-		//ComponentAccessToken:   thirdData.AppAuthToken, url参数
 		ComponentAppid:         thirdAppId,
 		AuthorizerAppid:        merchantAppId,
 		AuthorizerRefreshToken: refreshToken,
@@ -77,19 +76,21 @@ func GetToken(ctx context.Context, thirdAppId, componentAccessToken string, merc
 	tokenReTime := gtime.Now().Add(tokenReExpiresIn).Format("Y-m-d H:i:s")
 	fmt.Println("增加后的时间：", tokenReTime)
 
-	// 存储authorizer_access_token至数据库
-	_, err := weixin_service.MerchantAppConfig().UpdateAppAuthToken(ctx, &weixin_model.UpdateMerchantAppAuthToken{
-		AppId:        merchantAppId,
-		AppAuthToken: tokenResData.AuthorizerAccessToken,
-		//expiresIn := gtime.NewFromTimeStamp(tokenResData.ExpiresIn)
-		ExpiresIn:    gtime.Now().Add(time.Hour * 2), // token 有效期两小时
-		ReExpiresIn:  gtime.NewFromStr(tokenReTime),
-		RefreshToken: tokenResData.AuthorizerRefreshToken,
-		ThirdAppId:   thirdAppId, // 第三方应用appId
-	})
+	if tokenResData.AuthorizerAccessToken != "" {
+		// 存储authorizer_access_token至数据库
+		_, err := weixin_service.MerchantAppConfig().UpdateAppAuthToken(ctx, &weixin_model.UpdateMerchantAppAuthToken{
+			AppId:        merchantAppId,
+			AppAuthToken: tokenResData.AuthorizerAccessToken,
+			//expiresIn := gtime.NewFromTimeStamp(tokenResData.ExpiresIn)
+			ExpiresIn:    gtime.Now().Add(time.Hour * 2), // token 有效期两小时
+			ReExpiresIn:  gtime.NewFromStr(tokenReTime),
+			RefreshToken: tokenResData.AuthorizerRefreshToken,
+			ThirdAppId:   thirdAppId, // 第三方应用appId
+		})
 
-	if err != nil {
-		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "token令牌刷新失败", "AppAuth")
+		if err != nil {
+			return false, sys_service.SysLogs().ErrorSimple(ctx, err, "token令牌刷新失败", "AppAuth")
+		}
 	}
 
 	return true, nil
@@ -109,7 +110,7 @@ func (s *sAppAuth) RefreshToken(ctx context.Context, merchantAppId, thirdAppId, 
 	}
 
 	// 2.获取授权方商家的authorizer_access_token
-	return GetToken(ctx, thirdApp.AppId, thirdApp.AppAuthToken, merchantAppId, refreshToken)
+	return GetAuthorizerAccessToken(ctx, thirdApp.AppId, thirdApp.AppAuthToken, merchantAppId, refreshToken)
 
 }
 
@@ -144,7 +145,7 @@ func (s *sAppAuth) AppAuth(ctx context.Context, info g.Map) bool {
 	merchantId := authorizerInfoRes.AuthorizationInfo.AuthorizerAppid
 	authorizerRefreshToken := authorizerInfoRes.AuthorizationInfo.AuthorizerRefreshToken
 
-	result, err := GetToken(ctx, thirdData.AppId, thirdData.AppAuthToken, merchantId, authorizerRefreshToken)
+	result, err := GetAuthorizerAccessToken(ctx, thirdData.AppId, thirdData.AppAuthToken, merchantId, authorizerRefreshToken)
 
 	if err != nil || result == false {
 		sys_service.SysLogs().ErrorSimple(ctx, err, "应用授权失败", "AppAuth")

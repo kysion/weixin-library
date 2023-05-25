@@ -89,3 +89,8 @@ type UpdateMerchantAppConfigHttpsReq struct {
 	HttpsCert string `json:"httpsCert"      description:"域名证书"`
 	HttpsKey  string `json:"httpsKey"       description:"域名私钥"`
 }
+
+type GetPolicyRes struct {
+	PrivacyPolicy string `json:"privacyPolicy"           description:"隐私协议"`
+	UserPolicy    string `json:"userPolicy"              description:"用户协议"`
+}

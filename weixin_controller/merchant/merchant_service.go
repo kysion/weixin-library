@@ -7,12 +7,11 @@ import (
 	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/text/gstr"
 	v1 "github.com/kysion/weixin-library/api/weixin_v1"
 	"github.com/kysion/weixin-library/api/weixin_v1/weixin_merchant_app_v1"
-	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
+	"github.com/kysion/weixin-library/weixin_utility"
 	"net/url"
 )
 
@@ -67,11 +66,8 @@ func buildAppAuthURL(redirectURI, appID, preAuthCode string) (string, error) {
 
 // UserAuth 用户授权 （代商家管理小程序）  --- 公众号网页授权方式
 func (c *cMerchantService) UserAuth(ctx context.Context, _ *weixin_merchant_app_v1.UserAuthReq) (api_v1.StringRes, error) {
-	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
-	appIdLen := len(pathAppId)
-	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
 
-	appId := "wx" + utility.Base32ToHex(subAppId)
+	appId := weixin_utility.GetAppIdFormContext(ctx)
 
 	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
 	if err != nil {
@@ -169,11 +165,8 @@ func (c *cMerchantService) UserLogin(ctx context.Context, req *weixin_merchant_a
 
 // RefreshToken 刷新Token
 func (c *cMerchantService) RefreshToken(ctx context.Context, _ *weixin_merchant_app_v1.RefreshTokenReq) (api_v1.BoolRes, error) {
-	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
-	appIdLen := len(pathAppId)
-	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
 
-	appId := "wx" + utility.Base32ToHex(subAppId)
+	appId := weixin_utility.GetAppIdFormContext(ctx)
 
 	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
 	if err != nil {
@@ -193,11 +186,8 @@ func (c *cMerchantService) RefreshToken(ctx context.Context, _ *weixin_merchant_
 
 // AppAuthReq 应用授权
 func (c *cMerchantService) AppAuthReq(ctx context.Context, _ *weixin_merchant_app_v1.AppAuthReq) (v1.StringRes, error) {
-	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
-	appIdLen := len(pathAppId)
-	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
 
-	appId := "wx" + utility.Base32ToHex(subAppId)
+	appId := weixin_utility.GetAppIdFormContext(ctx)
 
 	app, _ := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
 
@@ -246,11 +236,8 @@ func (c *cMerchantService) AppAuthReq(ctx context.Context, _ *weixin_merchant_ap
 
 // AuthRes 商家应用授权变更等消息推送
 func (c *cMerchantService) AuthRes(ctx context.Context, req *weixin_merchant_app_v1.AuthResReq) (v1.StringRes, error) {
-	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
-	appIdLen := len(pathAppId)
-	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
 
-	appId := "wx" + utility.Base32ToHex(subAppId)
+	appId := weixin_utility.GetAppIdFormContext(ctx)
 
 	fmt.Println("认证code：", req.AuthCode)
 

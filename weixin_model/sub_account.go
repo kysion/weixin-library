@@ -1,5 +1,7 @@
 package weixin_model
 
+import "github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
+
 // 查询分账比例--------------------------------------------------------------------------------------------------------
 
 // QueryMerchantRatioRes 最大分账比例
@@ -60,6 +62,8 @@ type QueryOrderAmountRequest struct {
 	TransactionId *string `json:"transaction_id" dc:"微信支付返回的交易订单id"`
 }
 
+type QueryOrderAmountRes profitsharing.QueryOrderAmountResponse
+
 // 分账结果查询--------------------------------------------------------------------------------------------------------
 
 type QueryOrderRequest struct {
@@ -72,6 +76,8 @@ type QueryOrderRequest struct {
 	// 商户系统内部的分账单号，在商户系统内部唯一，同一分账单号多次请求等同一次。只能是数字、大小写字母_-|*@ 。 微信分账单号与商户分账单号二选一填写
 	OutOrderNo string `json:"out_order_no"`
 }
+
+type OrdersEntityRes profitsharing.OrdersEntity
 
 // 解冻剩余资金--------------------------------------------------------------------------------------------------------
 
@@ -123,6 +129,8 @@ type ReceiverRelationType string
 // ReceiverType   * `MERCHANT_ID` - 商户号，  * `PERSONAL_OPENID` - 个人openid（由父商户APPID转换得到），  * `PERSONAL_SUB_OPENID` - 个人sub_openid（由子商户APPID转换得到）（直连商户不需要，服务商需要），
 type ReceiverType string
 
+type AddReceiverRes profitsharing.AddReceiverResponse
+
 // 分账关系查询--------------------------------------------------------------------------------------------------------
 
 // 分账关系解绑--------------------------------------------------------------------------------------------------------
@@ -143,3 +151,4 @@ type DeleteReceiverRequest struct {
 	// 枚举值： MERCHANT_ID：商户ID PERSONAL_OPENID：个人openid（由父商户APPID转换得到） PERSONAL_SUB_OPENID：个人sub_openid（由子商户APPID转换得到）  * `MERCHANT_ID` - 商户号，  * `PERSONAL_OPENID` - 个人openid（由父商户APPID转换得到），  * `PERSONAL_SUB_OPENID` - 个人sub_openid（由子商户APPID转换得到）（直连商户不需要，服务商需要），
 	Type *ReceiverType `json:"type"`
 }
+type DeleteReceiverRes profitsharing.DeleteReceiverResponse

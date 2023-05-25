@@ -9,9 +9,9 @@ import (
 	"github.com/kysion/pay-share-library/pay_model/pay_enum"
 	"github.com/kysion/pay-share-library/pay_service"
 	"github.com/kysion/weixin-library/internal/logic/internal/weixin"
-	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
+	"github.com/kysion/weixin-library/weixin_utility"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/certificates"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/partnerpayments/jsapi"
@@ -39,7 +39,7 @@ func NewWeiXinPay() *sWeiXinPay {
 // PayTradeCreate  1、创建交易订单   （AppId的H5是没有的，需要写死，小程序有的 ）
 func (s *sWeiXinPay) PayTradeCreate(ctx context.Context, info *weixin_model.TradeOrder, openId string) (*weixin_model.PayParamsRes, error) {
 	sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin创建交易订单 ------- ", "WeiXin-Pay")
-	appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	appId := weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 
 	// 商家AppId解析，获取商家应用，创建微信支付客户端
 	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
@@ -99,7 +99,7 @@ func (s *sWeiXinPay) makePayParams(ctx context.Context, orderId, appId, prepay_i
 	ret := &weixin_model.PayParamsRes{
 		AppId:     appId,
 		TimeStamp: strconv.FormatInt(time.Now().Unix(), 10),
-		NonceStr:  utility.Md5Hash(orderId),
+		NonceStr:  weixin_utility.Md5Hash(orderId),
 		Package:   "prepay_id=" + prepay_id,
 		SignType:  "RSA",
 		PaySign:   "",
@@ -135,8 +135,12 @@ func (s *sWeiXinPay) makePayParams(ctx context.Context, orderId, appId, prepay_i
 }
 
 // DownloadCertificates 测试SDK ，下载微信支付平台证书
-func (s *sWeiXinPay) DownloadCertificates(ctx context.Context) (*certificates.DownloadCertificatesResponse, error) {
-	appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+func (s *sWeiXinPay) DownloadCertificates(ctx context.Context, appID ...string) (*certificates.DownloadCertificatesResponse, error) {
+	appId := ""
+	if appID[0] == "" && !gstr.HasPrefix(appID[0], "wx") {
+		appId = weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	}
+	appId = appID[0]
 
 	// 通过AppId拿到特约商户商户号
 	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
@@ -183,7 +187,7 @@ func (s *sWeiXinPay) DownloadCertificates(ctx context.Context) (*certificates.Do
 func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.TradeOrder, openId string) (tradeNo string, err error) {
 	sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------JSAPI 创建支付订单，预下单 ------- ", "WeiXin-Pay")
 
-	appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	appId := weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 
 	// 获取商家应用
 	subApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
@@ -234,9 +238,9 @@ func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.Tr
 			StoreInfo: nil,
 		},
 
-		SettleInfo: &jsapi.SettleInfo{ // TODO 是否指定分账 修改为分账
+		SettleInfo: &jsapi.SettleInfo{ // TODO 是否指定分账
 			ProfitSharing: core.Bool(true),
-			//ProfitSharing: core.Bool(true),
+			//ProfitSharing: core.Bool(false),
 		},
 
 		//TimeExpire:  core.Time(gtime.Now().Add(time.Minute * 5)), // 订单失效失效时间
@@ -268,11 +272,11 @@ func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.Tr
 func (s *sWeiXinPay) QueryOrderByIdMchID(ctx context.Context, transactionId string, appID ...string) (*weixin_model.TradeOrderRes, error) {
 	appId := ""
 	if appID[0] == "" && !gstr.HasPrefix(appID[0], "wx") {
-		appId = utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+		appId = weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 	}
 	appId = appID[0]
 	//
-	//appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	//appId := weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 
 	// 通过AppId拿到特约商户商户号
 	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
@@ -317,7 +321,7 @@ func (s *sWeiXinPay) QueryOrderByIdMchID(ctx context.Context, transactionId stri
 func (s *sWeiXinPay) QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo string, appID ...string) (*weixin_model.TradeOrderRes, error) {
 	appId := ""
 	if appID[0] == "" && !gstr.HasPrefix(appID[0], "wx") {
-		appId = utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+		appId = weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 	}
 	appId = appID[0]
 
@@ -349,7 +353,7 @@ func (s *sWeiXinPay) QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo st
 	if err == nil {
 		log.Println(resp)
 	} else {
-		log.Println("查询订单失败：outTRradeNo：",outTradeNo,err)
+		log.Println("查询订单失败：outTRradeNo：", outTradeNo, err)
 		return &weixin_model.TradeOrderRes{}, sys_service.SysLogs().ErrorSimple(ctx, err, "查询支付订单失败！", "WeiXin-Pay")
 	}
 
@@ -365,10 +369,10 @@ func (s *sWeiXinPay) QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo st
 
 // CloseOrder 关闭订单接口
 func (s *sWeiXinPay) CloseOrder(ctx context.Context, outTradeNo string, appID ...string) (bool, error) {
-	//appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	//appId := weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 	appId := ""
 	if appID[0] == "" && !gstr.HasPrefix(appID[0], "wx") {
-		appId = utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+		appId = weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 	}
 	appId = appID[0]
 
@@ -411,20 +415,3 @@ func (s *sWeiXinPay) CloseOrder(ctx context.Context, outTradeNo string, appID ..
 func (s *sWeiXinPay) DownloadAccountBill(ctx context.Context, mchId string) {
 
 }
-
-// 得到prepay_id，以及调起支付所需的参数和签名  ----- 直连模式
-//resp, result, err := svc.PrepayWithRequestPayment(ctx,
-//jsapi.PrepayRequest{
-//	Appid:       core.String("wxd678efh567hg6787"),
-//	Mchid:       core.String("1900009191"),
-//	Description: core.String("Image形象店-深圳腾大-QQ公仔"),
-//	OutTradeNo:  core.String("1217752501201407033233368018"),
-//	Attach:      core.String("自定义数据说明"),
-//	NotifyUrl:   core.String("https://www.weixin.qq.com/wxpay/pay.php"),
-//	Amount: &jsapi.Amount{
-//		Total: core.Int64(100),
-//	},
-//	Payer: &jsapi.Payer{
-//		Openid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
-//	},
-//},

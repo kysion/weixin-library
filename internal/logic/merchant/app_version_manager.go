@@ -1,21 +1,12 @@
 package merchant
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
-	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/kysion/weixin-library/internal/logic/internal/weixin"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
-	"io"
-	"io/ioutil"
-	"mime/multipart"
-	"net/http"
-	"os"
-	"path/filepath"
 )
 
 // 小程序开发管理
@@ -200,64 +191,12 @@ func (s *sAppVersion) UploadAppMediaToAudit(ctx context.Context, appId string, m
 	//url := "https://api.weixin.qq.com/wxa/uploadmedia?access_token=" + merchantApp.AppAuthToken
 	//result := g.Client().PostContent(ctx, url)
 
-	mediaid, err := UploaImage(ctx, merchantApp.AppAuthToken, mediaPath)
+	mediaid, err := weixin.UploadMedia(ctx, merchantApp.AppAuthToken, mediaPath)
 	// img1.jpg nXZPp3Jc2FitVGuiCBYvyApsY0F4m9i9TiWaNEEvbrZt12B4r6VxjOSbsM_5PziGjR5OHwG9JoVMM9LHZWH44Q
 	// img2.jpg nXZPp3Jc2FitVGuiCBYvyLLgBpcvY-K8t2Ujrc2wiznXRL0CJJOZK1TkCdv4H7UO75xfTgS9SgjS5BNYvj4LCQ
 	// img3.jpg nXZPp3Jc2FitVGuiCBYvyKRuFaqLoLdHbDhv8tjxO-7rAPJm-yx8yoODFUwX379lOJy_iUINj2moHlncHlPQRw
 	// testVicdeo.mp4 nXZPp3Jc2FitVGuiCBYvyD-T2v4Rc9QbBmBSJBBhugkmjiM2EqvwCXim7qYpBg4weCwV13bbv17gEKSLatj2jA
 	return mediaid, err
-}
-
-const (
-	WechatUploadMediaAPI = "https://api.weixin.qq.com/wxa/uploadmedia"
-)
-
-func UploaImage(ctx context.Context, token string, imagePath string) (*weixin_model.UploadAppMediaToAuditRes, error) {
-	file, err := os.Open(imagePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("image", filepath.Base(imagePath))
-	if err != nil {
-		return nil, err
-	}
-	_, err = io.Copy(part, file)
-	err = writer.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", WechatUploadMediaAPI, body)
-	req.Header.Add("Content-Type", writer.FormDataContentType())
-	urlQuery := req.URL.Query()
-
-	if err != nil {
-		return nil, err
-	}
-	urlQuery.Add("access_token", token)
-	//urlQuery.Add("type", "image")
-	req.URL.RawQuery = urlQuery.Encode()
-	fmt.Println(req.URL)
-	client := http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-	jsonbody, _ := ioutil.ReadAll(res.Body)
-	media := weixin_model.UploadAppMediaToAuditRes{}
-	err = json.Unmarshal(jsonbody, &media)
-	if err != nil {
-		return nil, err
-	}
-	if media.Mediaid == "" {
-		err = sys_service.SysLogs().ErrorSimple(ctx, err, "素材上传失败！", "WeiXin-App-Version-Manager")
-	}
-
-	return &media, err
 }
 
 // CommitAppAuditCode 上传代码并生成体验版
@@ -283,7 +222,7 @@ func (s *sAppVersion) CommitAppAuditCode(ctx context.Context, appId string, info
 //  GET https://api.weixin.qq.com/wxa/get_qrcode?access_token=ACCESS_TOKEN
 
 // GetQrcode 获取小程序体验版二维码
-func (s *sAppVersion) GetQrcode(ctx context.Context, appId string) (*weixin_model.CommitAppAuditCodeRes, error) {
+func (s *sAppVersion) GetQrcode(ctx context.Context, appId string) (*weixin_model.ErrorCommonRes, error) {
 	// GET https://api.weixin.qq.com/cgi-bin/account/getaccountbasicinfo?access_token=ACCESS_TOKEN
 
 	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
@@ -302,7 +241,26 @@ func (s *sAppVersion) GetQrcode(ctx context.Context, appId string) (*weixin_mode
 
 	response.WriteExit(result)
 
-	res := weixin_model.CommitAppAuditCodeRes{}
+	res := weixin_model.ErrorCommonRes{}
+	gjson.DecodeTo(result, &res)
+
+	return &res, err
+}
+
+// ReleaseApp 发布已通过审核的小程序
+func (s *sAppVersion) ReleaseApp(ctx context.Context, appId string) (*weixin_model.ErrorCommonRes, error) {
+	// POST https://api.weixin.qq.com/wxa/release?access_token=ACCESS_TOKEN
+
+	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+	if err != nil {
+		return nil, err
+	}
+	url := "https://api.weixin.qq.com/wxa/release?access_token=" + merchantApp.AppAuthToken
+
+	encode, _ := gjson.Encode(g.Map{})
+	result := g.Client().PostContent(ctx, url, encode)
+
+	res := weixin_model.ErrorCommonRes{}
 	gjson.DecodeTo(result, &res)
 
 	return &res, err

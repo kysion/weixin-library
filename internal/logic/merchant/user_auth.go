@@ -28,10 +28,18 @@ import (
 // 用户授权 （静默、手动授权）
 
 /*
+网页授权：
    	1、构建授权连接，在回调中拿到code
 	2、通过code拿到接口调用凭据access_token
 	3、通过access_token拿到用户信息user_info
 	4、通过refresh_token 进行刷新access_token
+*/
+
+/*
+小程序授权流程：
+	1.wx.login()拿到登陆凭据code （Ok）
+	2.通过code拿到openId和session_key会话密钥  （Ok）
+	3.后端实现自定义登陆态token
 */
 
 type sUserAuth struct {

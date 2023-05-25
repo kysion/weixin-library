@@ -17,6 +17,44 @@ import (
 )
 
 type (
+	IAppAuth interface {
+		RefreshToken(ctx context.Context, merchantAppId, thirdAppId, refreshToken string) (bool, error)
+		AppAuth(ctx context.Context, info g.Map) bool
+		Authorized(ctx context.Context, info g.Map) bool
+		UpdateAuthorized(ctx context.Context, info g.Map) bool
+		Unauthorized(ctx context.Context, info g.Map) bool
+	}
+	IAppVersion interface {
+		SubmitAppVersionAudit(ctx context.Context, appId string, info *weixin_model.SubmitAppVersionAuditReq) (*weixin_model.AppVersionAuditRes, error)
+		CancelAppVersionAudit(ctx context.Context, appId string) (*weixin_model.CancelAppVersionAuditRes, error)
+		CancelAppVersion(ctx context.Context, appId string, info *weixin_model.CancelAppVersionReq) (*weixin_model.CancelAppVersionRes, error)
+		QueryAppVersionList(ctx context.Context, appId string) (*weixin_model.QueryAppVersionListRes, error)
+		GetAppVersionDetail(ctx context.Context, appId string) (*weixin_model.QueryAppVersionDetailRes, error)
+		GetAppLatestVersionAudit(ctx context.Context, appId string) (*weixin_model.GetAppLatestVersionAuditRes, error)
+		GetAllCategory(ctx context.Context, appId string) (*weixin_model.AppCategoryInfoRes, error)
+		GetAccountVBasicInfo(ctx context.Context, appId string) (*weixin_model.AccountVBasicInfoRes, error)
+		UploadAppMediaToAudit(ctx context.Context, appId string, mediaPath string) (*weixin_model.UploadAppMediaToAuditRes, error)
+		CommitAppAuditCode(ctx context.Context, appId string, info *weixin_model.CommitAppAuditCodeReq) (*weixin_model.CommitAppAuditCodeRes, error)
+		GetQrcode(ctx context.Context, appId string) (*weixin_model.ErrorCommonRes, error)
+		ReleaseApp(ctx context.Context, appId string) (*weixin_model.ErrorCommonRes, error)
+	}
+	IWeiXinCert interface {
+		WechatpayDownloadCerts(ctx context.Context, mchAPIv3Key string)
+	}
+	IMerchantNotify interface {
+		InstallNotifyHook(hookKey hook.NotifyKey, hookFunc hook.NotifyHookFunc)
+		InstallTradeHook(hookKey hook.TradeHookKey, hookFunc hook.TradeHookFunc)
+		NotifyServices(ctx context.Context) (string, error)
+	}
+	IWeiXinPay interface {
+		PayTradeCreate(ctx context.Context, info *weixin_model.TradeOrder, openId string) (*weixin_model.PayParamsRes, error)
+		DownloadCertificates(ctx context.Context, appID ...string) (*certificates.DownloadCertificatesResponse, error)
+		JsapiCreateOrder(ctx context.Context, info *weixin_model.TradeOrder, openId string) (tradeNo string, err error)
+		QueryOrderByIdMchID(ctx context.Context, transactionId string, appID ...string) (*weixin_model.TradeOrderRes, error)
+		QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo string, appID ...string) (*weixin_model.TradeOrderRes, error)
+		CloseOrder(ctx context.Context, outTradeNo string, appID ...string) (bool, error)
+		DownloadAccountBill(ctx context.Context, mchId string)
+	}
 	ISubAccount interface {
 		GetSubAccountMaxRatio(ctx context.Context, appId string) (*weixin_model.QueryMerchantRatioRes, error)
 		QuerySubAccountOrder(ctx context.Context, appId string, info *weixin_model.QueryOrderRequest) (*profitsharing.OrdersEntity, error)
@@ -43,54 +81,17 @@ type (
 		GetMinoUserAccessToken(ctx context.Context)
 		GetTinyAppUserInfo(ctx context.Context, sessionKey, encryptedData, iv, appId string, openId string) (*weixin_model.UserInfoRes, error)
 	}
-	IAppAuth interface {
-		RefreshToken(ctx context.Context, merchantAppId, thirdAppId, refreshToken string) (bool, error)
-		AppAuth(ctx context.Context, info g.Map) bool
-		Authorized(ctx context.Context, info g.Map) bool
-		UpdateAuthorized(ctx context.Context, info g.Map) bool
-		Unauthorized(ctx context.Context, info g.Map) bool
-	}
-	IAppVersion interface {
-		SubmitAppVersionAudit(ctx context.Context, appId string, info *weixin_model.SubmitAppVersionAuditReq) (*weixin_model.AppVersionAuditRes, error)
-		CancelAppVersionAudit(ctx context.Context, appId string) (*weixin_model.CancelAppVersionAuditRes, error)
-		CancelAppVersion(ctx context.Context, appId string, info *weixin_model.CancelAppVersionReq) (*weixin_model.CancelAppVersionRes, error)
-		QueryAppVersionList(ctx context.Context, appId string) (*weixin_model.QueryAppVersionListRes, error)
-		GetAppVersionDetail(ctx context.Context, appId string) (*weixin_model.QueryAppVersionDetailRes, error)
-		GetAppLatestVersionAudit(ctx context.Context, appId string) (*weixin_model.GetAppLatestVersionAuditRes, error)
-		GetAllCategory(ctx context.Context, appId string) (*weixin_model.AppCategoryInfoRes, error)
-		GetAccountVBasicInfo(ctx context.Context, appId string) (*weixin_model.AccountVBasicInfoRes, error)
-		UploadAppMediaToAudit(ctx context.Context, appId string, mediaPath string) (*weixin_model.UploadAppMediaToAuditRes, error)
-		CommitAppAuditCode(ctx context.Context, appId string, info *weixin_model.CommitAppAuditCodeReq) (*weixin_model.CommitAppAuditCodeRes, error)
-		GetQrcode(ctx context.Context, appId string) (*weixin_model.CommitAppAuditCodeRes, error)
-	}
-	IWeiXinCert interface {
-		WechatpayDownloadCerts(ctx context.Context)
-	}
-	IMerchantNotify interface {
-		InstallNotifyHook(hookKey hook.NotifyKey, hookFunc hook.NotifyHookFunc)
-		InstallTradeHook(hookKey hook.TradeHookKey, hookFunc hook.TradeHookFunc)
-		NotifyServices(ctx context.Context) (string, error)
-	}
-	IWeiXinPay interface {
-		PayTradeCreate(ctx context.Context, info *weixin_model.TradeOrder, openId string) (*weixin_model.PayParamsRes, error)
-		DownloadCertificates(ctx context.Context, appID ...string) (*certificates.DownloadCertificatesResponse, error)
-		JsapiCreateOrder(ctx context.Context, info *weixin_model.TradeOrder, openId string) (tradeNo string, err error)
-		QueryOrderByIdMchID(ctx context.Context, transactionId string, appID ...string) (*weixin_model.TradeOrderRes, error)
-		QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo string, appID ...string) (*weixin_model.TradeOrderRes, error)
-		CloseOrder(ctx context.Context, outTradeNo string, appID ...string) (bool, error)
-		DownloadAccountBill(ctx context.Context, mchId string)
-	}
 )
 
 var (
-	localWeiXinPay      IWeiXinPay
-	localSubAccount     ISubAccount
 	localSubMerchant    ISubMerchant
 	localUserAuth       IUserAuth
 	localAppAuth        IAppAuth
 	localAppVersion     IAppVersion
 	localWeiXinCert     IWeiXinCert
 	localMerchantNotify IMerchantNotify
+	localWeiXinPay      IWeiXinPay
+	localSubAccount     ISubAccount
 )
 
 func WeiXinPay() IWeiXinPay {
