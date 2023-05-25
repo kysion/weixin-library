@@ -1,4 +1,4 @@
-package utility
+package weixin_utility
 
 import (
 	"crypto/md5"

@@ -1,4 +1,4 @@
-package utility
+package weixin_utility
 
 import (
 	"encoding/hex"
@@ -36,7 +36,10 @@ func HexToBase32(hexStr string) (base32 string) {
 func Base32ToHex(base32Str string) (hexStr string) {
 	// 解析为 uint64 数值
 	n, _ := new(big.Int).SetString(base32Str, 32)
+
 	bytes := n.Bytes()
+
+	// 将数值格式化为16进制字符串
 
 	// 转换为 16 进制字符串
 	hexStr = hex.EncodeToString(bytes)
@@ -45,3 +48,5 @@ func Base32ToHex(base32Str string) (hexStr string) {
 
 	return hexStr
 }
+
+// 正常获取订单，

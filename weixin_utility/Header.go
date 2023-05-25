@@ -1,4 +1,4 @@
-package utility
+package weixin_utility
 
 func Header() map[string]string {
 	// 这个请求头不需要记住，直接扒就好了,我们可以直接从网页的network查看到
