@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/SupenBysz/gf-admin-community v0.4.6
 	github.com/SupenBysz/gf-admin-company-modules v0.4.9
-	github.com/gogf/gf/v2 v2.3.2
+	github.com/gogf/gf/v2 v2.4.1
 	github.com/kysion/base-library v0.0.12
 	github.com/kysion/gopay v0.0.3
 	github.com/kysion/pay-share-library v0.1.11
@@ -71,4 +71,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/kysion/base-library => ../base-library
+replace (
+	github.com/kysion/base-library => ../base-library
+	github.com/kysion/pay-share-library => ../pay-share-library
+)
