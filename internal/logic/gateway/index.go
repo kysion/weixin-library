@@ -8,5 +8,7 @@ func init() {
 	weixin_service.RegisterThirdAppConfig(NewThirdAppConfig())
 	weixin_service.RegisterMerchantAppConfig(NewMerchantAppConfig())
 	weixin_service.RegisterConsumer(NewConsumerConfig())
+	weixin_service.RegisterPayMerchant(NewPayMerchant())
+	weixin_service.RegisterPaySubMerchant(NewPaySubMerchant())
 
 }

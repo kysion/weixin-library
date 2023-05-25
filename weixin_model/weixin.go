@@ -71,3 +71,15 @@ type ProAuthCodeReq struct {
 	ComponentAppid       string `json:"component_appid" dc:"第三方平台 appid"`
 	ComponentAccessToken string `json:"component_access_token" dc:"第三方平台接口的调用凭据 component_access_token "`
 }
+
+type JumpWxa struct {
+	Path       string `json:"path"`
+	Query      string `json:"query"`
+	EnvVersion string `json:"env_version"`
+}
+
+type GetSchemeRes struct {
+	Errcode  int    `json:"errcode"`
+	Errmsg   string `json:"errmsg"`
+	Openlink string `json:"openlink"`
+}

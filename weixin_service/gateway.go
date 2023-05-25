@@ -10,6 +10,7 @@ import (
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/kysion/base-library/base_hook"
+	"github.com/kysion/base-library/base_model"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_model/weixin_hook"
@@ -25,24 +26,51 @@ type (
 	}
 	ITicket interface {
 		Ticket(ctx context.Context, info g.Map) bool
+		GetTicket(ctx context.Context, appId string) (string, error)
+		GenerateScheme(ctx context.Context, appId string, info *weixin_model.JumpWxa) (*weixin_model.GetSchemeRes, error)
 	}
 	IConsumer interface {
 		GetConsumerById(ctx context.Context, id int64) (*weixin_model.WeixinConsumerConfig, error)
 		GetConsumerBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinConsumerConfig, error)
-		CreateConsumer(ctx context.Context, info weixin_model.WeixinConsumerConfig) (*weixin_model.WeixinConsumerConfig, error)
-		UpdateConsumer(ctx context.Context, id int64, info weixin_model.UpdateConsumerReq) (bool, error)
+		GetConsumerByOpenId(ctx context.Context, openId string, unionId ...string) (*weixin_model.WeixinConsumerConfig, error)
+		QueryConsumerByUnionId(ctx context.Context, unionId string) (*weixin_model.WeixinConsumerConfigListRes, error)
+		CreateConsumer(ctx context.Context, info *weixin_model.WeixinConsumerConfig) (*weixin_model.WeixinConsumerConfig, error)
+		UpdateConsumer(ctx context.Context, id int64, info *weixin_model.UpdateConsumerReq) (bool, error)
 		UpdateConsumerState(ctx context.Context, id int64, state int) (bool, error)
+		UpdateConsumerToken(ctx context.Context, openId string, info *weixin_model.UpdateConsumerTokenReq) (bool, error)
 	}
 	IMerchantAppConfig interface {
 		GetMerchantAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinMerchantAppConfig, error)
 		GetMerchantAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinMerchantAppConfig, error)
 		GetMerchantAppConfigBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinMerchantAppConfig, error)
 		CreateMerchantAppConfig(ctx context.Context, info *weixin_model.WeixinMerchantAppConfig) (*weixin_model.WeixinMerchantAppConfig, error)
-		UpdateMerchantAppConfig(ctx context.Context, id int64, info weixin_model.UpdateMerchantAppConfig) (bool, error)
+		UpdateMerchantAppConfig(ctx context.Context, id int64, info *weixin_model.UpdateMerchantAppConfig) (bool, error)
 		UpdateState(ctx context.Context, id int64, state int) (bool, error)
 		UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateMerchantAppAuthToken) (bool, error)
 		UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigReq) (bool, error)
 		UpdateAppConfigHttps(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigHttpsReq) (bool, error)
+		GetPolicy(ctx context.Context, appId string) (*weixin_model.GetPolicyRes, error)
+	}
+	IPayMerchant interface {
+		GetPayMerchantById(ctx context.Context, id int64) (*weixin_model.PayMerchant, error)
+		GetPayMerchantByMchid(ctx context.Context, id int) (*weixin_model.PayMerchant, error)
+		GetPayMerchantBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.PayMerchant, error)
+		CreatePayMerchant(ctx context.Context, info *weixin_model.PayMerchant) (*weixin_model.PayMerchant, error)
+		UpdatePayMerchant(ctx context.Context, id int64, info *weixin_model.UpdatePayMerchant) (bool, error)
+		SetCertAndKey(ctx context.Context, id int64, info *weixin_model.SetCertAndKey) (bool, error)
+		SetAuthPath(ctx context.Context, info *weixin_model.SetAuthPath) (bool, error)
+		SetPayMerchantUnionId(ctx context.Context, info *weixin_model.SetPayMerchantUnionId) (bool, error)
+		SetBankcardAccount(ctx context.Context, info *weixin_model.SetBankcardAccount) (bool, error)
+	}
+	IPaySubMerchant interface {
+		GetPaySubMerchantById(ctx context.Context, id int64) (*weixin_model.WeixinPaySubMerchant, error)
+		GetPaySubMerchantByAppId(ctx context.Context, appId string) (*weixin_model.WeixinPaySubMerchant, error)
+		GetPaySubMerchantByMchid(ctx context.Context, id int) (*weixin_model.WeixinPaySubMerchant, error)
+		GetPaySubMerchantBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinPaySubMerchant, error)
+		QueryPaySubMerchant(ctx context.Context, params *base_model.SearchParams, isExport bool) (*weixin_model.WeixinPaySubMerchantList, error)
+		CreatePaySubMerchant(ctx context.Context, info *weixin_model.WeixinPaySubMerchant) (*weixin_model.WeixinPaySubMerchant, error)
+		UpdatePaySubMerchant(ctx context.Context, id int64, info *weixin_model.UpdatePaySubMerchant) (bool, error)
+		SetAuthPath(ctx context.Context, info *weixin_model.SetSubMerchantAuthPath) (bool, error)
 	}
 	IThirdAppConfig interface {
 		GetThirdAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinThirdAppConfig, error)
@@ -62,19 +90,10 @@ var (
 	localTicket            ITicket
 	localConsumer          IConsumer
 	localMerchantAppConfig IMerchantAppConfig
+	localPayMerchant       IPayMerchant
+	localPaySubMerchant    IPaySubMerchant
 	localThirdAppConfig    IThirdAppConfig
 )
-
-func Gateway() IGateway {
-	if localGateway == nil {
-		panic("implement not found for interface IGateway, forgot register?")
-	}
-	return localGateway
-}
-
-func RegisterGateway(i IGateway) {
-	localGateway = i
-}
 
 func Ticket() ITicket {
 	if localTicket == nil {
@@ -109,6 +128,28 @@ func RegisterMerchantAppConfig(i IMerchantAppConfig) {
 	localMerchantAppConfig = i
 }
 
+func PayMerchant() IPayMerchant {
+	if localPayMerchant == nil {
+		panic("implement not found for interface IPayMerchant, forgot register?")
+	}
+	return localPayMerchant
+}
+
+func RegisterPayMerchant(i IPayMerchant) {
+	localPayMerchant = i
+}
+
+func PaySubMerchant() IPaySubMerchant {
+	if localPaySubMerchant == nil {
+		panic("implement not found for interface IPaySubMerchant, forgot register?")
+	}
+	return localPaySubMerchant
+}
+
+func RegisterPaySubMerchant(i IPaySubMerchant) {
+	localPaySubMerchant = i
+}
+
 func ThirdAppConfig() IThirdAppConfig {
 	if localThirdAppConfig == nil {
 		panic("implement not found for interface IThirdAppConfig, forgot register?")
@@ -118,4 +159,15 @@ func ThirdAppConfig() IThirdAppConfig {
 
 func RegisterThirdAppConfig(i IThirdAppConfig) {
 	localThirdAppConfig = i
+}
+
+func Gateway() IGateway {
+	if localGateway == nil {
+		panic("implement not found for interface IGateway, forgot register?")
+	}
+	return localGateway
+}
+
+func RegisterGateway(i IGateway) {
+	localGateway = i
 }

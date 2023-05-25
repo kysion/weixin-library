@@ -3,12 +3,13 @@ module github.com/kysion/weixin-library
 go 1.19
 
 require (
-	github.com/SupenBysz/gf-admin-community v0.4.6
-	github.com/SupenBysz/gf-admin-company-modules v0.4.9
-	//github.com/kysion/gopay v1.5.92
-	github.com/gogf/gf/v2 v2.3.2
-	github.com/kysion/base-library v0.0.12
+	github.com/SupenBysz/gf-admin-community v0.4.7
+	github.com/SupenBysz/gf-admin-company-modules v0.4.11
+	github.com/gogf/gf/v2 v2.4.1
+	github.com/kysion/base-library v0.0.13
 	github.com/kysion/gopay v0.0.3
+	github.com/kysion/pay-share-library v0.1.12
+	github.com/wechatpay-apiv3/wechatpay-go v0.2.16
 	github.com/yitter/idgenerator-go v1.3.2
 )
 
@@ -29,7 +30,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/clbanning/mxj/v2 v2.5.7 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/fatih/color v1.13.0 // indirect
+	github.com/fatih/color v1.15.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -42,12 +43,12 @@ require (
 	github.com/grokify/html-strip-tags-go v0.0.1 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
-	github.com/kysion/sms-library v0.0.3 // indirect
+	github.com/kysion/sms-library v0.0.4 // indirect
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/lionsoul2014/ip2region/binding/golang v0.0.0-20230201065125-561cdd83b71d // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
@@ -70,4 +71,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-//replace github.com/kysion/base-library v0.0.5 => ../base-library
+//
+//replace (
+//	github.com/kysion/base-library => ../base-library
+//	github.com/kysion/pay-share-library => ../pay-share-library
+//)

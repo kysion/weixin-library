@@ -11,6 +11,7 @@ import (
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_service"
+	"net/http"
 )
 
 type sTicket struct{}
@@ -43,7 +44,7 @@ func (s *sTicket) Ticket(ctx context.Context, info g.Map) bool {
 	return res
 }
 
-// getComponentAccessToken 获取第三方接口调用凭据 access_token
+// getComponentAccessToken 获取第三方接口调用凭据 component_access_token
 func getComponentAccessToken(ctx context.Context, data *weixin_model.EventMessageBody) bool {
 	appConfig, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, data.AppId)
 	if appConfig == nil || err != nil {
@@ -70,12 +71,6 @@ func getComponentAccessToken(ctx context.Context, data *weixin_model.EventMessag
 	gjson.DecodeTo(componentAccessToken, &componentAccessTokenRes)
 	fmt.Println("令牌：", componentAccessTokenRes)
 
-	// 缓存componentAccessToken 第三方接口调用凭据  不需要，直接存储数据库
-	//if componentAccessTokenRes.ComponentAccessToken != "" {
-	//	gcache.Set(ctx, appId+"_component_access_token", componentAccessTokenRes.ComponentAccessToken, time.Duration(componentAccessTokenRes.ExpiresIn))
-	//	return true
-	//}
-
 	// 找出服务商
 	if componentAccessTokenRes.ComponentAccessToken != "" {
 		thirdAppConfigInfo, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, data.AppId)
@@ -101,4 +96,59 @@ func getComponentAccessToken(ctx context.Context, data *weixin_model.EventMessag
 	}
 
 	return true
+}
+
+type wxResult struct {
+	Ticket    string `json:"ticket"`
+	ExpiresIn int    `json:"expires_in"`
+}
+
+// GetTicket 获取票据
+func (s *sTicket) GetTicket(ctx context.Context, appId string) (string, error) {
+	appConfig, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+	if appConfig == nil || err != nil {
+		return "", err
+	}
+
+	var url = fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%s&type=jsapi", appConfig.AppAuthToken)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	var result wxResult
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", err
+	}
+
+	return result.Ticket, nil
+}
+
+// GenerateScheme 获取scheme码
+func (s *sTicket) GenerateScheme(ctx context.Context, appId string, info *weixin_model.JumpWxa) (*weixin_model.GetSchemeRes, error) {
+	// POST https://api.weixin.qq.com/wxa/generatescheme?access_token=ACCESS_TOKEN
+
+	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+	if err != nil {
+		return nil, err
+	}
+
+	url := "https://api.weixin.qq.com/wxa/generatescheme?access_token=" + merchantApp.AppAuthToken
+
+	encode, _ := gjson.Encode(g.Map{
+		"jump_wxa":        info,
+		"is_expire":       true,
+		"expire_type":     1,
+		"expire_interval": 1,
+	})
+
+	result := g.Client().PostContent(ctx, url, encode)
+
+	res := weixin_model.GetSchemeRes{}
+	gjson.DecodeTo(result, &res)
+
+	return &res, err
 }

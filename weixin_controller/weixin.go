@@ -3,6 +3,7 @@ package weixin_controller
 import (
 	"context"
 	"fmt"
+	"github.com/SupenBysz/gf-admin-community/api_v1"
 	v1 "github.com/kysion/weixin-library/api/weixin_v1"
 	"github.com/kysion/weixin-library/weixin_service"
 )
@@ -58,4 +59,18 @@ func (c *cWeiXin) CheckSignature(ctx context.Context, req *v1.CheckSignatureReq)
 	//unix := time.Now().Unix()
 
 	return (v1.StringRes)(weixin_service.Gateway().WXCheckSignature(ctx, req.Signature, req.Signature, req.Nonce, req.Echostr)), nil
+}
+
+// NotifyServices 异步通知地址
+func (c *cWeiXin) NotifyServices(ctx context.Context, _ *v1.NotifyServicesReq) (api_v1.StringRes, error) {
+	_, err := weixin_service.MerchantNotify().NotifyServices(ctx)
+
+	return "success", err
+}
+
+// GetTicket 获取票据
+func (c *cWeiXin) GetTicket(ctx context.Context, _ *v1.GetTicketReq) (api_v1.StringRes, error) {
+	_, err := weixin_service.MerchantNotify().NotifyServices(ctx)
+
+	return "success", err
 }

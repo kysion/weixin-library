@@ -92,7 +92,7 @@ var weixinThirdAppConfigColumns = WeixinThirdAppConfigColumns{
 // NewWeixinThirdAppConfigDao creates and returns a new DAO object for table data access.
 func NewWeixinThirdAppConfigDao(proxy ...dao_interface.IDao) *WeixinThirdAppConfigDao {
 	var dao *WeixinThirdAppConfigDao
-	if proxy != nil {
+	if len(proxy) > 0 {
 		dao = &WeixinThirdAppConfigDao{
 			group:   proxy[0].Group(),
 			table:   proxy[0].Table(),

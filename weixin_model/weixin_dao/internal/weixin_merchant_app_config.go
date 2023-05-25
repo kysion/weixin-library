@@ -108,7 +108,7 @@ var weixinMerchantAppConfigColumns = WeixinMerchantAppConfigColumns{
 // NewWeixinMerchantAppConfigDao creates and returns a new DAO object for table data access.
 func NewWeixinMerchantAppConfigDao(proxy ...dao_interface.IDao) *WeixinMerchantAppConfigDao {
 	var dao *WeixinMerchantAppConfigDao
-	if proxy != nil {
+	if len(proxy) > 0 {
 		dao = &WeixinMerchantAppConfigDao{
 			group:   proxy[0].Group(),
 			table:   proxy[0].Table(),

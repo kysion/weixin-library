@@ -4,8 +4,11 @@ import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/api_v1"
 	"github.com/SupenBysz/gf-admin-community/utility/funs"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/weixin-library/api/weixin_v1/weixin_merchant_app_v1"
+	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
+	"github.com/kysion/weixin-library/weixin_utility"
 )
 
 var WeiXinMerchantAppConfig = cWeiXinMerchantAppConfig{}
@@ -72,4 +75,14 @@ func (s *cWeiXinMerchantAppConfig) UpdateAppConfig(ctx context.Context, req *wei
 func (s *cWeiXinMerchantAppConfig) UpdateMerchantAppConfigHttps(ctx context.Context, req *weixin_merchant_app_v1.UpdateMerchantAppConfigHttpsReq) (api_v1.BoolRes, error) {
 	ret, err := weixin_service.MerchantAppConfig().UpdateAppConfigHttps(ctx, &req.UpdateMerchantAppConfigHttpsReq)
 	return ret == true, err
+}
+
+// GetPolicy 获取协议
+func (c *cWeiXinMerchantAppConfig) GetPolicy(ctx context.Context, _ *weixin_merchant_app_v1.GetPolicyReq) (*weixin_model.GetPolicyRes, error) {
+
+	appId := weixin_utility.GetAppIdFormContext(ctx)
+
+	ret, err := weixin_service.MerchantAppConfig().GetPolicy(ctx, gconv.String(appId))
+
+	return ret, err
 }
