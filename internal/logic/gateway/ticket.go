@@ -87,8 +87,9 @@ func getComponentAccessToken(ctx context.Context, data *weixin_model.EventMessag
 		tokenData := weixin_model.UpdateAppAuthToken{
 			AppId:        data.AppId,
 			AppAuthToken: componentAccessTokenRes.ComponentAccessToken,
-			ExpiresIn:    gtime.New(componentAccessTokenRes.ExpiresIn),
-			ReExpiresIn:  gtime.New(gconv.Int64(componentAccessTokenRes.ExpiresIn) + timestamp), // 0 应该替换成原来时间的时间戳
+			//ExpiresIn:    gtime.New(componentAccessTokenRes.ExpiresIn),
+			ExpiresIn:   gtime.New(gconv.Int64(componentAccessTokenRes.ExpiresIn) + timestamp),
+			ReExpiresIn: gtime.New(gconv.Int64(componentAccessTokenRes.ExpiresIn) + timestamp), // 0 应该替换成原来时间的时间戳
 		}
 
 		// 修改数据库中服务商Token

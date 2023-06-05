@@ -9,7 +9,7 @@ import (
 
 // HexToBase32 十六进制转为32进制
 func HexToBase32(hexStr string) (base32 string) {
-	//hexStr := "caf4b7b8d6620f00"
+	//hexStr := "437535c8dc5fec3a"
 
 	// 解码为字节数组
 	bytes, err := hex.DecodeString(hexStr)
@@ -27,7 +27,7 @@ func HexToBase32(hexStr string) (base32 string) {
 	// 将 uint64 格式化为 32 进制字符串
 	base32Str := strconv.FormatUint(num, 32)
 
-	fmt.Println("32 进制字符串：", base32Str)
+	fmt.Println("32 进制字符串：", base32Str) // 46t9lp3e5vr1q
 
 	return base32Str
 }
@@ -48,5 +48,3 @@ func Base32ToHex(base32Str string) (hexStr string) {
 
 	return hexStr
 }
-
-// 正常获取订单，
