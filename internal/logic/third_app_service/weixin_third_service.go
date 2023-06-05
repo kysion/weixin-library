@@ -1,4 +1,4 @@
-package weixin_controller
+package third_app_service
 
 import (
 	"context"
