@@ -61,6 +61,7 @@ type WeixinMerchantAppConfigColumns struct {
 	DevState       string // 开发状态：0未上线 1已上线
 	UpdatedAt      string //
 	RefreshToken   string // 刷新商家授权应用Token
+	PrimitiveId    string // 应用原始ID
 }
 
 // weixinMerchantAppConfigColumns holds the columns for table weixin_merchant_app_config.
@@ -103,6 +104,7 @@ var weixinMerchantAppConfigColumns = WeixinMerchantAppConfigColumns{
 	DevState:       "dev_state",
 	UpdatedAt:      "updated_at",
 	RefreshToken:   "refresh_token",
+	PrimitiveId:    "primitive_id",
 }
 
 // NewWeixinMerchantAppConfigDao creates and returns a new DAO object for table data access.

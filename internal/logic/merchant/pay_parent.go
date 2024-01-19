@@ -65,7 +65,11 @@ func (s *sWeiXinPay) PayTradeCreate(ctx context.Context, info *weixin_model.Trad
 	var prepayId string
 	// 判断是小程序还是H5
 	if merchantApp.AppType == 1 {
-		//  公众号
+		//  公众号  --
+		prepayId, err = s.JsapiCreateOrder(ctx, &weixin_model.TradeOrder{
+			ReturnUrl: info.ReturnUrl, // 支付成功后的返回地址
+			Order:     info.Order,
+		}, openId)
 
 	} else if merchantApp.AppType == 2 {
 		// 小程序  JsApi支付产品
@@ -144,22 +148,28 @@ func (s *sWeiXinPay) DownloadCertificates(ctx context.Context, appID ...string) 
 
 	// 通过AppId拿到特约商户商户号
 	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
-	if err != nil {
-		return nil, sys_service.SysLogs().ErrorSimple(ctx, err, "该应用没有对应的特约商户", "WeiXin-Pay")
-	}
+	//if err != nil {
+	//	return nil, sys_service.SysLogs().ErrorSimple(ctx, err, "该应用没有对应的特约商户", "WeiXin-Pay")
+	//}
 
-	spMerchant, err := weixin_service.PayMerchant().GetPayMerchantByMchid(ctx, subMerchant.SpMchid)
+	spMerchant, err := weixin_service.PayMerchant().GetPayMerchantByAppId(ctx, appId)
+
+	//spMerchant, err := weixin_service.PayMerchant().GetPayMerchantByMchid(ctx, subMerchant.SpMchid)
 	if err != nil {
 		return nil, sys_service.SysLogs().ErrorSimple(ctx, err, "该应用没有对应的商户号", "WeiXin-Pay")
 	}
 
-	var (
+	mchID := ""
+	if subMerchant != nil {
 		mchID = gconv.String(subMerchant.SpMchid) // 商户号
+	}
+	if spMerchant != nil {
+		mchID = gconv.String(spMerchant.Mchid) // 商户号
+	}
 
-		//mchID string = "1642565036" // 商户号
-		//mchCertificateSerialNumber string = "298D4028EC0F48748DF237A226DB4D5281EFE86E" // 商户证书序列号
-		//mchAPIv3Key                string = "655957AD45E5FE85F1BF3B9E0D82B96D"         // 商户APIv3密钥
-	)
+	//mchID string = "1642565036" // 商户号
+	//mchCertificateSerialNumber string = "298D4028EC0F48748DF237A226DB4D5281EFE86E" // 商户证书序列号
+	//mchAPIv3Key                string = "655957AD45E5FE85F1BF3B9E0D82B96D"         // 商户APIv3密钥
 
 	client, _ := weixin.NewPayClient(ctx, mchID, spMerchant.PayPrivateKeyPem, spMerchant.CertSerialNumber, spMerchant.ApiV3Key)
 	//client, err := core.NewClient(ctx, opts...)
@@ -183,7 +193,7 @@ func (s *sWeiXinPay) DownloadCertificates(ctx context.Context, appID ...string) 
 	return resp, nil
 }
 
-// JsapiCreateOrder JsApi 支付下单
+// JsapiCreateOrder JsApi 支付下单 - 服务商待调用
 func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.TradeOrder, openId string) (tradeNo string, err error) {
 	sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------JSAPI 创建支付订单，预下单 ------- ", "WeiXin-Pay")
 

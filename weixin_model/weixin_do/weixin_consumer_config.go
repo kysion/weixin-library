@@ -31,6 +31,10 @@ type WeixinConsumerConfig struct {
 	DeletedAt          *gtime.Time //
 	UnionId            interface{} // 微信用户union_id，同一个开放平台帐号下的用户只有一个unionId
 	SessionKey         interface{} // 微信用户会话key
-	RefreshToken       interface{} // 微信用户授权刷新Token
+	RefreshToken       interface{} // 用户授权刷新令牌
 	ExpiresIn          *gtime.Time // 令牌过期时间
+	AuthState          interface{} // 微信用户授权状态：1已授权、2未授权
+	AppType            interface{} // 应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店
+	IsFollowPublic     interface{} // 是否关注公众号：1关注、2未关注
+	AppId              interface{} // 商家应用Id
 }
