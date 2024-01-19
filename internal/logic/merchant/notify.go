@@ -104,11 +104,17 @@ func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
 	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
-	if err != nil {
-		return "", err
+	//if err != nil {
+	//	return "", err
+	//}
+
+	var spMerchat *weixin_model.PayMerchant
+	if subMerchant != nil && subMerchant.SpMchid != 0 {
+		spMerchat, err = weixin_service.PayMerchant().GetPayMerchantByMchid(ctx, subMerchant.SpMchid)
+	} else {
+		spMerchat, err = weixin_service.PayMerchant().GetPayMerchantByAppId(ctx, appId)
 	}
 
-	spMerchat, err := weixin_service.PayMerchant().GetPayMerchantByMchid(ctx, subMerchant.SpMchid)
 	if err != nil {
 		return "", err
 	}

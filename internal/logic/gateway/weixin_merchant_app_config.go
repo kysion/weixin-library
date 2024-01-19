@@ -47,7 +47,7 @@ func (s *sMerchantAppConfig) GetMerchantAppConfigByAppId(ctx context.Context, id
 	if gtime.Now().After(data.ExpiresIn) { // 如果Token已经过期
 		_, err := weixin_service.AppAuth().RefreshToken(ctx, id, data.ThirdAppId, data.RefreshToken)
 		if err != nil {
-			return nil, err
+			return &data, err
 		}
 	}
 

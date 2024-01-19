@@ -15,6 +15,7 @@ import (
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
+	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_utility/file"
 	"github.com/yitter/idgenerator-go/idgen"
 )
@@ -30,6 +31,15 @@ func NewPayMerchant() *sPayMerchant {
 // GetPayMerchantById 根据id查找商户号配置信息
 func (s *sPayMerchant) GetPayMerchantById(ctx context.Context, id int64) (*weixin_model.PayMerchant, error) {
 	return daoctl.GetByIdWithError[weixin_model.PayMerchant](dao.WeixinPayMerchant.Ctx(ctx), id)
+}
+
+// GetPayMerchantByAppId 根据AppId查找商户号配置信息
+func (s *sPayMerchant) GetPayMerchantByAppId(ctx context.Context, appId string) (*weixin_model.PayMerchant, error) {
+	data := weixin_model.PayMerchant{}
+
+	err := dao.WeixinPayMerchant.Ctx(ctx).Where(do.WeixinPayMerchant{AppId: appId, MerchantType: weixin_enum.Pay.MerchantType.SubMerchant.Code()}).Scan(&data)
+
+	return &data, err
 }
 
 // GetPayMerchantByMchid 根据Mchid查找商户号配置信息

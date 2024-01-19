@@ -79,13 +79,13 @@ func GetAuthorizerAccessToken(ctx context.Context, thirdAppId, componentAccessTo
 	if tokenResData.AuthorizerAccessToken != "" {
 		// 存储authorizer_access_token至数据库
 		_, err := weixin_service.MerchantAppConfig().UpdateAppAuthToken(ctx, &weixin_model.UpdateMerchantAppAuthToken{
-			AppId:        merchantAppId,
-			AppAuthToken: tokenResData.AuthorizerAccessToken,
+			AppId:        &merchantAppId,
+			AppAuthToken: &tokenResData.AuthorizerAccessToken,
 			//expiresIn := gtime.NewFromTimeStamp(tokenResData.ExpiresIn)
 			ExpiresIn:    gtime.Now().Add(time.Hour * 2), // token 有效期两小时
 			ReExpiresIn:  gtime.NewFromStr(tokenReTime),
-			RefreshToken: tokenResData.AuthorizerRefreshToken,
-			ThirdAppId:   thirdAppId, // 第三方应用appId
+			RefreshToken: &tokenResData.AuthorizerRefreshToken,
+			ThirdAppId:   &thirdAppId, // 第三方应用appId
 		})
 
 		if err != nil {
@@ -215,11 +215,11 @@ func (s *sAppAuth) Authorized(ctx context.Context, info g.Map) bool {
 
 	// 存储authorizer_access_token至数据库
 	_, err := weixin_service.MerchantAppConfig().UpdateAppAuthToken(ctx, &weixin_model.UpdateMerchantAppAuthToken{
-		AppId:        data.AppId,
-		AppAuthToken: tokenResData.AuthorizationInfo.AuthorizerAccessToken,
+		AppId:        &data.AppId,
+		AppAuthToken: &tokenResData.AuthorizationInfo.AuthorizerAccessToken,
 		ExpiresIn:    gtime.New(tokenResData.AuthorizationInfo.ExpiresIn),
 		//ReExpiresIn:  gtime.New(tokenResData.AuthorizationInfo.AuthorizerRefreshToken),
-		RefreshToken: tokenResData.AuthorizationInfo.AuthorizerRefreshToken,
+		RefreshToken: &tokenResData.AuthorizationInfo.AuthorizerRefreshToken,
 	})
 
 	if err != nil {

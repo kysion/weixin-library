@@ -4,11 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/SupenBysz/gf-admin-community/sys_model"
+	"github.com/SupenBysz/gf-admin-community/sys_model/sys_enum"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/base_hook"
 	"github.com/kysion/base-library/utility/kconv"
@@ -23,13 +26,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // 用户授权 （静默、手动授权）
 
 /*
 网页授权：
-   	1、构建授权连接，在回调中拿到code
+   	1、构建授权连接，在回调中拿到code (前端)
 	2、通过code拿到接口调用凭据access_token
 	3、通过access_token拿到用户信息user_info
 	4、通过refresh_token 进行刷新access_token
@@ -51,19 +55,24 @@ func init() {
 	weixin_service.RegisterUserAuth(NewUserAuth())
 }
 
-func NewUserAuth() *sUserAuth {
+func NewUserAuth() weixin_service.IUserAuth {
 
 	result := &sUserAuth{}
 
-	result.injectHook()
+	//result.injectHook()
 	return result
 }
 
 func (s *sUserAuth) injectHook() {
 	//notifyHook := weixin_service.Gateway().GetServiceNotifyTypeHook()
-	callHook := weixin_service.Gateway().GetCallbackMsgHook()
+	//callHook := weixin_service.Gateway().GetCallbackMsgHook()
 
-	callHook.InstallHook(weixin_enum.Info.CallbackType.UserAuth, s.UserAuthCallback)
+	//callHook.InstallHook(weixin_enum.Info.CallbackType.UserAuth, s.UserAuthCallback)
+	//
+	//serviceHook := weixin_service.Gateway().GetServiceNotifyTypeHook()
+	//
+	//serviceHook.InstallHook(weixin_enum.Info.ServiceType.Event, s.UserEvent)
+
 }
 
 func (s *sUserAuth) InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc) {
@@ -79,7 +88,7 @@ func (s *sUserAuth) GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.Consumer
 // TODO ----------------------------------------------------公众号---------------------------------------------------------------------------------------------
 
 // UserAuthCallback 处理网页授权回调请求 （公众号登录）
-func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) bool {
+func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) (int64, error) {
 	from := gmap.NewStrAnyMapFrom(info)
 
 	// 1.拿到code
@@ -90,38 +99,63 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) bool {
 
 	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
 	if err != nil || merchantApp == nil {
-		return false
+		return sysUserId, err
 	}
 	// TODO 获取用户信息
 	sysUser, err := sys_service.SysUser().GetSysUserById(ctx, sysUserId)
-	if err != nil {
-		return false
-	}
+	//if err != nil {
+	//	return nil,err
+	//}
 
 	// 2.获取access_token  (能拿到openId和access_token)
 	accessToken, err := getAccessToken(code, appId, merchantApp.AppSecret)
 	if err != nil {
 		sys_service.SysLogs().ErrorSimple(ctx, err, "获取AccessToken失败："+err.Error(), "WeiXin")
-		return false
+		return sysUserId, err
 	}
+	g.Dump(accessToken)
+
 	sys_service.SysLogs().InfoSimple(ctx, nil, "\nOpenId："+accessToken.Openid, "sUserAuth")
 	sys_service.SysLogs().InfoSimple(ctx, nil, "\nAccessToken： "+accessToken.AccessToken, "sUserAuth")
 
 	openID := accessToken.Openid
 	err = dao.WeixinConsumerConfig.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		if openID != "" {
-
-			// 3.获取用户信息userInfo
-			userInfo, err := getUserInfo(accessToken.AccessToken, openID)
-			if err != nil {
-				return sys_service.SysLogs().ErrorSimple(ctx, err, "获取用户信息失败："+err.Error(), "WeiXin")
-			}
-
 			var weiXinConsumer *weixin_model.WeixinConsumerConfig
 			if accessToken.Unionid != "" {
-				weiXinConsumer, err = weixin_service.Consumer().GetConsumerByOpenId(ctx, openID, accessToken.Unionid)
+				//weiXinConsumer, err = weixin_service.Consumer().GetConsumerByOpenId(ctx, openID, accessToken.Unionid)
+				weiXinConsumer, err = weixin_service.Consumer().GetConsumerByOpenIdAndAppId(ctx, openID, appId, accessToken.Unionid)
 			} else {
-				weiXinConsumer, err = weixin_service.Consumer().GetConsumerByOpenId(ctx, openID)
+				//weiXinConsumer, err = weixin_service.Consumer().GetConsumerByOpenId(ctx, openID)
+				weiXinConsumer, err = weixin_service.Consumer().GetConsumerByOpenIdAndAppId(ctx, openID, appId)
+			}
+
+			if weiXinConsumer == nil {
+				id := sysUserId
+				passwordLen := len(gconv.String(id))
+				pwd := gstr.SubStr(gconv.String(id), passwordLen-6, 6) // 密码为id后六位
+
+				data := sys_model.UserInnerRegister{
+					Username:        strconv.FormatInt(gconv.Int64(id), 36),
+					Password:        pwd,
+					ConfirmPassword: pwd,
+				}
+				sysUser, err = sys_service.SysUser().CreateUser(ctx, data, sys_enum.User.State.Normal, sys_enum.User.Type.New(0, "匿名"), id)
+				if err != nil {
+					return err
+				}
+				sysUserId = sysUser.Id
+
+			}
+			if weiXinConsumer != nil {
+				sysUserId = weiXinConsumer.SysUserId
+			}
+			// 3.获取用户信息userInfo
+			userInfo, err := getUserInfo(accessToken.AccessToken, openID)
+			g.Dump(userInfo)
+
+			if err != nil {
+				return sys_service.SysLogs().ErrorSimple(ctx, err, "获取用户信息失败："+err.Error(), "WeiXin")
 			}
 
 			// 4.处理微信消费者数据
@@ -129,18 +163,21 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) bool {
 				wConsumerData := kconv.Struct(userInfo, &weixin_model.WeixinConsumerConfig{})
 
 				wConsumerData.OpenId = openID
-				wConsumerData.SysUserId = sysUserId     // TODO 后期想办法将sysUserId传递
-				wConsumerData.UserType = sysUser.Type   // TODO 后期通过sysUserId拿到user，拿到type
-				wConsumerData.UserState = sysUser.State // TODO 用户状态,拿到user，拿到type
+				wConsumerData.SysUserId = sysUserId
+				wConsumerData.UserType = sysUser.Type
+				wConsumerData.UserState = sysUser.State
 				wConsumerData.Avatar = userInfo.HeadImgURL
 
 				wConsumerData.AccessToken = accessToken.AccessToken
 				wConsumerData.RefreshToken = accessToken.RefreshToken
-				wConsumerData.ExpiresIn = gtime.New(accessToken.ExpiresIn)
+				wConsumerData.ExpiresIn = gtime.NewFromTimeStamp(gtime.Now().Timestamp() + accessToken.ExpiresIn)
 
 				wConsumerData.UnionId = accessToken.Unionid
 				wConsumerData.OpenId = accessToken.Openid
-				wConsumerData.SessionKey = "" // TODO 获取用户信息的时候补全sessionKey
+				wConsumerData.SessionKey = ""
+				wConsumerData.AuthState = weixin_enum.Consumer.AuthState.Auth.Code()
+				wConsumerData.AppType = weixin_enum.AppManage.AppType.PublicAccount.Code()
+				wConsumerData.AppId = appId
 
 				_, err = weixin_service.Consumer().CreateConsumer(ctx, wConsumerData)
 				if err != nil {
@@ -150,15 +187,19 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) bool {
 			} else { // 修改
 				wConsumerData := kconv.Struct(userInfo, &weixin_model.UpdateConsumerReq{}) // 修改用户基本数据
 				wConsumerData.Avatar = userInfo.HeadImgURL
-				_, err = weixin_service.Consumer().UpdateConsumer(ctx, weiXinConsumer.Id, wConsumerData)
+				//_, err = weixin_service.Consumer().UpdateConsumer(ctx, weiXinConsumer.Id, wConsumerData)
+				_, err = weixin_service.Consumer().UpdateConsumerByUserId(ctx, weiXinConsumer.SysUserId, wConsumerData)
 				if err != nil {
 					return err
 				}
 
 				_, err = weixin_service.Consumer().UpdateConsumerToken(ctx, openID, &weixin_model.UpdateConsumerTokenReq{ // 修改用户Token
-					AccessToken: &accessToken.AccessToken,
-					SessionKey:  nil,
+					AccessToken:  &accessToken.AccessToken,
+					SessionKey:   nil,
+					RefreshToken: &accessToken.RefreshToken,
+					ExpiresIn:    gtime.NewFromTimeStamp(gtime.Now().Timestamp() + accessToken.ExpiresIn),
 				})
+
 				if err != nil {
 					return err
 				}
@@ -215,10 +256,10 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) bool {
 	})
 
 	if err != nil {
-		return false
+		return sysUserId, err
 	}
 
-	return true
+	return sysUserId, err
 }
 
 // 获取微信AccessToken
