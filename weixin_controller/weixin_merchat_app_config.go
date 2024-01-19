@@ -23,7 +23,7 @@ func (s *cWeiXinMerchantAppConfig) UpdateState(ctx context.Context, req *weixin_
 			return ret == true, err
 		},
 		// 记得添加权限
-		// weixin_permission.MerchantAppConfig.PermissionType.Update,
+		//weixin_permission.MerchantAppConfig.PermissionType.Update,
 	)
 }
 
@@ -44,15 +44,17 @@ func (s *cWeiXinMerchantAppConfig) CreateMerchantAppConfig(ctx context.Context, 
 
 // GetMerchantAppConfigByAppId 根据AppId查找第三方应用配置信息
 func (s *cWeiXinMerchantAppConfig) GetMerchantAppConfigByAppId(ctx context.Context, req *weixin_merchant_app_v1.GetMerchantAppConfigByIdReq) (*weixin_merchant_app_v1.MerchantAppConfigRes, error) {
-	return funs.CheckPermission(ctx,
-		func() (*weixin_merchant_app_v1.MerchantAppConfigRes, error) {
-			ret, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigById(ctx, req.Id)
-			return (*weixin_merchant_app_v1.MerchantAppConfigRes)(ret), err
-		},
-		// 记得添加权限
-		// weixin_permission.MerchantAppConfig.PermissionType.Update,
-	)
+	//return funs.CheckPermission(ctx,
+	//	func() (*weixin_merchant_app_v1.MerchantAppConfigRes, error) {
+	//		ret, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigById(ctx, req.Id)
+	//		return (*weixin_merchant_app_v1.MerchantAppConfigRes)(ret), err
+	//	},
+	//	// 记得添加权限
+	//	// weixin_permission.MerchantAppConfig.PermissionType.Update,
+	//)
 
+	ret, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigById(ctx, req.Id)
+	return (*weixin_merchant_app_v1.MerchantAppConfigRes)(ret), err
 }
 
 // UpdateAppConfig 修改服务商基础信息
