@@ -1,6 +1,7 @@
 package weixin_enum
 
 import (
+	"github.com/kysion/weixin-library/weixin_model/weixin_enum/internal/app_manager"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum/internal/consumer"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum/internal/info_type"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum/internal/notify"
@@ -23,6 +24,9 @@ type (
 
 	// MerchantType 微信支付
 	MerchantType weixin_pay.MerchantTypeEnum
+
+	// AppType 应用类型
+	AppType app_manager.AppTypeEnum
 )
 
 var (
@@ -37,4 +41,7 @@ var (
 
 	// Pay 微信支付
 	Pay = weixin_pay.Pay
+
+	// AppManage 应用管理
+	AppManage = app_manager.AppManager
 )
