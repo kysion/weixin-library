@@ -98,7 +98,7 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) (int64, er
 	merchantId := gconv.Int64(from.Get("merchant_id"))
 
 	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
-	if err != nil || merchantApp == nil {
+	if err != nil && merchantApp == nil {
 		return sysUserId, err
 	}
 	// TODO 获取用户信息

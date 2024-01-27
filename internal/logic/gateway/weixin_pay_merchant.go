@@ -30,7 +30,12 @@ func NewPayMerchant() *sPayMerchant {
 
 // GetPayMerchantById 根据id查找商户号配置信息
 func (s *sPayMerchant) GetPayMerchantById(ctx context.Context, id int64) (*weixin_model.PayMerchant, error) {
-	return daoctl.GetByIdWithError[weixin_model.PayMerchant](dao.WeixinPayMerchant.Ctx(ctx), id)
+	result, err := daoctl.GetByIdWithError[weixin_model.PayMerchant](dao.WeixinPayMerchant.Ctx(ctx), id)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, err
 }
 
 // GetPayMerchantByAppId 根据AppId查找商户号配置信息
@@ -38,6 +43,9 @@ func (s *sPayMerchant) GetPayMerchantByAppId(ctx context.Context, appId string) 
 	data := weixin_model.PayMerchant{}
 
 	err := dao.WeixinPayMerchant.Ctx(ctx).Where(do.WeixinPayMerchant{AppId: appId, MerchantType: weixin_enum.Pay.MerchantType.SubMerchant.Code()}).Scan(&data)
+	if err != nil {
+		return nil, err
+	}
 
 	return &data, err
 }
@@ -47,7 +55,10 @@ func (s *sPayMerchant) GetPayMerchantByMchid(ctx context.Context, id int) (*weix
 	data := weixin_model.PayMerchant{}
 
 	err := dao.WeixinPayMerchant.Ctx(ctx).Where(do.WeixinPayMerchant{Mchid: id}).Scan(&data)
-
+	if err != nil {
+		return nil, err
+	}
+	
 	return &data, err
 }
 
