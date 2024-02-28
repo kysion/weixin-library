@@ -50,4 +50,5 @@ type WeixinMerchantAppConfig struct {
 	DevState       interface{} // 开发状态：0未上线 1已上线
 	UpdatedAt      *gtime.Time //
 	RefreshToken   interface{} // 刷新商家授权应用Token
+	PrimitiveId    interface{} // 应用原始ID
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 	v1 "github.com/kysion/weixin-library/api/weixin_v1"
 	"github.com/kysion/weixin-library/api/weixin_v1/weixin_merchant_app_v1"
 	"github.com/kysion/weixin-library/weixin_model"
@@ -108,7 +109,8 @@ func (c *cMerchantService) UserAuth(ctx context.Context, _ *weixin_merchant_app_
 	authUrl, _ := buildUserAuthURL(redirect_url, appId)
 	sys_service.SysLogs().InfoSimple(ctx, nil, "\n用户授权全链接： "+authUrl, "cUserAuth")
 
-	g.RequestFromCtx(ctx).Response.Header().Set("referer", "https://www.kauimk.com/weixin/wx56j8q12l89h99/gateway.services") // https://www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
+	//g.RequestFromCtx(ctx).Response.Header().Set("referer", "https://www.kauimk.com/weixin/wx56j8q12l89h99/gateway.services") // https://www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
+	g.RequestFromCtx(ctx).Response.Header().Set("referer", "https://www.kauimk.com/weixin/"+appId+"/gateway.services")
 
 	g.RequestFromCtx(ctx).Response.Header().Set("Content-Type", "text/html; charset=UTF-8")
 
@@ -133,12 +135,24 @@ func (c *cMerchantService) UserAuthRes(ctx context.Context, req *weixin_merchant
 	fmt.Println("登陆凭据code：", req.Code) // 登陆凭据code： 011Koy200CX7UP12uD100PgJFk3Koy2P
 
 	// 2.处理授权回调请求，获得openId和accessKey和userInfo
-	weixin_service.UserAuth().UserAuthCallback(ctx, g.Map{ // 用户授权 （网页授权方式）
-		"code":   req.Code,
-		"app_id": appId,
-		// "sys_user_id": 0,
+	sysUserId, _ := weixin_service.UserAuth().UserAuthCallback(ctx, g.Map{ // 用户授权 （网页授权方式）
+		"code":        req.Code,
+		"app_id":      appId,
+		"sys_user_id": req.SysUserId,
 		// "merchant_id": 0,
 	})
+
+	// 在逻辑里面重新赋值了susUserId
+	//context.
+	//susUserId := g.RequestFromCtx(ctx).Get("sys_user_id")
+
+	//ctx = context.WithValue(ctx, "sys_user_id", "323232324")
+
+	//susUserId := ctx.Value("sys_user_id")
+	token, _ := GetJwtToken(ctx, gconv.Int64(sysUserId))
+	req.To += "?jwtToken=" + token.Token
+
+	g.RequestFromCtx(ctx).Response.RedirectTo(req.To)
 
 	return "success", nil
 }

@@ -42,8 +42,12 @@ type WeixinConsumerConfigColumns struct {
 	DeletedAt          string //
 	UnionId            string // 微信用户union_id，同一个开放平台帐号下的用户只有一个unionId
 	SessionKey         string // 微信用户会话key
-	RefreshToken       string // 微信用户授权刷新Token
+	RefreshToken       string // 用户授权刷新令牌
 	ExpiresIn          string // 令牌过期时间
+	AuthState          string // 微信用户授权状态：1已授权、2未授权
+	AppType            string // 应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店
+	IsFollowPublic     string // 是否关注公众号：1关注、2未关注
+	AppId              string // 商家应用Id
 }
 
 // weixinConsumerConfigColumns holds the columns for table weixin_consumer_config.
@@ -69,6 +73,10 @@ var weixinConsumerConfigColumns = WeixinConsumerConfigColumns{
 	SessionKey:         "session_key",
 	RefreshToken:       "refresh_token",
 	ExpiresIn:          "expires_in",
+	AuthState:          "auth_state",
+	AppType:            "app_type",
+	IsFollowPublic:     "is_follow_public",
+	AppId:              "app_id",
 }
 
 // NewWeixinConsumerConfigDao creates and returns a new DAO object for table data access.

@@ -48,7 +48,7 @@ var (
 							// 图型验证码
 							sys_controller.Captcha,
 							// 短信验证码
-							sys_controller.SysSms,
+							//sys_controller.SysSms,
 							// 地区
 							sys_controller.SysArea,
 						)

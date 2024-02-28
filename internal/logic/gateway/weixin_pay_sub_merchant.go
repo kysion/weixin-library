@@ -24,7 +24,11 @@ func NewPaySubMerchant() *sPaySubMerchant {
 
 // GetPaySubMerchantById 根据id查找特约商户配置信息
 func (s *sPaySubMerchant) GetPaySubMerchantById(ctx context.Context, id int64) (*weixin_model.WeixinPaySubMerchant, error) {
-	return daoctl.GetByIdWithError[weixin_model.WeixinPaySubMerchant](dao.WeixinPaySubMerchant.Ctx(ctx), id)
+	result, err := daoctl.GetByIdWithError[weixin_model.WeixinPaySubMerchant](dao.WeixinPaySubMerchant.Ctx(ctx), id)
+	if err != nil {
+		return nil, err
+	}
+	return result, err
 }
 
 // GetPaySubMerchantByAppId 根据AppId查找特约商户配置信息
@@ -33,6 +37,9 @@ func (s *sPaySubMerchant) GetPaySubMerchantByAppId(ctx context.Context, appId st
 
 	// 应用技术开发的特约商户才会有AppID
 	err := dao.WeixinPaySubMerchant.Ctx(ctx).Where(do.WeixinPaySubMerchant{SubAppid: appId, MerchantType: weixin_enum.Pay.MerchantType.SubMerchant.Code()}).Scan(&data)
+	if err != nil {
+		return nil, err
+	}
 
 	return &data, err
 }
@@ -42,7 +49,9 @@ func (s *sPaySubMerchant) GetPaySubMerchantByMchid(ctx context.Context, id int) 
 	data := weixin_model.WeixinPaySubMerchant{}
 
 	err := dao.WeixinPaySubMerchant.Ctx(ctx).Where(do.WeixinPaySubMerchant{SubMchid: id}).Scan(&data)
-
+	if err != nil {
+		return nil, err
+	}
 	return &data, err
 }
 

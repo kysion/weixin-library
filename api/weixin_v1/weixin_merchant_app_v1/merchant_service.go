@@ -28,6 +28,8 @@ type UserAuthResReq struct { // UserAuth 用户授权响应接收地址 （后�
 
 	Code      string `json:"code"`
 	ExpiresIn string `json:"expires_in"`
+	SysUserId int64  `json:"sys_user_id"`
+	To        string `json:"to" dc:"授权登录后用户需要跳转的URL地址"`
 }
 
 // GetUserInfoReq 获取微信会员信息，相当于静默登录

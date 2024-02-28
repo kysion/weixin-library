@@ -32,7 +32,12 @@ func NewMerchantAppConfig() *sMerchantAppConfig {
 
 // GetMerchantAppConfigById 根据id查找商家应用配置信息
 func (s *sMerchantAppConfig) GetMerchantAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinMerchantAppConfig, error) {
-	return daoctl.GetByIdWithError[weixin_model.WeixinMerchantAppConfig](dao.WeixinMerchantAppConfig.Ctx(ctx), id)
+	result, err := daoctl.GetByIdWithError[weixin_model.WeixinMerchantAppConfig](dao.WeixinMerchantAppConfig.Ctx(ctx), id)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, err
 }
 
 // GetMerchantAppConfigByAppId 根据AppId查找商家应用配置信息
@@ -47,7 +52,7 @@ func (s *sMerchantAppConfig) GetMerchantAppConfigByAppId(ctx context.Context, id
 	if gtime.Now().After(data.ExpiresIn) { // 如果Token已经过期
 		_, err := weixin_service.AppAuth().RefreshToken(ctx, id, data.ThirdAppId, data.RefreshToken)
 		if err != nil {
-			return nil, err
+			return &data, err
 		}
 	}
 

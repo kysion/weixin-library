@@ -41,6 +41,7 @@ type MessageBodyDecrypt struct {
 	FromUserName string   `xml:"FromUserName"`
 	CreateTime   string   `xml:"CreateTime"`
 	MsgType      string   `xml:"MsgType"`
+	Event        string   `xml:"Event"`
 	Url          string   `xml:"Url"`
 	PicUrl       string   `xml:"PicUrl"`
 	MediaId      string   `xml:"MediaId"`
@@ -50,6 +51,9 @@ type MessageBodyDecrypt struct {
 	Location_X   string   `xml:"Location_x"`
 	Location_Y   string   `xml:"Location_y"`
 	Label        string   `xml:"Label"`
+	RevokeInfo   string   `xml:"RevokeInfo"`
+	OpenID       string   `xml:"OpenID" `
+	AppID        string   `xml:"AppID" `
 }
 
 type MessageEncryptBody struct {

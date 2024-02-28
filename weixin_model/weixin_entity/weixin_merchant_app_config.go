@@ -48,4 +48,5 @@ type WeixinMerchantAppConfig struct {
 	DevState       int         `json:"devState"       description:"开发状态：0未上线 1已上线"`
 	UpdatedAt      *gtime.Time `json:"updatedAt"      description:""`
 	RefreshToken   string      `json:"refreshToken"   description:"刷新商家授权应用Token"`
+	PrimitiveId    string      `json:"primitiveId"    description:"应用原始ID"`
 }

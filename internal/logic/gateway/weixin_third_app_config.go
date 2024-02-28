@@ -32,13 +32,19 @@ func (s *sThirdAppConfig) GetThirdAppConfigByAppId(ctx context.Context, id strin
 	data := weixin_model.WeixinThirdAppConfig{}
 
 	err := dao.WeixinThirdAppConfig.Ctx(ctx).Where(do.WeixinThirdAppConfig{AppId: id}).Scan(&data)
-
+	if err != nil {
+		return nil, err
+	}
 	return &data, err
 }
 
 // GetThirdAppConfigById 根据id查找第三方应用配置信息
 func (s *sThirdAppConfig) GetThirdAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinThirdAppConfig, error) {
-	return daoctl.GetByIdWithError[weixin_model.WeixinThirdAppConfig](dao.WeixinThirdAppConfig.Ctx(ctx), id)
+	result, err := daoctl.GetByIdWithError[weixin_model.WeixinThirdAppConfig](dao.WeixinThirdAppConfig.Ctx(ctx), id)
+	if err != nil {
+		return nil, err
+	}
+	return result, err
 }
 
 // CreateThirdAppConfig  创建第三方应用配置信息
