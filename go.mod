@@ -3,12 +3,12 @@ module github.com/kysion/weixin-library
 go 1.21
 
 require (
-	github.com/SupenBysz/gf-admin-community v0.6.24
-	github.com/SupenBysz/gf-admin-company-modules v0.7.40
+	github.com/SupenBysz/gf-admin-community v0.6.28
+	github.com/SupenBysz/gf-admin-company-modules v0.7.42
 	github.com/gogf/gf/v2 v2.6.1
-	github.com/kysion/base-library v0.0.31
+	github.com/kysion/base-library v0.0.32
 	github.com/kysion/gopay v0.0.3
-	github.com/kysion/pay-share-library v0.1.14
+	github.com/kysion/pay-share-library v0.1.15
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.16
 	github.com/yitter/idgenerator-go v1.3.3
 )
