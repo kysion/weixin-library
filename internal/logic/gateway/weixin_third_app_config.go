@@ -7,11 +7,11 @@ import (
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/utility/daoctl"
-	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_model"
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
+	"github.com/kysion/weixin-library/weixin_utility"
 	"github.com/yitter/idgenerator-go/idgen"
 	"time"
 )
@@ -32,13 +32,19 @@ func (s *sThirdAppConfig) GetThirdAppConfigByAppId(ctx context.Context, id strin
 	data := weixin_model.WeixinThirdAppConfig{}
 
 	err := dao.WeixinThirdAppConfig.Ctx(ctx).Where(do.WeixinThirdAppConfig{AppId: id}).Scan(&data)
-
+	if err != nil {
+		return nil, err
+	}
 	return &data, err
 }
 
 // GetThirdAppConfigById 根据id查找第三方应用配置信息
 func (s *sThirdAppConfig) GetThirdAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinThirdAppConfig, error) {
-	return daoctl.GetByIdWithError[weixin_model.WeixinThirdAppConfig](dao.WeixinThirdAppConfig.Ctx(ctx), id)
+	result, err := daoctl.GetByIdWithError[weixin_model.WeixinThirdAppConfig](dao.WeixinThirdAppConfig.Ctx(ctx), id)
+	if err != nil {
+		return nil, err
+	}
+	return result, err
 }
 
 // CreateThirdAppConfig  创建第三方应用配置信息
@@ -46,19 +52,17 @@ func (s *sThirdAppConfig) CreateThirdAppConfig(ctx context.Context, info *weixin
 	data := do.WeixinThirdAppConfig{}
 
 	appLen := len(info.AppId)
-	subAppId := gstr.SubStr(info.AppId, 2, appLen) // caf4b7b8d6620f00
-	appIdBase32 := utility.HexToBase32(subAppId)   // 十六进制转32进制
-	appId := "wx" + appIdBase32                    // wxclt5nn3b643o0
+	subAppId := gstr.SubStr(info.AppId, 2, appLen)      // caf4b7b8d6620f00
+	appIdBase32 := weixin_utility.HexToBase32(subAppId) // 十六进制转32进制
+	appId := "wx" + appIdBase32                         // wxclt5nn3b643o0
 
 	if info.ServerDomain != "" {
 		info.AppGatewayUrl = info.ServerDomain + "/weixin/" + appId + "/gateway.services"
-		//info.AppCallbackUrl = info.ServerDomain + "/weixin/" + appId + "/" + appId + "/gateway.callback"
 		info.AppCallbackUrl = info.ServerDomain + "/weixin/$APPID$/" + appId + "/gateway.callback"
 	} else if info.ServerDomain == "" {
 		// 没指定服务器域名，默认使用当前服务器域名
 		info.ServerDomain = "https://www.kuaimk.com"
 		info.AppGatewayUrl = "https://www.kuaimk.com/weixin/" + appId + "/gateway.services"
-		//info.AppCallbackUrl = "https://www.kuaimk.com/weixin/" + appId + "/" + appId + "/gateway.callback"
 		info.AppCallbackUrl = "https://www.kuaimk.com/weixin/$APPID$/" + appId + "/gateway.callback"
 	}
 
@@ -92,7 +96,7 @@ func (s *sThirdAppConfig) UpdateThirdAppConfig(ctx context.Context, id int64, in
 	gconv.Struct(info, &data)
 
 	model := dao.WeixinThirdAppConfig.Ctx(ctx)
-	affected, err := daoctl.UpdateWithError(model.Data(model).OmitNilData().Where(do.WeixinThirdAppConfig{Id: id}))
+	affected, err := daoctl.UpdateWithError(model.Data(data).OmitNilData().Where(do.WeixinThirdAppConfig{Id: id}))
 
 	if err != nil {
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "第三方应用配置信息更新失败", dao.WeixinThirdAppConfig.Table())

@@ -1,14 +1,16 @@
 package weixin
 
 import (
-  "context"
-  "github.com/gogf/gf/v2/util/gconv"
-  "github.com/kysion/gopay"
-  "github.com/kysion/gopay/pkg/xlog"
-  wechat3 "github.com/kysion/gopay/wechat/v3"
-  "github.com/kysion/weixin-library/utility/weixin_encrypt"
-  "github.com/kysion/weixin-library/weixin_model"
-  "github.com/kysion/weixin-library/weixin_service"
+	"context"
+	"encoding/xml"
+	"fmt"
+	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/kysion/gopay"
+	"github.com/kysion/gopay/pkg/xlog"
+	wechat3 "github.com/kysion/gopay/wechat/v3"
+	"github.com/kysion/weixin-library/weixin_model"
+	"github.com/kysion/weixin-library/weixin_service"
+	"github.com/kysion/weixin-library/weixin_utility/weixin_encrypt"
 )
 
 // NewClient 初始化微信V3客户端对象
@@ -32,19 +34,78 @@ func NewClient(ctx context.Context, mchId, serialNo, aPIv3Key, privateKeyContent
 	return client, nil
 }
 
-func Decrypt(ctx context.Context, eventInfo weixin_model.EventEncryptMsgReq, msgInfo weixin_model.MessageEncryptReq) *weixin_model.EventMessageBody {
+// DecryptEvent 解密事件推送
+func DecryptEvent(ctx context.Context, eventInfo weixin_model.EventEncryptMsgReq, msgInfo weixin_model.MessageEncryptReq) *weixin_model.EventMessageBody {
+	var msgEncryptKey string
+	var token string
 	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, eventInfo.AppId)
+	if config != nil && err == nil {
+		msgEncryptKey = config.MsgEncryptKey
+		token = config.MsgVerfiyToken
+	}
 
-	token := config.MsgVerfiyToken
+	// TODO 代码暂时比较丑陋，后续优化
+	if config.Id == 0 {
+		merchantConfig, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, eventInfo.AppId)
+		if merchantConfig != nil && err == nil {
+			msgEncryptKey = merchantConfig.MsgEncryptKey
+			token = merchantConfig.MsgVerfiyToken
+		}
+	}
 
-	if err == nil {
+	if token != "" && msgEncryptKey != "" {
 		// 创建解密对象
-		instance := weixin_encrypt.NewWechatMsgCrypt(token, config.MsgEncryptKey, eventInfo.AppId)
+		instance := weixin_encrypt.NewWechatMsgCrypt(token, msgEncryptKey, eventInfo.AppId)
 		// 微信消息推送事件解密
 		decryptData := instance.WechatEventDecrypt(eventInfo, msgInfo.MsgSignature, msgInfo.TimeStamp, msgInfo.Nonce)
 
+		fmt.Println("解密后的密文：", decryptData)
 		// 消息事件内容结构体
 		data := weixin_model.EventMessageBody{}
+
+		gconv.Struct(decryptData, &data)
+
+		return &data
+	}
+
+	return nil
+}
+
+// DecryptMessage 解密消息通知
+func DecryptMessage(ctx context.Context, eventInfo weixin_model.EventEncryptMsgReq, msgInfo weixin_model.MessageEncryptReq) *weixin_model.MessageBodyDecrypt {
+	var msgEncryptKey string
+	var token string
+	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, eventInfo.AppId)
+	if config != nil && err == nil {
+		msgEncryptKey = config.MsgEncryptKey
+		token = config.MsgVerfiyToken
+	}
+
+	// TODO 代码暂时比较丑陋，后续优化
+	if config.Id == 0 {
+		merchantConfig, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, eventInfo.AppId)
+		if merchantConfig != nil && err == nil {
+			msgEncryptKey = merchantConfig.MsgEncryptKey
+			token = merchantConfig.MsgVerfiyToken
+		}
+	}
+
+	if token != "" && msgEncryptKey != "" {
+		// 创建解密对象
+		instance := weixin_encrypt.NewWechatMsgCrypt(token, msgEncryptKey, eventInfo.AppId)
+		// 微信消息通知事件解密
+		//decryptData := instance.WechatMessageDecrypt(eventInfo, msgInfo.MsgSignature, msgInfo.TimeStamp, msgInfo.Nonce)
+		decryptData := instance.WechatMessageDecrypt(weixin_encrypt.MessageEncryptRequest{
+			XMLName:      xml.Name{},
+			Encrypt:      eventInfo.Encrypt,
+			MsgSignature: msgInfo.MsgSignature,
+			TimeStamp:    msgInfo.TimeStamp,
+			Nonce:        msgInfo.Nonce,
+		})
+
+		fmt.Println("解密后的密文：", decryptData)
+		// 消息通知内容结构体
+		data := weixin_model.MessageBodyDecrypt{}
 
 		gconv.Struct(decryptData, &data)
 

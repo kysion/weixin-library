@@ -41,6 +41,7 @@ type WeixinMerchantAppConfig struct {
 	DevState       int         `json:"devState"       description:"开发状态：0未上线 1已上线"`
 	UpdatedAt      *gtime.Time `json:"updatedAt"      description:""`
 	RefreshToken   string      `json:"refreshToken"   description:"刷新应用Token"`
+	PrimitiveId    string      `json:"primitiveId"    description:"应用原始ID"`
 }
 
 type UpdateMerchantAppConfig struct {
@@ -58,28 +59,31 @@ type UpdateMerchantAppConfig struct {
 	JsDomain       string      `json:"jsDomain"       description:"JS接口安全域名"`
 	AuthDomain     string      `json:"authDomain"     description:"网页授权域名"`
 	Logo           string      `json:"logo"           description:"商家logo"`
+	PrimitiveId    string      `json:"primitiveId"    description:"应用原始ID"`
 }
 
 type UpdateMerchantAppAuthToken struct {
-	AppId        string      `json:"appId"          description:"商家应用Id"`
-	AppAuthToken string      `json:"appAuthToken"   description:"应用token"`
+	AppId        *string     `json:"appId"          description:"商家应用Id"`
+	AppAuthToken *string     `json:"appAuthToken"   description:"应用token"`
 	ExpiresIn    *gtime.Time `json:"expiresIn"      description:"Token过期时间"`
 	ReExpiresIn  *gtime.Time `json:"reExpiresIn"    description:"Token限期刷新时间"`
-	RefreshToken string      `json:"refreshToken"   description:"刷新应用Token"`
+	RefreshToken *string     `json:"refreshToken"   description:"刷新应用Token"`
+	ThirdAppId   *string     `json:"thirdAppId"     description:"服务商appId"`
 }
 
 // UpdateMerchantAppConfigReq 修改商家应用基础信息
 type UpdateMerchantAppConfigReq struct {
-	Id             int64  `json:"id"             description:"商家id"`
-	Name           string `json:"name"           description:"商家name"`
-	ExtJson        string `json:"extJson"        description:"拓展字段"`
-	AppGatewayUrl  string `json:"appGatewayUrl"  description:"网关地址"`
-	AppCallbackUrl string `json:"appCallbackUrl" description:"回调地址"`
-	AppSecret      string `json:"appSecret"      description:"服务器应用密钥"`
-	BusinessDomain string `json:"businessDomain" description:"业务域名"`
-	JsDomain       string `json:"jsDomain"       description:"JS接口安全域名"`
-	AuthDomain     string `json:"authDomain"     description:"网页授权域名"`
-	Logo           string `json:"logo"           description:"商家logo"`
+	Id             *int64  `json:"id"             description:"商家id"`
+	Name           *string `json:"name"           description:"商家name"`
+	ExtJson        *string `json:"extJson"        description:"拓展字段"`
+	AppGatewayUrl  *string `json:"appGatewayUrl"  description:"网关地址"`
+	AppCallbackUrl *string `json:"appCallbackUrl" description:"回调地址"`
+	AppSecret      *string `json:"appSecret"      description:"服务器应用密钥"`
+	BusinessDomain *string `json:"businessDomain" description:"业务域名"`
+	JsDomain       *string `json:"jsDomain"       description:"JS接口安全域名"`
+	AuthDomain     *string `json:"authDomain"     description:"网页授权域名"`
+	Logo           *string `json:"logo"           description:"商家logo"`
+	PrimitiveId    *string `json:"primitiveId"    description:"应用原始ID"`
 }
 
 // UpdateMerchantAppConfigHttpsReq 修改Https文件
@@ -87,4 +91,9 @@ type UpdateMerchantAppConfigHttpsReq struct {
 	Id        int64  `json:"id"             description:"商家id"`
 	HttpsCert string `json:"httpsCert"      description:"域名证书"`
 	HttpsKey  string `json:"httpsKey"       description:"域名私钥"`
+}
+
+type GetPolicyRes struct {
+	PrivacyPolicy string `json:"privacyPolicy"           description:"隐私协议"`
+	UserPolicy    string `json:"userPolicy"              description:"用户协议"`
 }
