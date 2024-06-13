@@ -24,7 +24,7 @@ type sSubMerchant struct {
 }
 
 func init() {
-	weixin_service.RegisterSubMerchant(NewSubMerchant())
+	//weixin_service.RegisterSubMerchant(NewSubMerchant())
 }
 
 func NewSubMerchant() *sSubMerchant {

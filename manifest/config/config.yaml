@@ -1,19 +1,22 @@
 server:
   address: ":80"
-  serverRoot: "/resources"
-  dumpRouterMap: true
+  serverRoot: "/resource"
+  dumpRouterMap: false
   routeOverWrite: true
   accessLogEnabled: false
   SessionIdName: "KysionWeixinLibrarySessionId"
   sessionPath: "temp/sessions/kys-weixin-library_sessions"    # Session文件存储目录
-  openapiPath: "/openapi/weixin-library.json"
-  swaggerPath: "/docs/weixin-library"
+  openapiPath: "/api/openapi.json"
+  swaggerPath: "/api/docs"
+  swaggerJsURL: "https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js" # 自定义 文档 JS 镜像地址，需要 gf 2.6.0以上版本才支持
+
+
   # TLS/HTTPS配置，同时需要配置证书和密钥
-  httpsAddr: ":443"
+  #httpsAddr: ":443"
   # TLS/HTTPS证书文件路径
-  httpsCertPath: "/data/kysion_files/ssl/weixin.kuaimk.com/9427902_weixin.kuaimk.com.pem"
+  #httpsCertPath: "/data/kysion_files/ssl/weixin.kuaimk.com/9427902_weixin.kuaimk.com.pem"
   # TLS/HTTPS密钥文件路径
-  httpsKeyPath: "/data/kysion_files/ssl/weixin.kuaimk.com/9427902_weixin.kuaimk.com.key"
+  #httpsKeyPath: "/data/kysion_files/ssl/weixin.kuaimk.com/9427902_weixin.kuaimk.com.key"
 
 service:
   # 用户表ID生成器，分布式终端标识，取值范围 1 ~ 63，解决分布式多服务横向扩展时保证生成的ID不重复

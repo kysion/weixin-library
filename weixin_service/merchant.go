@@ -120,7 +120,7 @@ type (
 		Subscribe(ctx context.Context, appId string, info *weixin_model.MessageBodyDecrypt) (bool, error)
 		// UnSubscribe 用户取消关注公众号
 		UnSubscribe(ctx context.Context, appId string, info *weixin_model.MessageBodyDecrypt) (bool, error)
-		// UserAuthorizationRevoke 用户撤回事件
+		// UserAuthorizationRevoke 用户撤回事件  -- 取消授权
 		UserAuthorizationRevoke(ctx context.Context, appId string, info *weixin_model.MessageBodyDecrypt) (bool, error)
 	}
 	IAppAuth interface {
@@ -138,37 +138,15 @@ type (
 )
 
 var (
+	localWeiXinPay      IWeiXinPay
+	localSubAccount     ISubAccount
+	localSubMerchant    ISubMerchant
 	localUserAuth       IUserAuth
 	localUserEvent      IUserEvent
 	localAppAuth        IAppAuth
 	localAppVersion     IAppVersion
 	localMerchantNotify IMerchantNotify
-	localWeiXinPay      IWeiXinPay
-	localSubAccount     ISubAccount
-	localSubMerchant    ISubMerchant
 )
-
-func UserAuth() IUserAuth {
-	if localUserAuth == nil {
-		panic("implement not found for interface IUserAuth, forgot register?")
-	}
-	return localUserAuth
-}
-
-func RegisterUserAuth(i IUserAuth) {
-	localUserAuth = i
-}
-
-func UserEvent() IUserEvent {
-	if localUserEvent == nil {
-		panic("implement not found for interface IUserEvent, forgot register?")
-	}
-	return localUserEvent
-}
-
-func RegisterUserEvent(i IUserEvent) {
-	localUserEvent = i
-}
 
 func AppAuth() IAppAuth {
 	if localAppAuth == nil {
@@ -234,4 +212,26 @@ func SubMerchant() ISubMerchant {
 
 func RegisterSubMerchant(i ISubMerchant) {
 	localSubMerchant = i
+}
+
+func UserAuth() IUserAuth {
+	if localUserAuth == nil {
+		panic("implement not found for interface IUserAuth, forgot register?")
+	}
+	return localUserAuth
+}
+
+func RegisterUserAuth(i IUserAuth) {
+	localUserAuth = i
+}
+
+func UserEvent() IUserEvent {
+	if localUserEvent == nil {
+		panic("implement not found for interface IUserEvent, forgot register?")
+	}
+	return localUserEvent
+}
+
+func RegisterUserEvent(i IUserEvent) {
+	localUserEvent = i
 }

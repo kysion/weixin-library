@@ -72,7 +72,7 @@ type sSubAccount struct {
 }
 
 func init() {
-	weixin_service.RegisterSubAccount(NewSubAccount())
+	//weixin_service.RegisterSubAccount(NewSubAccount())
 }
 
 func NewSubAccount() *sSubAccount {

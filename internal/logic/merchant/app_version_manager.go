@@ -12,10 +12,10 @@ import (
 // 小程序开发管理
 type sAppVersion struct{}
 
-func init() {
-	weixin_service.RegisterAppVersion(NewAppVersion())
-
-}
+//	func init() {
+//		weixin_service.RegisterAppVersion(NewAppVersion())
+//
+// }
 func NewAppVersion() *sAppVersion {
 	return &sAppVersion{}
 }

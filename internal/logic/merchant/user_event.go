@@ -82,7 +82,7 @@ type sUserEvent struct {
 }
 
 func init() {
-	weixin_service.RegisterUserEvent(NewUserEvent())
+	//weixin_service.RegisterUserEvent(NewUserEvent())
 }
 
 func NewUserEvent() *sUserEvent {

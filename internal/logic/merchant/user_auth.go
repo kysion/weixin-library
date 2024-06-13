@@ -51,9 +51,9 @@ type sUserAuth struct {
 	ConsumerHook base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
 }
 
-func init() {
-	weixin_service.RegisterUserAuth(NewUserAuth())
-}
+//func init() {
+//weixin_service.RegisterUserAuth(NewUserAuth())
+//}
 
 func NewUserAuth() weixin_service.IUserAuth {
 
@@ -76,7 +76,7 @@ func (s *sUserAuth) injectHook() {
 }
 
 func (s *sUserAuth) InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc) {
-	sys_service.SysLogs().InfoSimple(context.Background(), nil, "\n-------订阅sUserAuth-Hook： ------- ", "sUserAuth")
+	sys_service.SysLogs().InfoSimple(context.Background(), nil, "\n-------订阅Alipay的sUserAuth用户授权Hook： ------- ", "sUserAuth")
 
 	s.ConsumerHook.InstallHook(infoType, hookFunc)
 }

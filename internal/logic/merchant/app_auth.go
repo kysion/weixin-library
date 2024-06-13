@@ -27,7 +27,7 @@ type sAppAuth struct {
 // internal 主要用于拓展SDK所不具备。票据例外
 
 func init() {
-	weixin_service.RegisterAppAuth(NewAppAuth())
+	//weixin_service.RegisterAppAuth(NewAppAuth())
 }
 
 func (s *sAppAuth) injectHook() {

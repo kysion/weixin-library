@@ -44,9 +44,9 @@ type sMerchantNotify struct {
 	// SubAccountHook base_hook.BaseHook[hook.SubAccountHookKey, hook.SubAccountHookFunc]
 }
 
-func init() {
-	weixin_service.RegisterMerchantNotify(NewMerchantNotify())
-}
+//func init() {
+//	weixin_service.RegisterMerchantNotify(NewMerchantNotify())
+//}
 
 func NewMerchantNotify() *sMerchantNotify {
 	return &sMerchantNotify{}

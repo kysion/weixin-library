@@ -17,9 +17,9 @@ import (
 type sWeiXinPay struct {
 }
 
-func init() {
-	weixin_service.RegisterWeiXinPay(NewWeiXinPay())
-}
+//func init() {
+//	weixin_service.RegisterWeiXinPay(NewWeiXinPay())
+//}
 
 func NewWeiXinPay() *sWeiXinPay {
 
