@@ -150,7 +150,7 @@ func (c *cMerchantService) UserAuthRes(ctx context.Context, req *weixin_merchant
 
 	//susUserId := ctx.Value("sys_user_id")
 	token, _ := GetJwtToken(ctx, gconv.Int64(sysUserId))
-	req.To += "?jwtToken=" + token.Token
+	req.To += "?jwtToken=" + token.Token + "&expireAt=" + token.ExpireAt.String()
 
 	g.RequestFromCtx(ctx).Response.RedirectTo(req.To)
 
