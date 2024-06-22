@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/SupenBysz/gf-admin-community/api_v1"
+	"github.com/gogf/gf/v2/frame/g"
 	v1 "github.com/kysion/weixin-library/api/weixin_v1"
 	"github.com/kysion/weixin-library/weixin_service"
 )
@@ -17,7 +18,7 @@ type StringRes string
 
 // WeiXinServices 商家授权应用，等消息推送，消息通知，通过这个消息  针对B端
 func (c *cWeiXin) WeiXinServices(ctx context.Context, req *v1.ServicesReq) (v1.StringRes, error) {
-	fmt.Println("推送消息：", req.MessageEncryptReq)
+	fmt.Println("推送消息Services：", req.MessageEncryptReq)
 
 	/*
 		{
@@ -34,12 +35,14 @@ func (c *cWeiXin) WeiXinServices(ctx context.Context, req *v1.ServicesReq) (v1.S
 	*/
 
 	_, err := weixin_service.Gateway().Services(ctx, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
+	g.RequestFromCtx(ctx).Response.Write("success")
 
 	return "success", err
 }
 
 // WeiXinCallback C端业务小消息   消费者支付.....
 func (c *cWeiXin) WeiXinCallback(ctx context.Context, req *v1.CallbackReq) (v1.StringRes, error) {
+	fmt.Println("推送消息Callback：", req.MessageEncryptReq)
 
 	_, err := weixin_service.Gateway().Callback(ctx, &req.AuthorizationCodeRes, &req.EventEncryptMsgReq, &req.MessageEncryptReq)
 

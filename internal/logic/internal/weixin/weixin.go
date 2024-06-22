@@ -3,7 +3,6 @@ package weixin
 import (
 	"context"
 	"encoding/xml"
-	"fmt"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/gopay"
 	"github.com/kysion/gopay/pkg/xlog"
@@ -38,6 +37,7 @@ func NewClient(ctx context.Context, mchId, serialNo, aPIv3Key, privateKeyContent
 func DecryptEvent(ctx context.Context, eventInfo weixin_model.EventEncryptMsgReq, msgInfo weixin_model.MessageEncryptReq) *weixin_model.EventMessageBody {
 	var msgEncryptKey string
 	var token string
+	// 第三方待开发模式
 	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, eventInfo.AppId)
 	if config != nil && err == nil {
 		msgEncryptKey = config.MsgEncryptKey
@@ -45,7 +45,8 @@ func DecryptEvent(ctx context.Context, eventInfo weixin_model.EventEncryptMsgReq
 	}
 
 	// TODO 代码暂时比较丑陋，后续优化
-	if config.Id == 0 {
+	// 第三方待开发模式
+	if config == nil || config.Id == 0 {
 		merchantConfig, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, eventInfo.AppId)
 		if merchantConfig != nil && err == nil {
 			msgEncryptKey = merchantConfig.MsgEncryptKey
@@ -59,7 +60,7 @@ func DecryptEvent(ctx context.Context, eventInfo weixin_model.EventEncryptMsgReq
 		// 微信消息推送事件解密
 		decryptData := instance.WechatEventDecrypt(eventInfo, msgInfo.MsgSignature, msgInfo.TimeStamp, msgInfo.Nonce)
 
-		fmt.Println("解密后的密文：", decryptData)
+		//fmt.Println("解密后的密文：", decryptData)
 		// 消息事件内容结构体
 		data := weixin_model.EventMessageBody{}
 
@@ -82,7 +83,7 @@ func DecryptMessage(ctx context.Context, eventInfo weixin_model.EventEncryptMsgR
 	}
 
 	// TODO 代码暂时比较丑陋，后续优化
-	if config.Id == 0 {
+	if config == nil || config.Id == 0 {
 		merchantConfig, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, eventInfo.AppId)
 		if merchantConfig != nil && err == nil {
 			msgEncryptKey = merchantConfig.MsgEncryptKey
@@ -103,7 +104,7 @@ func DecryptMessage(ctx context.Context, eventInfo weixin_model.EventEncryptMsgR
 			Nonce:        msgInfo.Nonce,
 		})
 
-		fmt.Println("解密后的密文：", decryptData)
+		//fmt.Println("解密后的密文：", decryptData)
 		// 消息通知内容结构体
 		data := weixin_model.MessageBodyDecrypt{}
 

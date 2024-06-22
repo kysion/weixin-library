@@ -58,27 +58,32 @@ var (
 				// 微信网关
 				group.Bind(
 					weixin_controller.WeiXin.WeiXinServices,     // 消息接收
-					weixin_controller.WeiXin.WeiXinCallback,     // 网关回调
-					weixin_controller.WeiXin.WeiXinCallbackPost, // 网关回调
+					weixin_controller.WeiXin.WeiXinCallback,     // 网关回调 Get
+					weixin_controller.WeiXin.WeiXinCallbackPost, // 网关回调 Post
 					weixin_controller.WeiXin.NotifyServices,     // 支付异步通知
 					weixin_controller.WeiXin.CheckSignature,
 
-					// 刷新授权Token
+					// 异步通知
+					//alipay_controller.MerchantNotify.NotifyServices,
+
+					// 刷新授权应用的Token
 					merchant.MerchantService.RefreshToken,
 
 					// 商家授权
 					merchant.MerchantService.AppAuthReq,
 
-					// 用户授权
+					// 商家授权回调地址
+					merchant.MerchantService.AppAuthRes,
+
+					// 用户授权（公众号）
 					merchant.MerchantService.UserAuth,
 
-					// 应用授权回调地址
-					merchant.MerchantService.AuthRes,
+					// 用户授权（小程序） 会额外包装统一的 /appId/login 接口
 
-					// 用户授权回调地址
+					// 用户授权回调地址（公众号）
 					merchant.MerchantService.UserAuthRes,
 
-					// 用户登陆
+					// 用户登陆（小程序）
 					merchant.MerchantService.UserLogin,
 
 					// 获取用户信息
