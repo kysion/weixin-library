@@ -15,7 +15,7 @@ type WeixinMerchantAppConfig struct {
 	AppId          string      `json:"appId"          description:"商家应用Id"`
 	AppName        string      `json:"appName"        description:"商家应用名称"`
 	AppType        int         `json:"appType"        description:"应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店"`
-	AppAuthToken   string      `json:"appAuthToken"   description:"商家授权应用token"`
+	AppAuthToken   string      `json:"appAuthToken"   description:"商家应用token：1、当第三方代开发的时候，这个是商家授权的应用token (authorizer_access_token)；2、当是商家自研模式时，这个是商家的应用token(access_token)。"`
 	IsFullProxy    int         `json:"isFullProxy"    description:"是否全权委托待开发：0否 1是"`
 	State          int         `json:"state"          description:"状态： 0禁用 1启用"`
 	ExpiresIn      *gtime.Time `json:"expiresIn"      description:"Token过期时间"`

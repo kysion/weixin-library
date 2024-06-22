@@ -8,23 +8,20 @@ type CallBackMsgTypeEnum enum.IEnumCode[string]
 type callBackMsgType struct {
 	ComponentAccessToken CallBackMsgTypeEnum
 
-	// 应用授权通知类型
-	Authorized       CallBackMsgTypeEnum
-	UpdateAuthorized CallBackMsgTypeEnum
-	Unauthorized     CallBackMsgTypeEnum
-
+	// 用户授权
 	UserAuth CallBackMsgTypeEnum
+
+	// 用户发消息
+	UserSendMessage CallBackMsgTypeEnum
 }
 
 var CallBackMsgType = callBackMsgType{
 
 	ComponentAccessToken: enum.New[CallBackMsgTypeEnum]("ComponentAccessToken", "第三方平台接口的调用凭据"),
 
-	// 应用授权
-	Authorized:       enum.New[CallBackMsgTypeEnum]("authorized", "授权成功"),
-	UpdateAuthorized: enum.New[CallBackMsgTypeEnum]("updateauthorized", "更新授权"),
-	Unauthorized:     enum.New[CallBackMsgTypeEnum]("unauthorized", "取消授权"),
-
 	// 用户授权   （！！！！！需要替换的，根据微信用户授权后实际返回的type进行修改）
 	UserAuth: enum.New[CallBackMsgTypeEnum]("userAuth", "用户授权"),
+
+	// 用户发消息
+	UserSendMessage: enum.New[CallBackMsgTypeEnum]("text", "用户发送消息"),
 }

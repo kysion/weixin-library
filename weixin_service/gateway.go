@@ -64,6 +64,8 @@ type (
 		UpdateMerchantAppConfig(ctx context.Context, id int64, info *weixin_model.UpdateMerchantAppConfig) (bool, error)
 		// UpdateState 修改应用状态
 		UpdateState(ctx context.Context, id int64, state int) (bool, error)
+		// UpdateAppAuth 修改应用授权信息 (绑定&解绑第三方服务商)
+		UpdateAppAuth(ctx context.Context, appId string, thirdAppId, isFullProxy int) (bool, error)
 		// UpdateAppAuthToken 更新Token  商家应用授权token
 		UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateMerchantAppAuthToken) (bool, error)
 		// UpdateAppConfig 修改商家基础信息
@@ -146,14 +148,36 @@ type (
 )
 
 var (
-	localThirdAppConfig    IThirdAppConfig
 	localGateway           IGateway
 	localTicket            ITicket
 	localConsumer          IConsumer
 	localMerchantAppConfig IMerchantAppConfig
 	localPayMerchant       IPayMerchant
 	localPaySubMerchant    IPaySubMerchant
+	localThirdAppConfig    IThirdAppConfig
 )
+
+func PayMerchant() IPayMerchant {
+	if localPayMerchant == nil {
+		panic("implement not found for interface IPayMerchant, forgot register?")
+	}
+	return localPayMerchant
+}
+
+func RegisterPayMerchant(i IPayMerchant) {
+	localPayMerchant = i
+}
+
+func PaySubMerchant() IPaySubMerchant {
+	if localPaySubMerchant == nil {
+		panic("implement not found for interface IPaySubMerchant, forgot register?")
+	}
+	return localPaySubMerchant
+}
+
+func RegisterPaySubMerchant(i IPaySubMerchant) {
+	localPaySubMerchant = i
+}
 
 func ThirdAppConfig() IThirdAppConfig {
 	if localThirdAppConfig == nil {
@@ -208,26 +232,4 @@ func MerchantAppConfig() IMerchantAppConfig {
 
 func RegisterMerchantAppConfig(i IMerchantAppConfig) {
 	localMerchantAppConfig = i
-}
-
-func PayMerchant() IPayMerchant {
-	if localPayMerchant == nil {
-		panic("implement not found for interface IPayMerchant, forgot register?")
-	}
-	return localPayMerchant
-}
-
-func RegisterPayMerchant(i IPayMerchant) {
-	localPayMerchant = i
-}
-
-func PaySubMerchant() IPaySubMerchant {
-	if localPaySubMerchant == nil {
-		panic("implement not found for interface IPaySubMerchant, forgot register?")
-	}
-	return localPaySubMerchant
-}
-
-func RegisterPaySubMerchant(i IPaySubMerchant) {
-	localPaySubMerchant = i
 }

@@ -28,7 +28,7 @@ type WeixinMerchantAppConfigColumns struct {
 	AppId          string // 商家应用Id
 	AppName        string // 商家应用名称
 	AppType        string // 应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店
-	AppAuthToken   string // 商家授权应用token
+	AppAuthToken   string // 商家应用token：1、当第三方代开发的时候，这个是商家授权的应用token (authorizer_access_token)；2、当是商家自研模式时，这个是商家的应用token(access_token)。
 	IsFullProxy    string // 是否全权委托待开发：0否 1是
 	State          string // 状态： 0禁用 1启用
 	ExpiresIn      string // Token过期时间

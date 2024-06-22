@@ -146,6 +146,23 @@ func (s *sMerchantAppConfig) UpdateState(ctx context.Context, id int64, state in
 	return affected > 0, err
 }
 
+// UpdateAppAuth 修改应用授权信息 (绑定&解绑第三方服务商)
+func (s *sMerchantAppConfig) UpdateAppAuth(ctx context.Context, appId string, thirdAppId, isFullProxy int) (bool, error) {
+	affected, err := daoctl.UpdateWithError(dao.WeixinMerchantAppConfig.Ctx(ctx).
+		Where(do.WeixinMerchantAppConfig{
+			AppId: appId,
+		}).
+		Data(do.WeixinMerchantAppConfig{
+			ThirdAppId:  thirdAppId,
+			IsFullProxy: isFullProxy,
+		}))
+
+	if err != nil {
+		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "商家应用配置授权信息修改失败", dao.WeixinMerchantAppConfig.Table())
+	}
+	return affected > 0, err
+}
+
 // UpdateAppAuthToken 更新Token  商家应用授权token
 func (s *sMerchantAppConfig) UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateMerchantAppAuthToken) (bool, error) {
 	data := do.WeixinMerchantAppConfig{}
