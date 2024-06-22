@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/kysion/base-library/base_hook"
 	"github.com/kysion/weixin-library/internal/logic/internal/weixin"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
@@ -52,17 +53,24 @@ func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEn
 		// 1.验签
 		ok := weixin_utility.VerifyByteDanceServer(thirdConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
 		if !ok {
-			fmt.Println("验签失败")
+			fmt.Println("Services 验签失败")
 			g.RequestFromCtx(ctx).Response.Write("success")
 			return "验签失败", nil
 		}
 
 		// 2.解密
 		data := weixin.DecryptEvent(ctx, *eventInfo, *msgInfo)
-		fmt.Println("解密后的内容：", data)
+		fmt.Println("Services 解密后的内容：", data)
 		if data != nil && data.AppId != appId { // 说明跨服务商应用操作了
 			return "不可跨服务商应用操作了", nil
 		}
+
+		/*
+			应用授权通知类型InfoType ：
+				authorized 授权成功
+				updateauthorized 更新授权
+				unauthorized 取消授权
+		*/
 		s.ServiceNotifyTypeHook.Iterator(func(key weixin_enum.ServiceNotifyType, value weixin_hook.ServiceNotifyHookFunc) {
 			if data.InfoType == key.Code() {
 				g.Try(ctx, func(ctx context.Context) {
@@ -87,7 +95,7 @@ func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEn
 			// 1.验签
 			ok := weixin_utility.VerifyByteDanceServer(merchartConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
 			if !ok {
-				fmt.Println("验签失败")
+				fmt.Println("Services 验签失败")
 				g.RequestFromCtx(ctx).Response.Write("success")
 				return "验签失败", nil
 			}
@@ -95,7 +103,7 @@ func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEn
 			// 2.解密
 			//data := weixin.DecryptEvent(ctx, *eventInfo, *msgInfo)
 			data := weixin.DecryptMessage(ctx, *eventInfo, *msgInfo)
-			fmt.Println("解密后的内容：", data)
+			fmt.Println("Services 解密后的内容：", data)
 			//if data != nil && data.AppId != appId { // 说明跨服务商应用操作了
 			//	return "不可跨服务商应用操作了", nil
 			//}
@@ -134,55 +142,146 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
-	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
+	thirdConfig, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
 
-	if err == nil && config != nil {
+	if err == nil && thirdConfig != nil {
 		// 1.验签
-		ok := weixin_utility.VerifyByteDanceServer(config.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
+		ok := weixin_utility.VerifyByteDanceServer(thirdConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
 		if !ok {
-			fmt.Println("验签失败")
+			fmt.Println("Callback 验签失败")
 			g.RequestFromCtx(ctx).Response.Write("success")
 			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n验签失败： ", "sGateway")
 			return "success", nil
 		}
 
-		// 2.解密
-		data := weixin.DecryptEvent(ctx, *eventInfo, *msgInfo)
-		fmt.Println("解密后的内容：", data)
+		//// 2.解密
+		////eventInfo.AppId = weixin_utility.WeiXinAppIdDecode(eventInfo.AppId)
+		//eventInfo.AppId = appId
+		//data := weixin.DecryptEvent(ctx, *eventInfo, *msgInfo)
+		////data := weixin.DecryptMessage(ctx, *eventInfo, *msgInfo)
+		//fmt.Println("解密后的内容：", data)
+		//if data == nil {
+		//	g.RequestFromCtx(ctx).Response.Write("success")
+		//	err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n解密失败： ", "sGateway")
+		//	return "success", nil
+		//}
+		//
+		//if data != nil && data.AppId != appId { // 说明跨服务商应用操作了
+		//	g.RequestFromCtx(ctx).Response.Write("success")
+		//	err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n不可跨服务商操作： "+data.InfoType, "sGateway")
+		//
+		//	return "success", nil
+		//}
+		//s.CallbackMsgHook.Iterator(func(key weixin_enum.CallbackMsgType, value weixin_hook.ServiceMsgHookFunc) {
+		//	if data.InfoType == key.Code() {
+		//		g.Try(ctx, func(ctx context.Context) {
+		//			info := g.Map{
+		//				"MsgType":   data.InfoType,
+		//				"info":      data,
+		//				"thirdInfo": thirdConfig,
+		//				// "code"
+		//				// "openid"
+		//			}
+		//			sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin回调消息广播： ------- "+data.InfoType, "sGateway")
+		//			value(ctx, info)
+		//		})
+		//	}
+		//})
+
+		// 2.解密 --- 自动化测试过程
+		// 微信自动化测试账号组
+		if eventInfo.AppId == "wx570bc396a51b8ff8" ||
+			eventInfo.AppId == "wx9252c5e0bb1836fc" ||
+			eventInfo.AppId == "wx8e1097c5bc82cde9" ||
+			eventInfo.AppId == "wx14550af28c71a144" ||
+			eventInfo.AppId == "wxa35b9c23cfe664eb" ||
+			eventInfo.AppId == "wxd101a85aa106f53e" ||
+			eventInfo.AppId == "wxc39235c15087f6f3" ||
+			eventInfo.AppId == "wx7720d01d4b2a4500" {
+			// 需要替换成我们的appId
+			eventInfo.AppId = appId
+		}
+
+		//data := weixin.DecryptEvent(ctx, *eventInfo, *msgInfo)
+		data := weixin.DecryptMessage(ctx, *eventInfo, *msgInfo)
+		fmt.Println("Callback 解密后的内容：", data)
+		if data != nil && data.MsgType == "text" { // TODO 处理用户消息
+			if data.Content == "TESTCOMPONENT_MSG_TYPE_TEXT" {
+				newdata := weixin_model.MessageBodyDecrypt{}
+				newdata.Content = "TESTCOMPONENT_MSG_TYPE_TEXT_callback"
+				newdata.ToUserName = data.FromUserName
+				newdata.FromUserName = data.ToUserName
+				newdata.CreateTime = gtime.Now().String()
+				newdata.MsgType = "text"
+				g.RequestFromCtx(ctx).Response.WriteXml(newdata)
+				return "successs", nil
+			}
+		}
+
 		if data == nil {
 			g.RequestFromCtx(ctx).Response.Write("success")
 			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n解密失败： ", "sGateway")
 			return "success", nil
 		}
 
-		if data != nil && data.AppId != appId { // 说明跨服务商应用操作了
+		if data != nil && data.AppID != "" && data.AppID != appId { // 说明跨服务商应用操作了
 			g.RequestFromCtx(ctx).Response.Write("success")
-			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n不可跨服务商操作： "+data.InfoType, "sGateway")
-
+			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n不可跨服务商操作： "+data.MsgType, "sGateway")
 			return "success", nil
 		}
 
-		/*
-			应用授权通知类型InfoType ：
-				authorized 授权成功
-				updateauthorized 更新授权
-				unauthorized 取消授权
-		*/
 		s.CallbackMsgHook.Iterator(func(key weixin_enum.CallbackMsgType, value weixin_hook.ServiceMsgHookFunc) {
-			if data.InfoType == key.Code() {
+			if data.MsgType == key.Code() {
 				g.Try(ctx, func(ctx context.Context) {
 					info := g.Map{
-						"MsgType":   data.InfoType,
+						"MsgType":   data.MsgType,
 						"info":      data,
-						"thirdInfo": config,
+						"thirdInfo": thirdConfig,
 						// "code"
 						// "openid"
 					}
-					sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin回调消息广播： ------- "+data.InfoType, "sGateway")
+					sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin回调消息广播： ------- "+data.MsgType, "sGateway")
 					value(ctx, info)
 				})
 			}
 		})
+
+	}
+
+	{
+
+		// 直连
+		merchartConfig, _ := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+		if thirdConfig.Id == 0 && merchartConfig != nil {
+			// 1.验签
+			ok := weixin_utility.VerifyByteDanceServer(merchartConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
+			if !ok {
+				fmt.Println("Callback 验签失败")
+				g.RequestFromCtx(ctx).Response.Write("success")
+				return "验签失败", nil
+			}
+
+			// 2.解密
+			data := weixin.DecryptMessage(ctx, *eventInfo, *msgInfo)
+			fmt.Println("Callback 解密后的内容：", data)
+
+			s.CallbackMsgHook.Iterator(func(key weixin_enum.CallbackMsgType, value weixin_hook.ServiceMsgHookFunc) {
+				if data.MsgType == key.Code() {
+					g.Try(ctx, func(ctx context.Context) {
+						info := g.Map{
+							"MsgType":   data.MsgType,
+							"info":      data,
+							"thirdInfo": thirdConfig,
+							// "code"
+							// "openid"
+						}
+						sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin回调消息广播： ------- "+data.MsgType, "sGateway")
+						value(ctx, info)
+					})
+				}
+			})
+
+		}
 
 	}
 
