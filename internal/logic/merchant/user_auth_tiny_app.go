@@ -17,7 +17,6 @@ import (
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	hook "github.com/kysion/weixin-library/weixin_model/weixin_hook"
 	"github.com/kysion/weixin-library/weixin_service"
-	"github.com/yitter/idgenerator-go/idgen"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -223,7 +222,7 @@ func (s *sUserAuth) UserLogin(ctx context.Context, info g.Map) (string, error) {
 				if key.ConsumerAction.Code() == weixin_enum.Consumer.ActionEnum.Auth.Code() && key.Category.Code() == weixin_enum.Consumer.Category.PlatFormUser.Code() { // 如果订阅者是订阅授权
 					g.Try(ctx, func(ctx context.Context) {
 						platformUser := entity.PlatformUser{
-							Id:             idgen.NextId(),
+							Id:             0,
 							FacilitatorId:  0,
 							OperatorId:     0,
 							SysUserId:      sysUserId,                                    // EmployeeId  == consumerId == sysUserId   三者相等

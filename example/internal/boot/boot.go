@@ -61,7 +61,7 @@ var (
 					weixin_controller.WeiXin.WeiXinCallback,     // 网关回调 Get
 					weixin_controller.WeiXin.WeiXinCallbackPost, // 网关回调 Post
 					weixin_controller.WeiXin.NotifyServices,     // 支付异步通知
-					weixin_controller.WeiXin.CheckSignature,
+					weixin_controller.WeiXin.CheckSignature,     // 微信接入校验，设置服务器配置需要验证
 
 					// 异步通知
 					//alipay_controller.MerchantNotify.NotifyServices,
