@@ -33,21 +33,18 @@ func buildUserInfoURL(redirectURI, appID string) (string, error) {
 func (c *cUserInfo) GetUserInfo(ctx context.Context, _ *weixin_merchant_app_v1.GetUserInfoReq) (api_v1.StringRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
+	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
 
-	//merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+	if err != nil || merchantApp == nil {
+		_ = fmt.Errorf("获取商户应用配置信息失败")
+		return "failure", nil
+	}
 
-	//thirdApp, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, merchantApp.ThirdAppId)
-
-	redirect_url := gurl.Encode("https://www.kuaimk.com/weixin/wx56j8q12l89h99/gateway.userAuthRes")
-	authURL, err := buildUserInfoURL(redirect_url, appId)
+	redirectUrl := gurl.Encode(merchantApp.ServerDomain + "/weixin/" + merchantApp.AppId + "/gateway.userAuthRes")
+	authURL, err := buildUserInfoURL(redirectUrl, appId)
 	if err != nil {
 		return "", err
 	}
-
-	//authURL, err := buildAuthURL(merchantApp.AppCallbackUrl, appId)
-
-	// https:www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
-	// https://www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
 
 	fmt.Println(authURL)
 
