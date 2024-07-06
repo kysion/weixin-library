@@ -36,6 +36,7 @@ func (s *sTicket) Ticket(ctx context.Context, info g.Map) bool {
 	if info["MsgType"] != weixin_enum.Info.ServiceType.Ticket.Code() {
 		return false
 	}
+	//	Services 解密后的内容： &{wxb64aa49959fa359c 1720167532 component_verify_ticket ticket@@@LsDX8DrrnTcYrr0nk7VndG9ickwwcupzE1MPhGAp4zPSgCrdEkXupN2mVXxsZhguYaQNGQ7Yb5S0Ghls-YzhXw    }
 
 	data := weixin_model.EventMessageBody{}
 	gconv.Struct(info["info"], &data)
@@ -128,7 +129,7 @@ func (s *sTicket) GetTicket(ctx context.Context, appId string) (string, error) {
 	return result.Ticket, nil
 }
 
-// GenerateScheme 获取scheme码
+// GenerateScheme 获取scheme码 【加密 URL Scheme】
 func (s *sTicket) GenerateScheme(ctx context.Context, appId string, info *weixin_model.JumpWxa) (*weixin_model.GetSchemeRes, error) {
 	// POST https://api.weixin.qq.com/wxa/generatescheme?access_token=ACCESS_TOKEN
 
@@ -152,4 +153,19 @@ func (s *sTicket) GenerateScheme(ctx context.Context, appId string, info *weixin
 	gjson.DecodeTo(result, &res)
 
 	return &res, err
+}
+
+// GeneratePubScheme 获取scheme码 【明文 URL Scheme】
+func (s *sTicket) GeneratePubScheme(ctx context.Context, appId string, info *weixin_model.JumpWxa) (*weixin_model.GetSchemeRes, error) {
+	// weixin://dl/business/?appid=*APPID*&path=*PATH*&query=*QUERY*&env_version=*ENV_VERSION*
+
+	link := "weixin://dl/business/?appid=" + appId + "&path=" + info.Path + "&query=" + info.Query + "&env_version=" + info.EnvVersion
+
+	res := &weixin_model.GetSchemeRes{
+		Errcode:  0,
+		Errmsg:   "ok",
+		Openlink: link,
+	}
+
+	return res, nil
 }
