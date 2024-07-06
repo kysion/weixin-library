@@ -17,13 +17,79 @@ import (
 )
 
 type (
+	IPaySubMerchant interface {
+		// GetPaySubMerchantById 根据id查找特约商户配置信息
+		GetPaySubMerchantById(ctx context.Context, id int64) (*weixin_model.WeixinPaySubMerchant, error)
+		// GetPaySubMerchantByAppId 根据AppId查找特约商户配置信息
+		GetPaySubMerchantByAppId(ctx context.Context, appId string) (*weixin_model.WeixinPaySubMerchant, error)
+		// GetPaySubMerchantByMchid 根据Mchid查找特约商户配置信息
+		GetPaySubMerchantByMchid(ctx context.Context, id int) (*weixin_model.WeixinPaySubMerchant, error)
+		// GetPaySubMerchantBySysUserId  根据用户id查询特约商户配置信息
+		GetPaySubMerchantBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinPaySubMerchant, error)
+		// QueryPaySubMerchant 查询列表
+		QueryPaySubMerchant(ctx context.Context, params *base_model.SearchParams, isExport bool) (*weixin_model.WeixinPaySubMerchantList, error)
+		// CreatePaySubMerchant  创建特约商户配置信息
+		CreatePaySubMerchant(ctx context.Context, info *weixin_model.WeixinPaySubMerchant) (*weixin_model.WeixinPaySubMerchant, error)
+		// UpdatePaySubMerchant 更新特约商户配置信息
+		UpdatePaySubMerchant(ctx context.Context, id int64, info *weixin_model.UpdatePaySubMerchant) (bool, error)
+		// SetAuthPath 设置特约商户授权目录
+		SetAuthPath(ctx context.Context, info *weixin_model.SetSubMerchantAuthPath) (bool, error)
+	}
+	ISubscribeMessageTemplate interface {
+		// GetSubscribeMessageTemplateByTemplateId 根据模板ID查找消息模板
+		GetSubscribeMessageTemplateByTemplateId(ctx context.Context, templateId string) (*weixin_model.WeixinSubscribeMessageTemplateRes, error)
+		// GetSubscribeMessageTemplateById 根据id查找消息模板信息
+		GetSubscribeMessageTemplateById(ctx context.Context, id int64) (*weixin_model.WeixinSubscribeMessageTemplateRes, error)
+		// CreateSubscribeMessageTemplate  创建消息模板信息
+		CreateSubscribeMessageTemplate(ctx context.Context, info *weixin_model.WeixinSubscribeMessageTemplate) (*weixin_model.WeixinSubscribeMessageTemplateRes, error)
+		// UpdateSubscribeMessageTemplate 更新消息模板信息
+		UpdateSubscribeMessageTemplate(ctx context.Context, id int64, info *weixin_model.UpdateWeixinSubscribeMessageTemplate) (bool, error)
+		// DeleteSubscribeMessageTemplate 删除模板
+		DeleteSubscribeMessageTemplate(ctx context.Context, appId string, templateId string) (bool, error)
+		// QuerySubscribeMessageTemplate 查询模板｜列表
+		QuerySubscribeMessageTemplate(ctx context.Context, params *base_model.SearchParams, isExport bool) (*weixin_model.WeixinSubscribeMessageTemplateListRes, error)
+		// GetSubscribeMessageTemplateByAppAndSceneTypeAndMessageType 查询模板
+		GetSubscribeMessageTemplateByAppAndSceneTypeAndMessageType(ctx context.Context, appId string, appType int, sceneType, messageType int) (*weixin_model.WeixinSubscribeMessageTemplateRes, error)
+	}
+	IThirdAppConfig interface {
+		// GetThirdAppConfigByAppId 根据AppId查找第三方应用配置信息
+		GetThirdAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinThirdAppConfig, error)
+		// GetThirdAppConfigById 根据id查找第三方应用配置信息
+		GetThirdAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinThirdAppConfig, error)
+		// CreateThirdAppConfig  创建第三方应用配置信息
+		CreateThirdAppConfig(ctx context.Context, info *weixin_model.WeixinThirdAppConfig) (*weixin_model.WeixinThirdAppConfig, error)
+		// UpdateThirdAppConfig 更新第三方应用配置信息
+		UpdateThirdAppConfig(ctx context.Context, id int64, info *weixin_model.UpdateThirdAppConfig) (bool, error)
+		// UpdateReleaseState 修改发布状态
+		UpdateReleaseState(ctx context.Context, id int64, releaseState int) (bool, error)
+		// UpdateState 修改应用状态
+		UpdateState(ctx context.Context, id int64, state int) (bool, error)
+		// UpdateAppAuthToken 更新Token  服务商应用授权token
+		UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateAppAuthToken) (bool, error)
+		// UpdateAppConfig 修改服务商基础信息
+		UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateThirdAppConfigReq) (bool, error)
+		// UpdateAppConfigHttps 修改服务商应用Https配置
+		UpdateAppConfigHttps(ctx context.Context, info *weixin_model.UpdateThirdAppConfigHttpsReq) (bool, error)
+	}
+	IGateway interface {
+		GetCallbackMsgHook() *base_hook.BaseHook[weixin_enum.CallbackMsgType, weixin_hook.ServiceMsgHookFunc]
+		GetServiceNotifyTypeHook() *base_hook.BaseHook[weixin_enum.ServiceNotifyType, weixin_hook.ServiceNotifyHookFunc]
+		// Services 接收消息通知
+		Services(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error)
+		// Callback 接收回调  C端消息 例如授权通知等。。。 事件回调
+		Callback(ctx context.Context, info *weixin_model.AuthorizationCodeRes, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error)
+		// WXCheckSignature 微信接入校验 设置Token需要验证
+		WXCheckSignature(ctx context.Context, signature, timestamp, nonce, echostr string) string
+	}
 	ITicket interface {
 		// Ticket 票据具体服务
 		Ticket(ctx context.Context, info g.Map) bool
 		// GetTicket 获取票据
 		GetTicket(ctx context.Context, appId string) (string, error)
-		// GenerateScheme 获取scheme码
+		// GenerateScheme 获取scheme码 【加密 URL Scheme】
 		GenerateScheme(ctx context.Context, appId string, info *weixin_model.JumpWxa) (*weixin_model.GetSchemeRes, error)
+		// GeneratePubScheme 获取scheme码 【明文 URL Scheme】
+		GeneratePubScheme(ctx context.Context, appId string, info *weixin_model.JumpWxa) (*weixin_model.GetSchemeRes, error)
 	}
 	IConsumer interface {
 		// GetConsumerById 根据id查找消费者信息
@@ -97,87 +163,18 @@ type (
 		// SetBankcardAccount 设置商户号银行卡号
 		SetBankcardAccount(ctx context.Context, info *weixin_model.SetBankcardAccount) (bool, error)
 	}
-	IPaySubMerchant interface {
-		// GetPaySubMerchantById 根据id查找特约商户配置信息
-		GetPaySubMerchantById(ctx context.Context, id int64) (*weixin_model.WeixinPaySubMerchant, error)
-		// GetPaySubMerchantByAppId 根据AppId查找特约商户配置信息
-		GetPaySubMerchantByAppId(ctx context.Context, appId string) (*weixin_model.WeixinPaySubMerchant, error)
-		// GetPaySubMerchantByMchid 根据Mchid查找特约商户配置信息
-		GetPaySubMerchantByMchid(ctx context.Context, id int) (*weixin_model.WeixinPaySubMerchant, error)
-		// GetPaySubMerchantBySysUserId  根据用户id查询特约商户配置信息
-		GetPaySubMerchantBySysUserId(ctx context.Context, sysUserId int64) (*weixin_model.WeixinPaySubMerchant, error)
-		// QueryPaySubMerchant 查询列表
-		QueryPaySubMerchant(ctx context.Context, params *base_model.SearchParams, isExport bool) (*weixin_model.WeixinPaySubMerchantList, error)
-		// CreatePaySubMerchant  创建特约商户配置信息
-		CreatePaySubMerchant(ctx context.Context, info *weixin_model.WeixinPaySubMerchant) (*weixin_model.WeixinPaySubMerchant, error)
-		// UpdatePaySubMerchant 更新特约商户配置信息
-		UpdatePaySubMerchant(ctx context.Context, id int64, info *weixin_model.UpdatePaySubMerchant) (bool, error)
-		// SetAuthPath 设置特约商户授权目录
-		SetAuthPath(ctx context.Context, info *weixin_model.SetSubMerchantAuthPath) (bool, error)
-	}
-	IThirdAppConfig interface {
-		// GetThirdAppConfigByAppId 根据AppId查找第三方应用配置信息
-		GetThirdAppConfigByAppId(ctx context.Context, id string) (*weixin_model.WeixinThirdAppConfig, error)
-		// GetThirdAppConfigById 根据id查找第三方应用配置信息
-		GetThirdAppConfigById(ctx context.Context, id int64) (*weixin_model.WeixinThirdAppConfig, error)
-		// CreateThirdAppConfig  创建第三方应用配置信息
-		CreateThirdAppConfig(ctx context.Context, info *weixin_model.WeixinThirdAppConfig) (*weixin_model.WeixinThirdAppConfig, error)
-		// UpdateThirdAppConfig 更新第三方应用配置信息
-		UpdateThirdAppConfig(ctx context.Context, id int64, info *weixin_model.UpdateThirdAppConfig) (bool, error)
-		// UpdateReleaseState 修改发布状态
-		UpdateReleaseState(ctx context.Context, id int64, releaseState int) (bool, error)
-		// UpdateState 修改应用状态
-		UpdateState(ctx context.Context, id int64, state int) (bool, error)
-		// UpdateAppAuthToken 更新Token  服务商应用授权token
-		UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateAppAuthToken) (bool, error)
-		// UpdateAppConfig 修改服务商基础信息
-		UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateThirdAppConfigReq) (bool, error)
-		// UpdateAppConfigHttps 修改服务商应用Https配置
-		UpdateAppConfigHttps(ctx context.Context, info *weixin_model.UpdateThirdAppConfigHttpsReq) (bool, error)
-	}
-	IGateway interface {
-		GetCallbackMsgHook() *base_hook.BaseHook[weixin_enum.CallbackMsgType, weixin_hook.ServiceMsgHookFunc]
-		GetServiceNotifyTypeHook() *base_hook.BaseHook[weixin_enum.ServiceNotifyType, weixin_hook.ServiceNotifyHookFunc]
-		// Services 接收消息通知
-		Services(ctx context.Context, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error)
-		// Callback 接收回调  C端消息 例如授权通知等。。。 事件回调
-		Callback(ctx context.Context, info *weixin_model.AuthorizationCodeRes, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error)
-		// WXCheckSignature 微信接入校验 设置Token需要验证
-		WXCheckSignature(ctx context.Context, signature, timestamp, nonce, echostr string) string
-	}
 )
 
 var (
-	localGateway           IGateway
-	localTicket            ITicket
-	localConsumer          IConsumer
-	localMerchantAppConfig IMerchantAppConfig
-	localPayMerchant       IPayMerchant
-	localPaySubMerchant    IPaySubMerchant
-	localThirdAppConfig    IThirdAppConfig
+	localGateway                  IGateway
+	localTicket                   ITicket
+	localConsumer                 IConsumer
+	localMerchantAppConfig        IMerchantAppConfig
+	localPayMerchant              IPayMerchant
+	localPaySubMerchant           IPaySubMerchant
+	localSubscribeMessageTemplate ISubscribeMessageTemplate
+	localThirdAppConfig           IThirdAppConfig
 )
-
-func PayMerchant() IPayMerchant {
-	if localPayMerchant == nil {
-		panic("implement not found for interface IPayMerchant, forgot register?")
-	}
-	return localPayMerchant
-}
-
-func RegisterPayMerchant(i IPayMerchant) {
-	localPayMerchant = i
-}
-
-func PaySubMerchant() IPaySubMerchant {
-	if localPaySubMerchant == nil {
-		panic("implement not found for interface IPaySubMerchant, forgot register?")
-	}
-	return localPaySubMerchant
-}
-
-func RegisterPaySubMerchant(i IPaySubMerchant) {
-	localPaySubMerchant = i
-}
 
 func ThirdAppConfig() IThirdAppConfig {
 	if localThirdAppConfig == nil {
@@ -232,4 +229,37 @@ func MerchantAppConfig() IMerchantAppConfig {
 
 func RegisterMerchantAppConfig(i IMerchantAppConfig) {
 	localMerchantAppConfig = i
+}
+
+func PayMerchant() IPayMerchant {
+	if localPayMerchant == nil {
+		panic("implement not found for interface IPayMerchant, forgot register?")
+	}
+	return localPayMerchant
+}
+
+func RegisterPayMerchant(i IPayMerchant) {
+	localPayMerchant = i
+}
+
+func PaySubMerchant() IPaySubMerchant {
+	if localPaySubMerchant == nil {
+		panic("implement not found for interface IPaySubMerchant, forgot register?")
+	}
+	return localPaySubMerchant
+}
+
+func RegisterPaySubMerchant(i IPaySubMerchant) {
+	localPaySubMerchant = i
+}
+
+func SubscribeMessageTemplate() ISubscribeMessageTemplate {
+	if localSubscribeMessageTemplate == nil {
+		panic("implement not found for interface ISubscribeMessageTemplate, forgot register?")
+	}
+	return localSubscribeMessageTemplate
+}
+
+func RegisterSubscribeMessageTemplate(i ISubscribeMessageTemplate) {
+	localSubscribeMessageTemplate = i
 }

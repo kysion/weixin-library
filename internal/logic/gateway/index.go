@@ -10,5 +10,6 @@ func init() {
 	weixin_service.RegisterConsumer(NewConsumerConfig())
 	weixin_service.RegisterPayMerchant(NewPayMerchant())
 	weixin_service.RegisterPaySubMerchant(NewPaySubMerchant())
+	weixin_service.RegisterSubscribeMessageTemplate(NewSubscribeMessageTemplate())
 
 }

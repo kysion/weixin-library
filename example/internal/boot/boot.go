@@ -110,6 +110,18 @@ var (
 					group.Bind(merchant.AppVersionManager)
 				})
 
+				// 消息
+				group.Group("/message", func(group *ghttp.RouterGroup) {
+					// 消息 【小程序】
+					group.Group("/tiny_app", func(group *ghttp.RouterGroup) {
+						// 订阅消息 【小程序】
+						group.Bind(merchant.SubscribeMessage)
+					})
+
+					// 消息模板管理 【小程序 & 公众号】
+					//group.Bind("/template", merchant.MessageTemplate)
+				})
+
 				// 微信支付
 				group.Group("/weixin_pay", func(group *ghttp.RouterGroup) {
 					// 微信支付商户号

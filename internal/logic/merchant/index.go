@@ -14,9 +14,11 @@ func init() {
 	weixin_service.RegisterSubAccount(NewSubAccount())
 
 	weixin_service.RegisterSubMerchant(NewSubMerchant())
-	
+
 	weixin_service.RegisterUserEvent(NewUserEvent())
 
 	weixin_service.RegisterUserAuth(NewUserAuth())
+
+	weixin_service.RegisterSubscribeMessage(NewSubscribeMessage())
 
 }
