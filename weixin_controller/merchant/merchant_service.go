@@ -14,6 +14,7 @@ import (
 	"github.com/kysion/weixin-library/weixin_service"
 	"github.com/kysion/weixin-library/weixin_utility"
 	"net/url"
+	"strings"
 )
 
 // AlipayAuthUserInfo 用户登录信息
@@ -150,7 +151,13 @@ func (c *cMerchantService) UserAuthRes(ctx context.Context, req *weixin_merchant
 
 	//susUserId := ctx.Value("sys_user_id")
 	token, _ := GetJwtToken(ctx, gconv.Int64(sysUserId))
-	req.To += "?jwtToken=" + token.Token + "&expireAt=" + gconv.String(token.ExpireAt.UnixMilli())
+
+	if strings.Contains(req.To, "?") {
+		req.To += "&"
+	} else {
+		req.To += "?"
+	}
+	req.To += "jwtToken=" + token.Token + "&expireAt=" + gconv.String(token.ExpireAt.UnixMilli())
 
 	g.RequestFromCtx(ctx).Response.RedirectTo(req.To)
 
