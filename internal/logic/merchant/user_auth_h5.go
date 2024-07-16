@@ -38,8 +38,8 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) (int64, er
 	// 1.拿到code
 	code := gconv.String(from.Get("code"))
 	appId := gconv.String(from.Get("app_id"))
-	sysUserId := gconv.Int64(from.Get("sys_user_id"))
-	merchantId := gconv.Int64(from.Get("merchant_id"))
+	sysUserId := int64(0)
+	merchantId := int64(0)
 
 	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
 	if err != nil && merchantApp == nil {
@@ -76,6 +76,9 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) (int64, er
 
 			if weiXinConsumer == nil {
 				id := sysUserId
+				if id == 0 {
+					id = idgen.NextId()
+				}
 				passwordLen := len(gconv.String(id))
 				pwd := gstr.SubStr(gconv.String(id), passwordLen-6, 6) // 密码为id后六位
 
