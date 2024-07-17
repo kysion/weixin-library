@@ -118,8 +118,8 @@ var (
 						group.Bind(merchant.SubscribeMessage)
 					})
 
-					// 消息模板管理 【小程序 & 公众号】
-					//group.Bind("/template", merchant.MessageTemplate)
+					// 订阅消息模板管理 【小程序 & 公众号】
+					group.Bind("/template", weixin_controller.SubscribeMessageTemplate)
 				})
 
 				// 微信支付
