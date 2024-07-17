@@ -14,7 +14,7 @@ var SubscribeMessage = cSubscribeMessage{}
 type cSubscribeMessage struct{}
 
 // SendMessage 发送订阅消息
-func (c *cAppVersionManager) SendMessage(ctx context.Context, req *weixin_merchant_app_v1.SendMessageReq) (*weixin_model.SendMessageRes, error) {
+func (c *cSubscribeMessage) SendMessage(ctx context.Context, req *weixin_merchant_app_v1.SendMessageReq) (*weixin_model.SendMessageRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
@@ -24,7 +24,7 @@ func (c *cAppVersionManager) SendMessage(ctx context.Context, req *weixin_mercha
 }
 
 // GetCategory 获取小程序账号的类目
-func (c *cAppVersionManager) GetCategory(ctx context.Context, _ *weixin_merchant_app_v1.GetCategoryReq) (*weixin_model.GetCategoryRes, error) {
+func (c *cSubscribeMessage) GetCategory(ctx context.Context, _ *weixin_merchant_app_v1.GetCategoryReq) (*weixin_model.GetCategoryRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
@@ -34,7 +34,7 @@ func (c *cAppVersionManager) GetCategory(ctx context.Context, _ *weixin_merchant
 }
 
 // GetMyTemplateList 获取个人模板列表
-func (c *cAppVersionManager) GetMyTemplateList(ctx context.Context, _ *weixin_merchant_app_v1.GetMyTemplateListReq) (*weixin_model.GetMyTemplateListRes, error) {
+func (c *cSubscribeMessage) GetMyTemplateList(ctx context.Context, _ *weixin_merchant_app_v1.GetMyTemplateListReq) (*weixin_model.GetMyTemplateListRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
@@ -44,7 +44,7 @@ func (c *cAppVersionManager) GetMyTemplateList(ctx context.Context, _ *weixin_me
 }
 
 // DeleteTemplate 删除模板
-func (c *cAppVersionManager) DeleteTemplate(ctx context.Context, req *weixin_merchant_app_v1.DeleteTemplateReq) (*weixin_model.DeleteTemplateRes, error) {
+func (c *cSubscribeMessage) DeleteTemplate(ctx context.Context, req *weixin_merchant_app_v1.DeleteTemplateReq) (*weixin_model.DeleteTemplateRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
@@ -54,7 +54,7 @@ func (c *cAppVersionManager) DeleteTemplate(ctx context.Context, req *weixin_mer
 }
 
 // GetPubTemplateKeyWords 获取模板的关键词列表
-func (c *cAppVersionManager) GetPubTemplateKeyWords(ctx context.Context, req *weixin_merchant_app_v1.GetPubTemplateKeyWordsReq) (*weixin_model.GetPubTemplateKeyWordsRes, error) {
+func (c *cSubscribeMessage) GetPubTemplateKeyWords(ctx context.Context, req *weixin_merchant_app_v1.GetPubTemplateKeyWordsReq) (*weixin_model.GetPubTemplateKeyWordsRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
@@ -64,7 +64,7 @@ func (c *cAppVersionManager) GetPubTemplateKeyWords(ctx context.Context, req *we
 }
 
 // GetPubTemplateTitleList 获取指定类目下的公共模板列表
-func (c *cAppVersionManager) GetPubTemplateTitleList(ctx context.Context, _ *weixin_merchant_app_v1.GetPubTemplateTitleListReq) (*weixin_model.GetPubTemplateTitleListRes, error) {
+func (c *cSubscribeMessage) GetPubTemplateTitleList(ctx context.Context, _ *weixin_merchant_app_v1.GetPubTemplateTitleListReq) (*weixin_model.GetPubTemplateTitleListRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
