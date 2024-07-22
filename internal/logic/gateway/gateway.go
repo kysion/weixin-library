@@ -27,7 +27,7 @@ type sGateway struct {
 	ServiceNotifyTypeHook base_hook.BaseHook[weixin_enum.ServiceNotifyType, weixin_hook.ServiceNotifyHookFunc]
 }
 
-func NewGateway() *sGateway {
+func NewGateway() weixin_service.IGateway {
 	// 初始化文件内容
 	return &sGateway{}
 }
@@ -73,13 +73,13 @@ func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEn
 		*/
 		s.ServiceNotifyTypeHook.Iterator(func(key weixin_enum.ServiceNotifyType, value weixin_hook.ServiceNotifyHookFunc) {
 			if data.InfoType == key.Code() {
-				g.Try(ctx, func(ctx context.Context) {
+				_ = g.Try(ctx, func(ctx context.Context) {
 					info := g.Map{
 						"MsgType": data.InfoType,
 						"info":    data,
 						"appId":   appId,
 					}
-					sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin应用通知广播： ------- "+data.InfoType, "sGateway")
+					_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin应用通知广播： ------- "+data.InfoType, "sGateway")
 					value(ctx, info)
 				})
 			}
@@ -136,7 +136,7 @@ func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEn
 // Callback 接收回调  C端消息 例如授权通知等。。。 事件回调
 func (s *sGateway) Callback(ctx context.Context, info *weixin_model.AuthorizationCodeRes, eventInfo *weixin_model.EventEncryptMsgReq, msgInfo *weixin_model.MessageEncryptReq) (string, error) {
 	// 处理授权
-	sys_service.SysLogs().InfoSimple(ctx, nil, "-------------微信的回调消息：callback....", "WeiXin-CallBack")
+	_ = sys_service.SysLogs().InfoSimple(ctx, nil, "-------------微信的回调消息：callback....", "WeiXin-CallBack")
 
 	fmt.Println("授权码：\n", info)
 
@@ -224,7 +224,7 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 			return "success", nil
 		}
 
-		if data != nil && data.AppID != "" && data.AppID != appId { // 说明跨服务商应用操作了
+		if data.AppID != "" && data.AppID != appId { // 说明跨服务商应用操作了
 			g.RequestFromCtx(ctx).Response.Write("success")
 			err = sys_service.SysLogs().ErrorSimple(ctx, nil, "\n不可跨服务商操作： "+data.MsgType, "sGateway")
 			return "success", nil
@@ -232,7 +232,7 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 
 		s.CallbackMsgHook.Iterator(func(key weixin_enum.CallbackMsgType, value weixin_hook.ServiceMsgHookFunc) {
 			if data.MsgType == key.Code() {
-				g.Try(ctx, func(ctx context.Context) {
+				_ = g.Try(ctx, func(ctx context.Context) {
 					info := g.Map{
 						"MsgType":   data.MsgType,
 						"info":      data,
@@ -240,7 +240,7 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 						// "code"
 						// "openid"
 					}
-					sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin回调消息广播： ------- "+data.MsgType, "sGateway")
+					_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin回调消息广播： ------- "+data.MsgType, "sGateway")
 					value(ctx, info)
 				})
 			}
@@ -251,10 +251,10 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 	{
 
 		// 直连
-		merchartConfig, _ := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
-		if thirdConfig.Id == 0 && merchartConfig != nil {
+		merchantConfig, _ := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+		if thirdConfig.Id == 0 && merchantConfig != nil {
 			// 1.验签
-			ok := weixin_utility.VerifyByteDanceServer(merchartConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
+			ok := weixin_utility.VerifyByteDanceServer(merchantConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
 			if !ok {
 				fmt.Println("Callback 验签失败")
 				g.RequestFromCtx(ctx).Response.Write("success")
@@ -267,7 +267,7 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 
 			s.CallbackMsgHook.Iterator(func(key weixin_enum.CallbackMsgType, value weixin_hook.ServiceMsgHookFunc) {
 				if data.MsgType == key.Code() {
-					g.Try(ctx, func(ctx context.Context) {
+					_ = g.Try(ctx, func(ctx context.Context) {
 						info := g.Map{
 							"MsgType":   data.MsgType,
 							"info":      data,
@@ -275,7 +275,7 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 							// "code"
 							// "openid"
 						}
-						sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin回调消息广播： ------- "+data.MsgType, "sGateway")
+						_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin回调消息广播： ------- "+data.MsgType, "sGateway")
 						value(ctx, info)
 					})
 				}
