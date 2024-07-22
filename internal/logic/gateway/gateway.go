@@ -85,44 +85,41 @@ func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEn
 			}
 		})
 
-	}
-
-	{
-
-		// 公众号直连
-		merchartConfig, _ := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
-		if thirdConfig.Id == 0 && merchartConfig != nil {
-			// 1.验签
-			ok := weixin_utility.VerifyByteDanceServer(merchartConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
-			if !ok {
-				fmt.Println("Services 验签失败")
-				g.RequestFromCtx(ctx).Response.Write("success")
-				return "验签失败", nil
-			}
-
-			// 2.解密
-			//data := weixin.DecryptEvent(ctx, *eventInfo, *msgInfo)
-			data := weixin.DecryptMessage(ctx, *eventInfo, *msgInfo)
-			fmt.Println("Services 解密后的内容：", data)
-			//if data != nil && data.AppId != appId { // 说明跨服务商应用操作了
-			//	return "不可跨服务商应用操作了", nil
-			//}
-
-			s.ServiceNotifyTypeHook.Iterator(func(key weixin_enum.ServiceNotifyType, value weixin_hook.ServiceNotifyHookFunc) {
-				if data.MsgType == key.Code() {
-					g.Try(ctx, func(ctx context.Context) {
-						info := g.Map{
-							"MsgType": data.MsgType,
-							"info":    data,
-							"appId":   appId,
-						}
-						sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin应用通知广播： ------- "+data.MsgType, "sGateway")
-						value(ctx, info)
-					})
+		{
+			// 公众号直连
+			merchantConfig, _ := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+			if thirdConfig.Id == 0 && merchantConfig != nil {
+				// 1.验签
+				ok := weixin_utility.VerifyByteDanceServer(merchantConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
+				if !ok {
+					fmt.Println("Services 验签失败")
+					g.RequestFromCtx(ctx).Response.Write("success")
+					return "验签失败", nil
 				}
-			})
-		}
 
+				// 2.解密
+				//data := weixin.DecryptEvent(ctx, *eventInfo, *msgInfo)
+				data := weixin.DecryptMessage(ctx, *eventInfo, *msgInfo)
+				fmt.Println("Services 解密后的内容：", data)
+				//if data != nil && data.AppId != appId { // 说明跨服务商应用操作了
+				//	return "不可跨服务商应用操作了", nil
+				//}
+
+				s.ServiceNotifyTypeHook.Iterator(func(key weixin_enum.ServiceNotifyType, value weixin_hook.ServiceNotifyHookFunc) {
+					if data.MsgType == key.Code() {
+						_ = g.Try(ctx, func(ctx context.Context) {
+							info := g.Map{
+								"MsgType": data.MsgType,
+								"info":    data,
+								"appId":   appId,
+							}
+							_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin应用通知广播： ------- "+data.MsgType, "sGateway")
+							value(ctx, info)
+						})
+					}
+				})
+			}
+		}
 	}
 
 	// 找出服务商 Hook
