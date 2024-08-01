@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
+	"github.com/SupenBysz/gf-admin-community/utility/idgen"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
@@ -17,7 +18,6 @@ import (
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_utility/file"
-	"github.com/yitter/idgenerator-go/idgen"
 )
 
 // 微信支付商户号
@@ -58,7 +58,7 @@ func (s *sPayMerchant) GetPayMerchantByMchid(ctx context.Context, id int) (*weix
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &data, err
 }
 

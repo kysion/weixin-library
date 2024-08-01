@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
+	"github.com/SupenBysz/gf-admin-community/utility/idgen"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/base_model"
 	"github.com/kysion/base-library/utility/daoctl"
@@ -11,7 +12,6 @@ import (
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
-	"github.com/yitter/idgenerator-go/idgen"
 )
 
 // 微信支付特约商户 （也就是服务商模式下的子商户）
