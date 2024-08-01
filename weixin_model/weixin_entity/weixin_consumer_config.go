@@ -21,7 +21,7 @@ type WeixinConsumerConfig struct {
 	UserType           int         `json:"userType"           description:"用户账号类型，和sysUserType保持一致"`
 	UserState          int         `json:"userState"          description:"状态：0未激活、1正常、-1封号、-2异常、-3已注销"`
 	IsCertified        int         `json:"isCertified"        description:"是否实名认证"`
-	Sex                int         `json:"sex"                description:"性别：0女 1男"`
+	Sex                int         `json:"sex"                description:"性别：0未知、1男、2女"`
 	AccessToken        string      `json:"accessToken"        description:"授权token"`
 	ExtJson            string      `json:"extJson"            description:"拓展字段"`
 	CreatedAt          *gtime.Time `json:"createdAt"          description:""`
