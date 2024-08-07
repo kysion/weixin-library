@@ -79,7 +79,7 @@ func (s *sWeiXinPay) DownloadCertificates(ctx context.Context, appID ...string) 
 
 // JsapiCreateOrder JsApi 支付下单 - 服务商待调用
 func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.TradeOrder, openId string) (tradeNo string, err error) {
-	sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------JSAPI 创建支付订单，预下单 ------- ", "WeiXin-Pay")
+	_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------JSAPI 创建支付订单，预下单 ------- ", "WeiXin-Pay")
 
 	appId := weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 
@@ -145,7 +145,7 @@ func (s *sWeiXinPay) JsapiCreateOrder(ctx context.Context, info *weixin_model.Tr
 		//Detail:     &jsapi.Detail{}, // 优惠功能
 	}
 
-	log.Println("微信JASAPI支付下单数据：", req)
+	log.Println("微信JSAPI支付下单数据：", req)
 
 	// 这里是预下单
 	resp, _, err := svc.Prepay(ctx, req) // wx18150015642076d683b4336866f9370000
@@ -247,7 +247,7 @@ func (s *sWeiXinPay) QueryOrderByIdOutTradeNo(ctx context.Context, outTradeNo st
 	if err == nil {
 		log.Println(resp)
 	} else {
-		log.Println("查询订单失败：outTRradeNo：", outTradeNo, err)
+		log.Println("查询订单失败：outTradeNo：", outTradeNo, err)
 		return &weixin_model.TradeOrderRes{}, sys_service.SysLogs().ErrorSimple(ctx, err, "查询支付订单失败！", "WeiXin-Pay")
 	}
 

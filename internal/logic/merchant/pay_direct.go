@@ -20,7 +20,7 @@ import (
 
 // JsapiCreateOrderByDirect JsApi 支付下单 - 直连模式
 func (s *sWeiXinPay) JsapiCreateOrderByDirect(ctx context.Context, info *weixin_model.TradeOrder, openId string) (tradeNo string, err error) {
-	sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------JSAPI 创建支付订单，预下单 ------- ", "WeiXin-Pay")
+	_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------JSAPI 创建支付订单，预下单 ------- ", "WeiXin-Pay")
 
 	appId := weixin_utility.GetAppIdFormContext(ctx) // 绑定的AppId
 
@@ -42,8 +42,8 @@ func (s *sWeiXinPay) JsapiCreateOrderByDirect(ctx context.Context, info *weixin_
 
 	//subMchId := subMerchant.SubMchid // 特约商家商户号
 	//spMchId := spMerchant.Mchid      // 服务商商户号
-	mchid := gconv.String(spMerchant.Mchid)
-	payClient, _ := weixin.NewPayClient(ctx, gconv.String(mchid), spMerchant.PayPrivateKeyPem, spMerchant.CertSerialNumber, spMerchant.ApiV3Key)
+	mchId := gconv.String(spMerchant.Mchid)
+	payClient, _ := weixin.NewPayClient(ctx, gconv.String(mchId), spMerchant.PayPrivateKeyPem, spMerchant.CertSerialNumber, spMerchant.ApiV3Key)
 
 	// 微信支付服务商商户号  --> 特约商户XXX ...
 
@@ -56,7 +56,7 @@ func (s *sWeiXinPay) JsapiCreateOrderByDirect(ctx context.Context, info *weixin_
 		//SubMchid:    core.String(gconv.String(subMchId)),
 
 		Appid:         core.String(appId),
-		Mchid:         core.String(mchid),
+		Mchid:         core.String(mchId),
 		Description:   core.String(info.Order.ProductName),
 		OutTradeNo:    core.String(gconv.String(info.Order.Id)), // out_trade_no = order.Id
 		TimeExpire:    nil,                                      // 交易结束时间。订单失效时间
@@ -86,7 +86,7 @@ func (s *sWeiXinPay) JsapiCreateOrderByDirect(ctx context.Context, info *weixin_
 		},
 	}
 
-	log.Println("微信JASAPI支付下单数据：", req)
+	log.Println("微信JSAPI支付下单数据：", req)
 
 	// 这里是预下单
 	resp, _, err := svc.Prepay(ctx, req) // wx18150015642076d683b4336866f9370000
