@@ -71,7 +71,7 @@
 └── weixin.go         组件入口
 ```
 
-### alipay-library 理解为这是一个SDK库，项目大部分实现是基于第三方应用代商家发起Api调用
+### weixin-library 理解为这是一个SDK库，项目大部分实现是基于第三方应用代商家发起Api调用
 特性：
 > 封装了Weixin网关，用于接收和发送消息。<br>
 > 封装了Weixin小程序开发管理Api <br>
