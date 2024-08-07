@@ -1,9 +1,10 @@
-package gateway
+package weixin_service
 
 import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/SupenBysz/gf-admin-community/utility/idgen"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/text/gstr"
@@ -24,7 +25,7 @@ type sMerchantAppConfig struct {
 	Duration   time.Duration
 }
 
-func NewMerchantAppConfig() *sMerchantAppConfig {
+func NewMerchantAppConfig() weixin_service.IMerchantAppConfig {
 	return &sMerchantAppConfig{
 		redisCache: gcache.New(),
 	}
@@ -50,7 +51,7 @@ func (s *sMerchantAppConfig) GetMerchantAppConfigByAppId(ctx context.Context, id
 	}
 
 	if gtime.Now().After(data.ExpiresIn) { // 如果Token已经过期
-		_, err := weixin_service.AppAuth().RefreshToken(ctx, id, data.ThirdAppId, data.RefreshToken)
+		_, err = weixin_service.AppAuth().RefreshToken(ctx, id, data.ThirdAppId, data.RefreshToken)
 		if err != nil {
 			return &data, err
 		}
@@ -89,13 +90,15 @@ func (s *sMerchantAppConfig) CreateMerchantAppConfig(ctx context.Context, info *
 		info.NotifyUrl = info.ServerDomain + "/weixin/" + appId + "/gateway.notify"
 	} else if info.ServerDomain == "" {
 		// 没指定服务器域名，默认使用当前服务器域名
-		info.ServerDomain = "https://www.kuaimk.com"
-		info.AppGatewayUrl = "https://www.kuaimk.com/weixin/" + appId + "/gateway.services"
-		info.AppCallbackUrl = "https://www.kuaimk.com/weixin/$APPID$/" + appId + "/gateway.callback"
-		info.NotifyUrl = "https://www.kuaimk.com/weixin/" + appId + "/gateway.notify"
+		serverDomain := g.Cfg().MustGet(context.Background(), "weixin.serverDomain").String()
+
+		info.ServerDomain = serverDomain
+		info.AppGatewayUrl = serverDomain + "/weixin/" + appId + "/gateway.services"
+		info.AppCallbackUrl = serverDomain + "/weixin/$APPID$/" + appId + "/gateway.callback"
+		info.NotifyUrl = serverDomain + "/weixin/" + appId + "/gateway.notify"
 	}
 
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	data.Id = idgen.NextId()
 	if data.ExtJson == "" {
@@ -122,7 +125,7 @@ func (s *sMerchantAppConfig) UpdateMerchantAppConfig(ctx context.Context, id int
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "该商家应用配置不存在", dao.WeixinMerchantAppConfig.Table())
 	}
 	data := do.WeixinMerchantAppConfig{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	model := dao.WeixinMerchantAppConfig.Ctx(ctx)
 	affected, err := daoctl.UpdateWithError(model.Data(data).OmitNilData().Where(do.WeixinMerchantAppConfig{Id: id}))
@@ -166,7 +169,7 @@ func (s *sMerchantAppConfig) UpdateAppAuth(ctx context.Context, appId string, th
 // UpdateAppAuthToken 更新Token  商家应用授权token
 func (s *sMerchantAppConfig) UpdateAppAuthToken(ctx context.Context, info *weixin_model.UpdateMerchantAppAuthToken) (bool, error) {
 	data := do.WeixinMerchantAppConfig{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	affected, err := daoctl.UpdateWithError(dao.WeixinMerchantAppConfig.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinMerchantAppConfig{AppId: info.AppId}))
 
@@ -179,7 +182,7 @@ func (s *sMerchantAppConfig) UpdateAppAuthToken(ctx context.Context, info *weixi
 // UpdateAppConfig 修改商家基础信息
 func (s *sMerchantAppConfig) UpdateAppConfig(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigReq) (bool, error) {
 	data := do.WeixinMerchantAppConfig{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	affected, err := daoctl.UpdateWithError(dao.WeixinMerchantAppConfig.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinMerchantAppConfig{Id: info.Id}))
 
@@ -192,7 +195,7 @@ func (s *sMerchantAppConfig) UpdateAppConfig(ctx context.Context, info *weixin_m
 // UpdateAppConfigHttps 修改商家应用Https配置
 func (s *sMerchantAppConfig) UpdateAppConfigHttps(ctx context.Context, info *weixin_model.UpdateMerchantAppConfigHttpsReq) (bool, error) {
 	data := do.WeixinMerchantAppConfig{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	affected, err := daoctl.UpdateWithError(dao.WeixinMerchantAppConfig.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinMerchantAppConfig{Id: info.Id}))
 

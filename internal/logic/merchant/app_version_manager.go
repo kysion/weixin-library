@@ -16,7 +16,7 @@ type sAppVersion struct{}
 //		weixin_service.RegisterAppVersion(NewAppVersion())
 //
 // }
-func NewAppVersion() *sAppVersion {
+func NewAppVersion() weixin_service.IAppVersion {
 	return &sAppVersion{}
 }
 
@@ -52,7 +52,7 @@ func (s *sAppVersion) SubmitAppVersionAudit(ctx context.Context, appId string, i
 	result := g.Client().PostContent(ctx, url, reqData)
 
 	res := weixin_model.AppVersionAuditRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -69,7 +69,7 @@ func (s *sAppVersion) CancelAppVersionAudit(ctx context.Context, appId string) (
 	result := g.Client().GetContent(ctx, url)
 
 	res := weixin_model.CancelAppVersionAuditRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -86,7 +86,7 @@ func (s *sAppVersion) CancelAppVersion(ctx context.Context, appId string, info *
 	result := g.Client().GetContent(ctx, url)
 
 	res := weixin_model.CancelAppVersionRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -103,7 +103,7 @@ func (s *sAppVersion) QueryAppVersionList(ctx context.Context, appId string) (*w
 	result := g.Client().GetContent(ctx, url)
 
 	res := weixin_model.QueryAppVersionListRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -123,7 +123,7 @@ func (s *sAppVersion) GetAppVersionDetail(ctx context.Context, appId string) (*w
 	result := g.Client().PostContent(ctx, url, encode)
 
 	res := weixin_model.QueryAppVersionDetailRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -140,7 +140,7 @@ func (s *sAppVersion) GetAppLatestVersionAudit(ctx context.Context, appId string
 	result := g.Client().GetContent(ctx, url)
 
 	res := weixin_model.GetAppLatestVersionAuditRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 
@@ -158,7 +158,7 @@ func (s *sAppVersion) GetAllCategory(ctx context.Context, appId string) (*weixin
 	result := g.Client().GetContent(ctx, url)
 
 	res := weixin_model.AppCategoryInfoRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -175,7 +175,7 @@ func (s *sAppVersion) GetAccountVBasicInfo(ctx context.Context, appId string) (*
 	result := g.Client().GetContent(ctx, url)
 
 	res := weixin_model.AccountVBasicInfoRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -191,12 +191,12 @@ func (s *sAppVersion) UploadAppMediaToAudit(ctx context.Context, appId string, m
 	//url := "https://api.weixin.qq.com/wxa/uploadmedia?access_token=" + merchantApp.AppAuthToken
 	//result := g.Client().PostContent(ctx, url)
 
-	mediaid, err := weixin.UploadMedia(ctx, merchantApp.AppAuthToken, mediaPath)
+	media, err := weixin.UploadMedia(ctx, merchantApp.AppAuthToken, mediaPath)
 	// img1.jpg nXZPp3Jc2FitVGuiCBYvyApsY0F4m9i9TiWaNEEvbrZt12B4r6VxjOSbsM_5PziGjR5OHwG9JoVMM9LHZWH44Q
 	// img2.jpg nXZPp3Jc2FitVGuiCBYvyLLgBpcvY-K8t2Ujrc2wiznXRL0CJJOZK1TkCdv4H7UO75xfTgS9SgjS5BNYvj4LCQ
 	// img3.jpg nXZPp3Jc2FitVGuiCBYvyKRuFaqLoLdHbDhv8tjxO-7rAPJm-yx8yoODFUwX379lOJy_iUINj2moHlncHlPQRw
 	// testVicdeo.mp4 nXZPp3Jc2FitVGuiCBYvyD-T2v4Rc9QbBmBSJBBhugkmjiM2EqvwCXim7qYpBg4weCwV13bbv17gEKSLatj2jA
-	return mediaid, err
+	return media, err
 }
 
 // CommitAppAuditCode 上传代码并生成体验版
@@ -214,7 +214,7 @@ func (s *sAppVersion) CommitAppAuditCode(ctx context.Context, appId string, info
 	result := g.Client().PostContent(ctx, url, reqData)
 
 	res := weixin_model.CommitAppAuditCodeRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -242,7 +242,7 @@ func (s *sAppVersion) GetQrcode(ctx context.Context, appId string) (*weixin_mode
 	response.WriteExit(result)
 
 	res := weixin_model.ErrorCommonRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -261,7 +261,7 @@ func (s *sAppVersion) ReleaseApp(ctx context.Context, appId string) (*weixin_mod
 	result := g.Client().PostContent(ctx, url, encode)
 
 	res := weixin_model.ErrorCommonRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }

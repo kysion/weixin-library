@@ -23,7 +23,7 @@ func init() {
 	weixin_service.RegisterSubscribeMessage(NewSubscribeMessage())
 }
 
-func NewSubscribeMessage() *sSubscribeMessage {
+func NewSubscribeMessage() weixin_service.ISubscribeMessage {
 	return &sSubscribeMessage{}
 }
 
@@ -57,7 +57,7 @@ func (s *sSubscribeMessage) SendMessage(ctx context.Context, appId string, info 
 	result := g.Client().PostContent(ctx, url, reqData)
 
 	res := weixin_model.SendMessageRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 	//Bug:{"errcode":48001,"errmsg":"api unauthorized rid: 66852ea5-4a805617-41e722d4"} 使用第三方的token，会报此错误。
 	//Bug: {"errcode":43101,"errmsg":"user refuse to accept the msg rid: 66852f4d-05bdc04c-3984eb83"}  用户未授权订阅。或一次性订阅已使用完。
 	//Bug：{"errcode":47003,"errmsg":"argument invalid! data.thing4.value invalid rid: 6685312c-738a8045-626e019c"}
@@ -79,7 +79,7 @@ func (s *sSubscribeMessage) GetCategory(ctx context.Context, appId string) (*wei
 	result := g.Client().GetContent(ctx, url)
 
 	res := weixin_model.GetCategoryRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -109,7 +109,7 @@ func (s *sSubscribeMessage) GetMyTemplateList(ctx context.Context, appId string)
 	fmt.Println(result)
 
 	res := weixin_model.GetMyTemplateListRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	// 持久化到SQL数据库
 	if res.Errcode == 0 && res.Errmsg == "ok" {
@@ -364,7 +364,7 @@ func (s *sSubscribeMessage) DeleteTemplate(ctx context.Context, appId string, in
 	result := g.Client().PostContent(ctx, url, reqData)
 
 	res := weixin_model.DeleteTemplateRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	// 持久化到SQL数据库 (数据同步)
 	if res.Errcode == 0 && res.Errmsg == "ok" {
@@ -394,7 +394,7 @@ func (s *sSubscribeMessage) GetPubTemplateKeyWords(ctx context.Context, appId st
 	result := g.Client().GetContent(ctx, url)
 
 	res := weixin_model.GetPubTemplateKeyWordsRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }
@@ -414,7 +414,7 @@ func (s *sSubscribeMessage) GetPubTemplateTitleList(ctx context.Context, appId s
 	result := g.Client().GetContent(ctx, url)
 
 	res := weixin_model.GetPubTemplateTitleListRes{}
-	gjson.DecodeTo(result, &res)
+	_ = gjson.DecodeTo(result, &res)
 
 	return &res, err
 }

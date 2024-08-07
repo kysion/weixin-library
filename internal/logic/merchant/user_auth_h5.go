@@ -54,13 +54,13 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) (int64, er
 	// 2.获取access_token  (能拿到openId和access_token)
 	accessToken, err := getAccessTokenByH5(code, appId, merchantApp.AppSecret)
 	if err != nil {
-		sys_service.SysLogs().ErrorSimple(ctx, err, "获取AccessToken失败："+err.Error(), "WeiXin")
+		_ = sys_service.SysLogs().ErrorSimple(ctx, err, "获取AccessToken失败："+err.Error(), "WeiXin")
 		return sysUserId, err
 	}
 	g.Dump(accessToken)
 
-	sys_service.SysLogs().InfoSimple(ctx, nil, "\nOpenId："+accessToken.Openid, "sUserAuth")
-	sys_service.SysLogs().InfoSimple(ctx, nil, "\nAccessToken： "+accessToken.AccessToken, "sUserAuth")
+	_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\nOpenId："+accessToken.Openid, "sUserAuth")
+	_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\nAccessToken： "+accessToken.AccessToken, "sUserAuth")
 
 	openID := accessToken.Openid
 	err = dao.WeixinConsumerConfig.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
@@ -153,15 +153,15 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) (int64, er
 			}
 
 			// 5.存储consumer消费者数据
-			g.Try(ctx, func(ctx context.Context) {
+			_ = g.Try(ctx, func(ctx context.Context) {
 				s.ConsumerHook.Iterator(func(key hook.ConsumerKey, value hook.ConsumerHookFunc) {
 					if key.ConsumerAction.Code() == weixin_enum.Consumer.ActionEnum.Auth.Code() && key.Category.Code() == weixin_enum.Consumer.Category.Consumer.Code() { // 如果订阅者是订阅授权,并且是操作kmk_consumer表
-						g.Try(ctx, func(ctx context.Context) {
+						_ = g.Try(ctx, func(ctx context.Context) {
 							data := hook.UserInfo{
 								SysUserId:   sysUserId, // (消费者id = sys_User_id)
 								UserInfoRes: *userInfo,
 							}
-							sys_service.SysLogs().InfoSimple(ctx, nil, "\n广播-------存储消费者数据 xxx-consumer", "sUserAuth")
+							_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n广播-------存储消费者数据 xxx-consumer", "sUserAuth")
 
 							value(ctx, data)
 						})
@@ -170,10 +170,10 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) (int64, er
 			})
 
 			// 6.存储第三方应用和用户关系记录  plat_form_user
-			g.Try(ctx, func(ctx context.Context) {
+			_ = g.Try(ctx, func(ctx context.Context) {
 				s.ConsumerHook.Iterator(func(key hook.ConsumerKey, value hook.ConsumerHookFunc) { // 这会同时走两个Hook，kmk_consumer  + platform_user,所以加上了category类型
 					if key.ConsumerAction.Code() == weixin_enum.Consumer.ActionEnum.Auth.Code() && key.Category.Code() == weixin_enum.Consumer.Category.PlatFormUser.Code() { // 如果订阅者是订阅授权
-						g.Try(ctx, func(ctx context.Context) {
+						_ = g.Try(ctx, func(ctx context.Context) {
 							platformUser := entity.PlatformUser{
 								Id:             idgen.NextId(),
 								FacilitatorId:  0,
@@ -187,7 +187,7 @@ func (s *sUserAuth) UserAuthCallback(ctx context.Context, info g.Map) (int64, er
 								SysUserType:    sysUser.Type, // TODO 后期通过sysUserId拿到user，拿到type
 							}
 
-							sys_service.SysLogs().InfoSimple(ctx, nil, "\n广播-------存储第三方应用和用户关系记录 kmk-plat_form_user", "sMerchantService")
+							_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n广播-------存储第三方应用和用户关系记录 kmk-plat_form_user", "sMerchantService")
 
 							value(ctx, platformUser) // 调用Hook
 						})
@@ -252,7 +252,9 @@ func getUserInfoByH5(accessToken string, openID string) (*weixin_model.UserInfoR
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

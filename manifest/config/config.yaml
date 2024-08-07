@@ -62,6 +62,12 @@ service:
   # 私钥
   payPrivateKeyPem: "/data/kysion-files/weixin/weixin-pay/1642565036_cert/apiclient_key.pem"
 
+weixin:
+  # 微信消息验证Token，需要和微信开放平台设置的Token一致
+  msgVerfiyToken: "commianlajie"
+  # 服务器域名
+  serverDomain: "https://www.mianlajie.com"
+
 # 日志配置
 logger:
   path: "temp/logs/default"
