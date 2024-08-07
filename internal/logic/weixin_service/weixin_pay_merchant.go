@@ -1,4 +1,4 @@
-package gateway
+package weixin_service
 
 import (
 	"context"
@@ -17,6 +17,7 @@ import (
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
+	"github.com/kysion/weixin-library/weixin_service"
 	"github.com/kysion/weixin-library/weixin_utility/file"
 )
 
@@ -24,7 +25,7 @@ import (
 type sPayMerchant struct {
 }
 
-func NewPayMerchant() *sPayMerchant {
+func NewPayMerchant() weixin_service.IPayMerchant {
 	return &sPayMerchant{}
 }
 
@@ -41,7 +42,6 @@ func (s *sPayMerchant) GetPayMerchantById(ctx context.Context, id int64) (*weixi
 // GetPayMerchantByAppId 根据AppId查找商户号配置信息
 func (s *sPayMerchant) GetPayMerchantByAppId(ctx context.Context, appId string) (*weixin_model.PayMerchant, error) {
 	data := weixin_model.PayMerchant{}
-
 	err := dao.WeixinPayMerchant.Ctx(ctx).Where(do.WeixinPayMerchant{AppId: appId, MerchantType: weixin_enum.Pay.MerchantType.SubMerchant.Code()}).Scan(&data)
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (s *sPayMerchant) GetPayMerchantBySysUserId(ctx context.Context, sysUserId 
 func (s *sPayMerchant) CreatePayMerchant(ctx context.Context, info *weixin_model.PayMerchant) (*weixin_model.PayMerchant, error) {
 	data := do.WeixinPayMerchant{}
 
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	data.Id = idgen.NextId()
 	if len(info.UnionAppid) == 0 {
@@ -110,7 +110,7 @@ func (s *sPayMerchant) UpdatePayMerchant(ctx context.Context, id int64, info *we
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "该商户号配置不存在", dao.WeixinPayMerchant.Table())
 	}
 	data := do.WeixinPayMerchant{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	model := dao.WeixinPayMerchant.Ctx(ctx)
 	affected, err := daoctl.UpdateWithError(model.Data(data).OmitNilData().Where(do.WeixinPayMerchant{Id: id}))
@@ -173,7 +173,7 @@ func (s *sPayMerchant) SetCertAndKey(ctx context.Context, id int64, info *weixin
 
 	// 读取文件
 	data := do.WeixinPayMerchant{}
-	gconv.Struct(fileData, &data)
+	_ = gconv.Struct(fileData, &data)
 
 	affected, err := daoctl.UpdateWithError(dao.WeixinPayMerchant.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinPayMerchant{Id: id}))
 
@@ -186,7 +186,7 @@ func (s *sPayMerchant) SetCertAndKey(ctx context.Context, id int64, info *weixin
 // SetAuthPath 设置商户号授权目录
 func (s *sPayMerchant) SetAuthPath(ctx context.Context, info *weixin_model.SetAuthPath) (bool, error) {
 	data := do.WeixinPayMerchant{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	affected, err := daoctl.UpdateWithError(dao.WeixinPayMerchant.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinPayMerchant{Mchid: info.Mchid}))
 
@@ -211,7 +211,7 @@ func (s *sPayMerchant) SetPayMerchantUnionId(ctx context.Context, info *weixin_m
 	}
 
 	data := do.WeixinPayMerchant{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	data.UnionAppid, _ = gjson.Encode(info.UnionAppid)
 
@@ -226,7 +226,7 @@ func (s *sPayMerchant) SetPayMerchantUnionId(ctx context.Context, info *weixin_m
 // SetBankcardAccount 设置商户号银行卡号
 func (s *sPayMerchant) SetBankcardAccount(ctx context.Context, info *weixin_model.SetBankcardAccount) (bool, error) {
 	//data := do.WeixinPayMerchant{}
-	//gconv.Struct(info, &data)
+	//_ = gconv.Struct(info, &data)
 
 	affected, err := daoctl.UpdateWithError(dao.WeixinPayMerchant.Ctx(ctx).Data(info).OmitNilData().Where(do.WeixinPayMerchant{Mchid: info.Mchid}))
 

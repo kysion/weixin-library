@@ -1,4 +1,4 @@
-package gateway
+package weixin_service
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
+	"github.com/kysion/weixin-library/weixin_service"
 	"time"
 )
 
@@ -21,7 +22,7 @@ type sConsumer struct {
 	Duration   time.Duration
 }
 
-func NewConsumerConfig() *sConsumer {
+func NewConsumerConfig() weixin_service.IConsumer {
 	return &sConsumer{
 		redisCache: gcache.New(),
 	}
@@ -123,7 +124,7 @@ func (s *sConsumer) QueryConsumerByUnionId(ctx context.Context, unionId string) 
 // CreateConsumer  创建消费者信息
 func (s *sConsumer) CreateConsumer(ctx context.Context, info *weixin_model.WeixinConsumerConfig) (*weixin_model.WeixinConsumerConfig, error) {
 	data := do.WeixinConsumerConfig{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	if info.ExtJson == "" {
 		data.ExtJson = nil
@@ -151,7 +152,7 @@ func (s *sConsumer) UpdateConsumer(ctx context.Context, id int64, info *weixin_m
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "该消费者不存在", dao.WeixinConsumerConfig.Table())
 	}
 	data := do.WeixinConsumerConfig{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	model := dao.WeixinConsumerConfig.Ctx(ctx)
 	affected, err := daoctl.UpdateWithError(model.Data(data).OmitEmptyData().Where(do.WeixinConsumerConfig{Id: id}))
@@ -172,7 +173,7 @@ func (s *sConsumer) UpdateConsumerByUserId(ctx context.Context, userId int64, in
 	//}
 
 	data := do.WeixinConsumerConfig{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	model := dao.WeixinConsumerConfig.Ctx(ctx)
 	affected, err := daoctl.UpdateWithError(model.Data(data).OmitEmptyData().Where(do.WeixinConsumerConfig{SysUserId: userId}))
@@ -229,7 +230,7 @@ func (s *sConsumer) UpdateConsumerToken(ctx context.Context, openId string, info
 	}
 
 	data := do.WeixinConsumerConfig{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	model := dao.WeixinConsumerConfig.Ctx(ctx)
 	affected, err := daoctl.UpdateWithError(model.Data(data).OmitNilData().Where(do.WeixinConsumerConfig{OpenId: openId}))
