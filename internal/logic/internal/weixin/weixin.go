@@ -41,7 +41,7 @@ func DecryptEvent(ctx context.Context, eventInfo weixin_model.EventEncryptMsgReq
 	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, eventInfo.AppId)
 	if config != nil && err == nil {
 		msgEncryptKey = config.MsgEncryptKey
-		token = config.MsgVerfiyToken
+		token = config.MsgVerifyToken
 	}
 
 	// 自开发模式
@@ -49,7 +49,7 @@ func DecryptEvent(ctx context.Context, eventInfo weixin_model.EventEncryptMsgReq
 		merchantConfig, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, eventInfo.AppId)
 		if merchantConfig != nil && err == nil {
 			msgEncryptKey = merchantConfig.MsgEncryptKey
-			token = merchantConfig.MsgVerfiyToken
+			token = merchantConfig.MsgVerifyToken
 		}
 	}
 
@@ -78,7 +78,7 @@ func DecryptMessage(ctx context.Context, eventInfo weixin_model.EventEncryptMsgR
 	config, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, eventInfo.AppId)
 	if config != nil && err == nil {
 		msgEncryptKey = config.MsgEncryptKey
-		token = config.MsgVerfiyToken
+		token = config.MsgVerifyToken
 	}
 
 	// TODO 代码暂时比较丑陋，后续优化
@@ -86,7 +86,7 @@ func DecryptMessage(ctx context.Context, eventInfo weixin_model.EventEncryptMsgR
 		merchantConfig, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, eventInfo.AppId)
 		if merchantConfig != nil && err == nil {
 			msgEncryptKey = merchantConfig.MsgEncryptKey
-			token = merchantConfig.MsgVerfiyToken
+			token = merchantConfig.MsgVerifyToken
 		}
 	}
 
