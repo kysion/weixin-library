@@ -55,7 +55,7 @@ func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEn
 	thirdConfig, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
 	if err == nil && thirdConfig != nil {
 		// 1.验签
-		ok := weixin_utility.VerifyByteDanceServer(thirdConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
+		ok := weixin_utility.VerifyByteDanceServer(thirdConfig.MsgVerifyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
 		if !ok {
 			fmt.Println("Services 验签失败")
 			g.RequestFromCtx(ctx).Response.Write("success")
@@ -90,7 +90,7 @@ func (s *sGateway) Services(ctx context.Context, eventInfo *weixin_model.EventEn
 		merchantConfig, _ := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
 		if thirdConfig.Id == 0 && merchantConfig != nil {
 			// 1.验签
-			ok := weixin_utility.VerifyByteDanceServer(merchantConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
+			ok := weixin_utility.VerifyByteDanceServer(merchantConfig.MsgVerifyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
 			if !ok {
 				fmt.Println("Services 验签失败")
 				g.RequestFromCtx(ctx).Response.Write("success")
@@ -136,7 +136,7 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 	// A、第三方代开发模式
 	if err == nil && thirdConfig != nil {
 		// 1.验签
-		ok := weixin_utility.VerifyByteDanceServer(thirdConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
+		ok := weixin_utility.VerifyByteDanceServer(thirdConfig.MsgVerifyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
 		if !ok {
 			fmt.Println("Callback 验签失败")
 			g.RequestFromCtx(ctx).Response.Write("success")
@@ -243,7 +243,7 @@ func (s *sGateway) Callback(ctx context.Context, info *weixin_model.Authorizatio
 		merchantConfig, _ := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
 		if thirdConfig.Id == 0 && merchantConfig != nil {
 			// 1.验签
-			ok := weixin_utility.VerifyByteDanceServer(merchantConfig.MsgVerfiyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
+			ok := weixin_utility.VerifyByteDanceServer(merchantConfig.MsgVerifyToken, msgInfo.TimeStamp, msgInfo.Nonce, msgInfo.Encrypt, msgInfo.MsgSignature)
 			if !ok {
 				fmt.Println("Callback 验签失败")
 				g.RequestFromCtx(ctx).Response.Write("success")
@@ -283,7 +283,7 @@ func (s *sGateway) WXCheckSignature(ctx context.Context, signature, timestamp, n
 	_ = sys_service.SysLogs().InfoSimple(ctx, nil, "-------------微信接入校验：wXCheckSignature....", "WeiXin-CheckSignature")
 
 	// 与填写的服务器配置中的Token一致
-	msgVerfiyToken := g.Cfg().MustGet(context.Background(), "weixin.msgVerfiyToken").String()
+	msgVerfiyToken := g.Cfg().MustGet(context.Background(), "weixin.msgVerifyToken").String()
 	//msgVerfiyToken := "commianlajie"
 
 	fmt.Println(signature + "、" + timestamp + "、" + nonce + "、" + echostr)

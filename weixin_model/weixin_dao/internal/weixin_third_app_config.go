@@ -37,7 +37,7 @@ type WeixinThirdAppConfigColumns struct {
 	AppGatewayUrl  string // 网关地址
 	AppCallbackUrl string // 回调地址
 	AppSecret      string // 服务商应用密钥
-	MsgVerfiyToken string // 消息校验Token
+	MsgVerifyToken string // 消息校验Token
 	MsgEncryptKey  string // 消息加密解密密钥
 	AuthInitUrl    string // 授权发起页域名
 	ServerDomain   string // 服务器域名
@@ -71,7 +71,7 @@ var weixinThirdAppConfigColumns = WeixinThirdAppConfigColumns{
 	AppGatewayUrl:  "app_gateway_url",
 	AppCallbackUrl: "app_callback_url",
 	AppSecret:      "app_secret",
-	MsgVerfiyToken: "msg_verfiy_token",
+	MsgVerifyToken: "msg_verify_token",
 	MsgEncryptKey:  "msg_encrypt_key",
 	AuthInitUrl:    "auth_init_url",
 	ServerDomain:   "server_domain",

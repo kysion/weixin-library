@@ -20,7 +20,7 @@ type WeixinMerchantAppConfig struct {
 	AppGatewayUrl  string      `json:"appGatewayUrl"  description:"网关地址"`
 	AppCallbackUrl string      `json:"appCallbackUrl" description:"回调地址"`
 	AppSecret      string      `json:"appSecret"      description:"服务器应用密钥"`
-	MsgVerfiyToken string      `json:"msgVerfiyToken" description:"消息校验Token"`
+	MsgVerifyToken string      `json:"msgVerifyToken" description:"消息校验Token"`
 	MsgEncryptKey  string      `json:"msgEncryptKey"  description:"消息加密解密密钥（EncodingAESKey）"`
 	MsgEncryptType int         `json:"msgEncryptType" description:"消息加密模式：1兼容模式 2明文模式 4安全模式"`
 	BusinessDomain string      `json:"businessDomain" description:"业务域名"`
@@ -52,7 +52,7 @@ type UpdateMerchantAppConfig struct {
 	AppGatewayUrl  string      `json:"appGatewayUrl"  description:"网关地址"`
 	AppCallbackUrl string      `json:"appCallbackUrl" description:"回调地址"`
 	AppSecret      string      `json:"appSecret"      description:"服务器应用密钥"`
-	MsgVerfiyToken string      `json:"msgVerfiyToken" description:"消息校验Token"`
+	MsgVerifyToken string      `json:"msgVerifyToken" description:"消息校验Token"`
 	MsgEncryptKey  string      `json:"msgEncryptKey"  description:"消息加密解密密钥"`
 	MsgEncryptType int         `json:"msgEncryptType" description:"消息加密模式：1兼容模式 2明文模式 4安全模式"`
 	BusinessDomain string      `json:"businessDomain" description:"业务域名"`

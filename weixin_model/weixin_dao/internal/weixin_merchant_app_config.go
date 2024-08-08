@@ -40,7 +40,7 @@ type WeixinMerchantAppConfigColumns struct {
 	AppGatewayUrl  string // 网关地址
 	AppCallbackUrl string // 回调地址
 	AppSecret      string // 商家应用密钥
-	MsgVerfiyToken string // 消息校验Token
+	MsgVerifyToken string // 消息校验Token
 	MsgEncryptKey  string // 消息加密解密密钥（EncodingAESKey）
 	MsgEncryptType string // 消息加密模式：1兼容模式 2明文模式 4安全模式
 	BusinessDomain string // 业务域名
@@ -83,7 +83,7 @@ var weixinMerchantAppConfigColumns = WeixinMerchantAppConfigColumns{
 	AppGatewayUrl:  "app_gateway_url",
 	AppCallbackUrl: "app_callback_url",
 	AppSecret:      "app_secret",
-	MsgVerfiyToken: "msg_verfiy_token",
+	MsgVerifyToken: "msg_verify_token",
 	MsgEncryptKey:  "msg_encrypt_key",
 	MsgEncryptType: "msg_encrypt_type",
 	BusinessDomain: "business_domain",
