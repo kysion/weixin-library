@@ -72,14 +72,14 @@ type sSubAccount struct {
 }
 
 func init() {
-	weixin_service.RegisterSubAccount(NewSubAccount())
+	//weixin_service.RegisterSubAccount(NewSubAccount())
 }
 
-func NewSubAccount() *sSubAccount {
+func NewSubAccount() weixin_service.ISubAccount {
 	return &sSubAccount{}
 }
 
-func newClient(ctx context.Context, appId string) (client *core.Client, err error) {
+func (s *sSubAccount) newClient(ctx context.Context, appId string) (client *core.Client, err error) {
 	// 通过AppId拿到特约商户商户号
 	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
 	if err != nil {
@@ -99,7 +99,7 @@ func newClient(ctx context.Context, appId string) (client *core.Client, err erro
 
 // GetSubAccountMaxRatio 查询最大分账比例
 func (s *sSubAccount) GetSubAccountMaxRatio(ctx context.Context, appId string) (*weixin_model.QueryMerchantRatioRes, error) {
-	client, _ := newClient(ctx, appId)
+	client, _ := s.newClient(ctx, appId)
 
 	// 通过AppId拿到特约商户商户号
 	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
@@ -130,7 +130,7 @@ func (s *sSubAccount) GetSubAccountMaxRatio(ctx context.Context, appId string) (
 
 // QuerySubAccountOrder 查询分账结果
 func (s *sSubAccount) QuerySubAccountOrder(ctx context.Context, appId string, info *weixin_model.QueryOrderRequest) (*profitsharing.OrdersEntity, error) {
-	client, _ := newClient(ctx, appId)
+	client, _ := s.newClient(ctx, appId)
 
 	//profitsharing.QueryOrderRequest{
 	//	TransactionId: core.String("4208450740201411110007820472"),
@@ -156,7 +156,7 @@ func (s *sSubAccount) QuerySubAccountOrder(ctx context.Context, appId string, in
 
 // UnfreezeOrder 解冻剩余资金API
 func (s *sSubAccount) UnfreezeOrder(ctx context.Context, appId string, info *weixin_model.UnfreezeOrderRequest) (*profitsharing.OrdersEntity, error) {
-	client, _ := newClient(ctx, appId)
+	client, _ := s.newClient(ctx, appId)
 	/*
 		profitsharing.UnfreezeOrderRequest{
 				Description:   core.String("解冻全部剩余资金"),
@@ -183,7 +183,7 @@ func (s *sSubAccount) UnfreezeOrder(ctx context.Context, appId string, info *wei
 
 // SubAccountRequest 请求分账
 func (s *sSubAccount) SubAccountRequest(ctx context.Context, appId string, info *weixin_model.SubAccountReq) (*profitsharing.OrdersEntity, error) {
-	client, _ := newClient(ctx, appId)
+	client, _ := s.newClient(ctx, appId)
 
 	svc := profitsharing.OrdersApiService{Client: client}
 	//req := profitsharing.CreateOrderRequest{
@@ -206,7 +206,7 @@ func (s *sSubAccount) SubAccountRequest(ctx context.Context, appId string, info 
 
 	req := profitsharing.CreateOrderRequest{}
 
-	gconv.Struct(info, &req)
+	_ = gconv.Struct(info, &req)
 
 	// 分账下单
 	resp, result, err := svc.CreateOrder(ctx, req)
@@ -225,12 +225,12 @@ func (s *sSubAccount) SubAccountRequest(ctx context.Context, appId string, info 
 
 // QueryOrderAmount 查询剩余待分金额API
 func (s *sSubAccount) QueryOrderAmount(ctx context.Context, appId string, info *weixin_model.QueryOrderAmountRequest) (*profitsharing.QueryOrderAmountResponse, error) {
-	//appId := utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
-	client, _ := newClient(ctx, appId)
+	//appId := weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
+	client, _ := s.newClient(ctx, appId)
 
 	req := profitsharing.QueryOrderAmountRequest{}
 
-	gconv.Struct(info, &req)
+	_ = gconv.Struct(info, &req)
 
 	svc := profitsharing.TransactionsApiService{Client: client}
 
@@ -248,8 +248,8 @@ func (s *sSubAccount) QueryOrderAmount(ctx context.Context, appId string, info *
 }
 
 // AddReceiver 添加分账接收方（相当于绑定分账关系）
-func (s *sSubAccount) AddReceiver(ctx context.Context, appId string, info weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error) {
-	client, _ := newClient(ctx, appId)
+func (s *sSubAccount) AddReceiver(ctx context.Context, appId string, info *weixin_model.AddReceiverRequest) (*profitsharing.AddReceiverResponse, error) {
+	client, _ := s.newClient(ctx, appId)
 
 	svc := profitsharing.ReceiversApiService{Client: client}
 	//resp, result, err := svc.AddReceiver(ctx,
@@ -291,7 +291,7 @@ func (s *sSubAccount) AddProfitSharingReceivers(ctx context.Context, appId strin
 		"receivers": receivers,
 	}
 
-	client, _ := newClient(ctx, appId)
+	client, _ := s.newClient(ctx, appId)
 
 	result, err := client.Post(ctx, consts.WechatPayAPIServer+"/v3/profitsharing/receivers/add", reqBody)
 
@@ -308,7 +308,7 @@ func (s *sSubAccount) AddProfitSharingReceivers(ctx context.Context, appId strin
 	body, err := ioutil.ReadAll(result.Response.Body)
 
 	res := profitsharing.AddReceiverResponse{}
-	gjson.DecodeTo(body, res)
+	_ = gjson.DecodeTo(body, res)
 
 	// 处理成功响应结果方法2
 	//resp := new(profitsharing.AddReceiverResponse)
@@ -321,8 +321,8 @@ func (s *sSubAccount) AddProfitSharingReceivers(ctx context.Context, appId strin
 }
 
 // DeleteReceiver 删除分账接收方（相当于分账关系解绑）
-func (s *sSubAccount) DeleteReceiver(ctx context.Context, appId string, info weixin_model.DeleteReceiverRequest) (*profitsharing.DeleteReceiverResponse, error) {
-	client, _ := newClient(ctx, appId)
+func (s *sSubAccount) DeleteReceiver(ctx context.Context, appId string, info *weixin_model.DeleteReceiverRequest) (*profitsharing.DeleteReceiverResponse, error) {
+	client, _ := s.newClient(ctx, appId)
 
 	svc := profitsharing.ReceiversApiService{Client: client}
 	//profitsharing.DeleteReceiverRequest{

@@ -7,12 +7,13 @@ type AccessTokenRes struct {
 	ErrCode int    `json:"errcode,omitempty"`
 	ErrMsg  string `json:"errmsg,omitempty"`
 
-	AccessToken  string `json:"access_token"`
-	ExpiresIn    int    `json:"expires_in"`
-	RefreshToken string `json:"refresh_token"`
-	Openid       string `json:"openid"`
-	Scope        string `json:"scope"`
-	Unionid      string `json:"unionid"`
+	AccessToken    string `json:"access_token"`
+	ExpiresIn      int64  `json:"expires_in"`
+	RefreshToken   string `json:"refresh_token"`
+	Openid         string `json:"openid"`
+	Scope          string `json:"scope"`
+	Unionid        string `json:"unionid"`
+	IsSnapshotuser int    `json:"is_snapshotuser"`
 }
 
 // UserInfoRes 微信用户信息返回数据结构

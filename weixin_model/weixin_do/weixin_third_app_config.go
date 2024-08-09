@@ -26,7 +26,7 @@ type WeixinThirdAppConfig struct {
 	AppGatewayUrl  interface{} // 网关地址
 	AppCallbackUrl interface{} // 回调地址
 	AppSecret      interface{} // 服务商应用密钥
-	MsgVerfiyToken interface{} // 消息校验Token
+	MsgVerifyToken interface{} // 消息校验Token
 	MsgEncryptKey  interface{} // 消息加密解密密钥
 	AuthInitUrl    interface{} // 授权发起页域名
 	ServerDomain   interface{} // 服务器域名

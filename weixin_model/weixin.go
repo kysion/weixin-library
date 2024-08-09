@@ -1,5 +1,7 @@
 package weixin_model
 
+import "encoding/xml"
+
 // authorizer_access_token  商家应用Token
 
 // component_access_token 服务商应用Token  - 服务商
@@ -42,6 +44,28 @@ type EventMessageBody struct {
 	PreAuthCode                  string `xml:"PreAuthCode" json:"pre_auth_code" dc:"预授权码"`
 }
 
+// MessageBodyDecrypt 消息通知
+type MessageBodyDecrypt struct {
+	XMLName      xml.Name `xml:"xml" json:"xml"`
+	ToUserName   string   `xml:"ToUserName" json:"ToUserName"`
+	FromUserName string   `xml:"FromUserName" json:"FromUserName"`
+	CreateTime   string   `xml:"CreateTime" json:"CreateTime"`
+	MsgType      string   `xml:"MsgType" json:"MsgType"`
+	Event        string   `xml:"Event" json:"Event"`
+	Url          string   `xml:"Url" json:"Url"`
+	PicUrl       string   `xml:"PicUrl" json:"PicUrl"`
+	MediaId      string   `xml:"MediaId" json:"MediaId"`
+	ThumbMediaId string   `xml:"ThumbMediaId" json:"ThumbMediaId"`
+	Content      string   `xml:"Content" json:"Content"`
+	MsgId        int      `xml:"MsgId" json:"MsgId"`
+	Location_X   string   `xml:"Location_x" json:"Location_x"`
+	Location_Y   string   `xml:"Location_y" json:"Location_y"`
+	Label        string   `xml:"Label" json:"Label"`
+	RevokeInfo   string   `xml:"RevokeInfo" json:"RevokeInfo"`
+	OpenID       string   `xml:"openID" json:"openID"`
+	AppID        string   `xml:"appID" json:"appID"`
+}
+
 /*
 	AppId -> wx534d1a08aa84c529
 	Encrypt -> OpuMbY5x5IAId+jfCQTYFCC7p3JarrbJCW6tzDTW8k0xwVfq/is1OIEWQB0oMvZ7gNg+0/W/zhzeEnAS8QkpywHLLHpcVu/QGkk7
@@ -70,4 +94,16 @@ type ProAuthCodeRes struct {
 type ProAuthCodeReq struct {
 	ComponentAppid       string `json:"component_appid" dc:"第三方平台 appid"`
 	ComponentAccessToken string `json:"component_access_token" dc:"第三方平台接口的调用凭据 component_access_token "`
+}
+
+type JumpWxa struct {
+	Path       string `json:"path"`
+	Query      string `json:"query"`
+	EnvVersion string `json:"env_version"`
+}
+
+type GetSchemeRes struct {
+	Errcode  int    `json:"errcode"`
+	Errmsg   string `json:"errmsg"`
+	Openlink string `json:"openlink"`
 }

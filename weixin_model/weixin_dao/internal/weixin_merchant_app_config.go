@@ -28,7 +28,7 @@ type WeixinMerchantAppConfigColumns struct {
 	AppId          string // 商家应用Id
 	AppName        string // 商家应用名称
 	AppType        string // 应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店
-	AppAuthToken   string // 商家授权应用token
+	AppAuthToken   string // 商家应用token：1、当第三方代开发的时候，这个是商家授权的应用token (authorizer_access_token)；2、当是商家自研模式时，这个是商家的应用token(access_token)。
 	IsFullProxy    string // 是否全权委托待开发：0否 1是
 	State          string // 状态： 0禁用 1启用
 	ExpiresIn      string // Token过期时间
@@ -40,7 +40,7 @@ type WeixinMerchantAppConfigColumns struct {
 	AppGatewayUrl  string // 网关地址
 	AppCallbackUrl string // 回调地址
 	AppSecret      string // 商家应用密钥
-	MsgVerfiyToken string // 消息校验Token
+	MsgVerifyToken string // 消息校验Token
 	MsgEncryptKey  string // 消息加密解密密钥（EncodingAESKey）
 	MsgEncryptType string // 消息加密模式：1兼容模式 2明文模式 4安全模式
 	BusinessDomain string // 业务域名
@@ -61,6 +61,7 @@ type WeixinMerchantAppConfigColumns struct {
 	DevState       string // 开发状态：0未上线 1已上线
 	UpdatedAt      string //
 	RefreshToken   string // 刷新商家授权应用Token
+	PrimitiveId    string // 应用原始ID
 }
 
 // weixinMerchantAppConfigColumns holds the columns for table weixin_merchant_app_config.
@@ -82,7 +83,7 @@ var weixinMerchantAppConfigColumns = WeixinMerchantAppConfigColumns{
 	AppGatewayUrl:  "app_gateway_url",
 	AppCallbackUrl: "app_callback_url",
 	AppSecret:      "app_secret",
-	MsgVerfiyToken: "msg_verfiy_token",
+	MsgVerifyToken: "msg_verify_token",
 	MsgEncryptKey:  "msg_encrypt_key",
 	MsgEncryptType: "msg_encrypt_type",
 	BusinessDomain: "business_domain",
@@ -103,6 +104,7 @@ var weixinMerchantAppConfigColumns = WeixinMerchantAppConfigColumns{
 	DevState:       "dev_state",
 	UpdatedAt:      "updated_at",
 	RefreshToken:   "refresh_token",
+	PrimitiveId:    "primitive_id",
 }
 
 // NewWeixinMerchantAppConfigDao creates and returns a new DAO object for table data access.

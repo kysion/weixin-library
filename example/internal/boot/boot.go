@@ -48,7 +48,7 @@ var (
 							// 图型验证码
 							sys_controller.Captcha,
 							// 短信验证码
-							sys_controller.SysSms,
+							//sys_controller.SysSms,
 							// 地区
 							sys_controller.SysArea,
 						)
@@ -58,34 +58,36 @@ var (
 				// 微信网关
 				group.Bind(
 					weixin_controller.WeiXin.WeiXinServices,     // 消息接收
-					weixin_controller.WeiXin.WeiXinCallback,     // 网关回调
-					weixin_controller.WeiXin.WeiXinCallbackPost, // 网关回调
+					weixin_controller.WeiXin.WeiXinCallback,     // 网关回调 Get
+					weixin_controller.WeiXin.WeiXinCallbackPost, // 网关回调 Post
 					weixin_controller.WeiXin.NotifyServices,     // 支付异步通知
-					weixin_controller.WeiXin.CheckSignature,
+					weixin_controller.WeiXin.CheckSignature,     // 微信接入校验，设置服务器配置需要验证
 
-					// 刷新授权Token
+					// 异步通知
+					//alipay_controller.MerchantNotify.NotifyServices,
+
+					// 刷新授权应用的Token
 					merchant.MerchantService.RefreshToken,
 
 					// 商家授权
 					merchant.MerchantService.AppAuthReq,
 
-					// 用户授权
+					// 商家授权回调地址
+					merchant.MerchantService.AppAuthRes,
+
+					// 用户授权（公众号）
 					merchant.MerchantService.UserAuth,
 
-					// 应用授权回调地址
-					merchant.MerchantService.AuthRes,
+					// 用户授权（小程序） 会额外包装统一的 /appId/login 接口
 
-					// 用户授权回调地址
+					// 用户授权回调地址（公众号）
 					merchant.MerchantService.UserAuthRes,
 
-					// 用户登陆
+					// 用户登陆（小程序）
 					merchant.MerchantService.UserLogin,
 
 					// 获取用户信息
 					merchant.UserInfo.GetUserInfo,
-
-					// 小程序开发管理
-					merchant.AppVersionManager,
 				)
 
 				group.Group("/pay", func(group *ghttp.RouterGroup) {
@@ -93,6 +95,36 @@ var (
 					group.Bind(merchant.WeiXinPay)
 				})
 
+				// 分账
+				group.Group("/sub_account", func(group *ghttp.RouterGroup) {
+					group.Bind(merchant.SubAccount)
+				})
+
+				// 商户进件
+				group.Group("/sub_merchant", func(group *ghttp.RouterGroup) {
+					group.Bind(merchant.SubMerchant)
+				})
+
+				// 小程序开发管理
+				group.Group("/app_version_manager", func(group *ghttp.RouterGroup) {
+					group.Bind(merchant.AppVersionManager)
+				})
+
+				// 消息
+				group.Group("/message", func(group *ghttp.RouterGroup) {
+					// 消息 【小程序】
+					group.Group("/tiny_app", func(group *ghttp.RouterGroup) {
+						// 订阅消息 【小程序】
+						group.Bind(merchant.SubscribeMessage)
+					})
+
+					// 订阅消息模板管理 【小程序 & 公众号】
+					group.Group("/template", func(group *ghttp.RouterGroup) {
+						group.Bind(weixin_controller.SubscribeMessageTemplate)
+					})
+				})
+
+				// 微信支付
 				group.Group("/weixin_pay", func(group *ghttp.RouterGroup) {
 					// 微信支付商户号
 					group.Bind(weixin_controller.WeiXinPayMerchant)

@@ -21,7 +21,7 @@ type WeixinConsumerConfig struct {
 	UserType           int         `json:"userType"           description:"用户账号类型，和sysUserType保持一致"`
 	UserState          int         `json:"userState"          description:"状态：0未激活、1正常、-1封号、-2异常、-3已注销"`
 	IsCertified        int         `json:"isCertified"        description:"是否实名认证"`
-	Sex                int         `json:"sex"                description:"性别：0女 1男"`
+	Sex                int         `json:"sex"                description:"性别：0未知、1男、2女"`
 	AccessToken        string      `json:"accessToken"        description:"授权token"`
 	ExtJson            string      `json:"extJson"            description:"拓展字段"`
 	CreatedAt          *gtime.Time `json:"createdAt"          description:""`
@@ -29,6 +29,10 @@ type WeixinConsumerConfig struct {
 	DeletedAt          *gtime.Time `json:"deletedAt"          description:""`
 	UnionId            string      `json:"unionId"            description:"微信用户union_id，同一个开放平台帐号下的用户只有一个unionId"`
 	SessionKey         string      `json:"sessionKey"         description:"微信用户会话key"`
-	RefreshToken       string      `json:"refreshToken"       description:"微信用户授权刷新Token"`
+	RefreshToken       string      `json:"refreshToken"       description:"用户授权刷新令牌"`
 	ExpiresIn          *gtime.Time `json:"expiresIn"          description:"令牌过期时间"`
+	AuthState          int         `json:"authState"          description:"微信用户授权状态：1已授权、2未授权"`
+	AppType            int         `json:"appType"            description:"应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店"`
+	IsFollowPublic     int         `json:"isFollowPublic"     description:"是否关注公众号：1关注、2未关注"`
+	AppId              string      `json:"appId"              description:"商家应用Id"`
 }

@@ -8,7 +8,7 @@ type AppAuthReq struct {
 	g.Meta `path:"/:appId/gateway.auth" method:"get" summary:"商户应用授权" tags:"WeiXin商户服务"`
 }
 
-type AuthResReq struct { // AppAuth 应用授权响应接收地址 （后续会是前端地址）
+type AppAuthResReq struct { // AppAuth 应用授权响应接收地址 （后续会是前端地址）
 	g.Meta `path:"/:appId/gateway.authRes" method:"get" summary:"应用授权响应" tags:"WeiXin商户服务"`
 
 	AuthCode  string `json:"auth_code"`
@@ -28,6 +28,8 @@ type UserAuthResReq struct { // UserAuth 用户授权响应接收地址 （后�
 
 	Code      string `json:"code"`
 	ExpiresIn string `json:"expires_in"`
+	SysUserId int64  `json:"sys_user_id"`
+	To        string `json:"to" dc:"授权登录后用户需要跳转的URL地址"`
 }
 
 // GetUserInfoReq 获取微信会员信息，相当于静默登录

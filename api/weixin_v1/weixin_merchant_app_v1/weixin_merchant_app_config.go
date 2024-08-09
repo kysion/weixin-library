@@ -31,4 +31,8 @@ type UpdateMerchantAppConfigHttpsReq struct {
 	weixin_model.UpdateMerchantAppConfigHttpsReq
 }
 
+type GetPolicyReq struct {
+	g.Meta `path:"/:appId/getPolicy" method:"get" summary:"获取协议" tags:"WeiXin商家应用"`
+}
+
 type MerchantAppConfigRes weixin_model.WeixinMerchantAppConfig

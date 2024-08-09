@@ -1,14 +1,14 @@
 package gateway
 
-import "github.com/kysion/weixin-library/weixin_service"
+import (
+	"github.com/kysion/weixin-library/weixin_service"
+)
 
 func init() {
+	// 【微信网关】 API服务逻辑
 	weixin_service.RegisterGateway(NewGateway())
+
+	// 【第三方平台接口调用凭据】 API服务逻辑
 	weixin_service.RegisterTicket(NewTicket())
-	weixin_service.RegisterThirdAppConfig(NewThirdAppConfig())
-	weixin_service.RegisterMerchantAppConfig(NewMerchantAppConfig())
-	weixin_service.RegisterConsumer(NewConsumerConfig())
-	weixin_service.RegisterPayMerchant(NewPayMerchant())
-	weixin_service.RegisterPaySubMerchant(NewPaySubMerchant())
 
 }

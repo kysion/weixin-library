@@ -7,11 +7,10 @@ import (
 	"github.com/SupenBysz/gf-admin-community/sys_service"
 	"github.com/gogf/gf/v2/encoding/gurl"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/kysion/weixin-library/api/weixin_v1/weixin_merchant_app_v1"
-	"github.com/kysion/weixin-library/utility"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
+	"github.com/kysion/weixin-library/weixin_utility"
 	"net/url"
 )
 
@@ -32,26 +31,20 @@ func buildUserInfoURL(redirectURI, appID string) (string, error) {
 
 // GetUserInfo 获取微信用户信息
 func (c *cUserInfo) GetUserInfo(ctx context.Context, _ *weixin_merchant_app_v1.GetUserInfoReq) (api_v1.StringRes, error) {
-	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
-	appIdLen := len(pathAppId)
-	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
 
-	appId := "wx" + utility.Base32ToHex(subAppId)
+	appId := weixin_utility.GetAppIdFormContext(ctx)
+	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
 
-	//merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
+	if err != nil || merchantApp == nil {
+		_ = fmt.Errorf("获取商户应用配置信息失败")
+		return "failure", nil
+	}
 
-	//thirdApp, err := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, merchantApp.ThirdAppId)
-
-	redirect_url := gurl.Encode("https://www.kuaimk.com/weixin/wx56j8q12l89h99/gateway.userAuthRes")
-	authURL, err := buildUserInfoURL(redirect_url, appId)
+	redirectUrl := gurl.Encode(merchantApp.ServerDomain + "/weixin/" + merchantApp.AppId + "/gateway.userAuthRes")
+	authURL, err := buildUserInfoURL(redirectUrl, appId)
 	if err != nil {
 		return "", err
 	}
-
-	//authURL, err := buildAuthURL(merchantApp.AppCallbackUrl, appId)
-
-	// https:www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
-	// https://www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
 
 	fmt.Println(authURL)
 
@@ -64,11 +57,8 @@ func (c *cUserInfo) GetUserInfo(ctx context.Context, _ *weixin_merchant_app_v1.G
 
 // GetTinyAppUserInfo 小程序通过encryptedData 获取用户信息
 func (c *cUserInfo) GetTinyAppUserInfo(ctx context.Context, req *weixin_merchant_app_v1.GetTinyAppUserInfoReq) (*weixin_model.UserInfoRes, error) {
-	pathAppId := g.RequestFromCtx(ctx).Get("appId").String()
-	appIdLen := len(pathAppId)
-	subAppId := gstr.SubStr(pathAppId, 2, appIdLen) // caf4b7b8d6620f00
 
-	appId := "wx" + utility.Base32ToHex(subAppId)
+	appId := weixin_utility.GetAppIdFormContext(ctx)
 
 	// 拿到当前登录用户的token,其实就是JwtToken，登录了就有JwtToken，然后拿到sysUserId，从而拿到session_key
 	user := sys_service.SysSession().Get(ctx).JwtClaimsUser

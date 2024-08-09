@@ -6,43 +6,42 @@ import "github.com/kysion/base-library/utility/enum"
 
 type MerchantUnionTypeEnum enum.IEnumCode[int]
 
-//type merchantUnionType struct {
-//	Individual         MerchantUnionTypeEnum
-//	Enterprise         MerchantUnionTypeEnum
-//	PublicInstitution  MerchantUnionTypeEnum
-//	SocialOrganization MerchantUnionTypeEnum
-//	GovernmentAgency   MerchantUnionTypeEnum
-//}
-//
-//var MerchantUnionType = merchantUnionType{
-//	Individual:   enum.New[MerchantUnionTypeEnum](1, "个体工商户"),
-//	SubMerchant:  enum.New[MerchantUnionTypeEnum](2, "企业"),
-//	ShopMerchant: enum.New[MerchantUnionTypeEnum](4, "事业单位"),
-//
-//	SubMerchant:  enum.New[MerchantUnionTypeEnum](2, "企业"),
-//	ShopMerchant: enum.New[MerchantUnionTypeEnum](4, "事业单位"),
-//}
-//
-//func (e merchantUnionType) New(code int) MerchantUnionTypeEnum {
-//	if (code & MerchantUnionType.Individual.Code()) == MerchantUnionType.Individual.Code() {
-//		return MerchantUnionType.Individual
-//	}
-//
-//	if (code & MerchantUnionType.SubMerchant.Code()) == MerchantUnionType.SubMerchant.Code() {
-//		return MerchantUnionType.SubMerchant
-//	}
-//
-//	if (code & MerchantUnionType.ShopMerchant.Code()) == MerchantUnionType.ShopMerchant.Code() {
-//		return MerchantUnionType.ShopMerchant
-//	}
-//
-//	if (code & MerchantUnionType.ShopMerchant.Code()) == MerchantUnionType.ShopMerchant.Code() {
-//		return MerchantUnionType.ShopMerchant
-//	}
-//
-//	if (code & MerchantUnionType.ShopMerchant.Code()) == MerchantUnionType.ShopMerchant.Code() {
-//		return MerchantUnionType.ShopMerchant
-//	}
-//
-//	panic("MerchantUnionTypeEnum: error")
-//}
+type merchantUnionType struct {
+	Individual         MerchantUnionTypeEnum
+	Enterprise         MerchantUnionTypeEnum
+	PublicInstitution  MerchantUnionTypeEnum
+	SocialOrganization MerchantUnionTypeEnum
+	GovernmentAgency   MerchantUnionTypeEnum
+}
+
+var MerchantUnionType = merchantUnionType{
+	Individual:         enum.New[MerchantUnionTypeEnum](1, "个体工商户"),
+	Enterprise:         enum.New[MerchantUnionTypeEnum](2, "企业"),
+	PublicInstitution:  enum.New[MerchantUnionTypeEnum](4, "事业单位"),
+	SocialOrganization: enum.New[MerchantUnionTypeEnum](8, "社会组织"),
+	GovernmentAgency:   enum.New[MerchantUnionTypeEnum](16, "政府机关"),
+}
+
+func (e merchantUnionType) New(code int) MerchantUnionTypeEnum {
+	if (code & MerchantUnionType.Individual.Code()) == MerchantUnionType.Individual.Code() {
+		return MerchantUnionType.Individual
+	}
+
+	if (code & MerchantUnionType.Enterprise.Code()) == MerchantUnionType.Enterprise.Code() {
+		return MerchantUnionType.Enterprise
+	}
+
+	if (code & MerchantUnionType.PublicInstitution.Code()) == MerchantUnionType.PublicInstitution.Code() {
+		return MerchantUnionType.PublicInstitution
+	}
+
+	if (code & MerchantUnionType.SocialOrganization.Code()) == MerchantUnionType.SocialOrganization.Code() {
+		return MerchantUnionType.SocialOrganization
+	}
+
+	if (code & MerchantUnionType.GovernmentAgency.Code()) == MerchantUnionType.GovernmentAgency.Code() {
+		return MerchantUnionType.GovernmentAgency
+	}
+
+	panic("MerchantUnionTypeEnum: error")
+}
