@@ -16,9 +16,13 @@ import (
 
 // WeixinSubscribeMessageTemplateDao is the data access object for table weixin_subscribe_message_template.
 type WeixinSubscribeMessageTemplateDao struct {
-	table   string                                // table is the underlying table name of the DAO.
-	group   string                                // group is the database configuration group name of current DAO.
-	columns WeixinSubscribeMessageTemplateColumns // columns contains all the column names of Table for convenient usage.
+	dao_interface.IDao
+	table       string                                // table is the underlying table name of the DAO.
+	group       string                                // group is the database configuration group name of current DAO.
+	columns     WeixinSubscribeMessageTemplateColumns // columns contains all the column names of Table for convenient usage.
+	daoConfig   *dao_interface.DaoConfig
+	ignoreCache bool
+	exWhereArr  []string
 }
 
 // WeixinSubscribeMessageTemplateColumns defines and stores column names for table weixin_subscribe_message_template.
@@ -78,10 +82,15 @@ func NewWeixinSubscribeMessageTemplateDao(proxy ...dao_interface.IDao) *WeixinSu
 	var dao *WeixinSubscribeMessageTemplateDao
 	if len(proxy) > 0 {
 		dao = &WeixinSubscribeMessageTemplateDao{
-			group:   proxy[0].Group(),
-			table:   proxy[0].Table(),
-			columns: weixinSubscribeMessageTemplateColumns,
+			group:       proxy[0].Group(),
+			table:       proxy[0].Table(),
+			columns:     weixinSubscribeMessageTemplateColumns,
+			daoConfig:   proxy[0].DaoConfig(context.Background()),
+			IDao:        proxy[0].DaoConfig(context.Background()).Dao,
+			ignoreCache: proxy[0].DaoConfig(context.Background()).IsIgnoreCache(),
+			exWhereArr:  proxy[0].DaoConfig(context.Background()).Dao.GetExtWhereKeys(),
 		}
+
 		return dao
 	}
 
@@ -117,28 +126,25 @@ func (dao *WeixinSubscribeMessageTemplateDao) Ctx(ctx context.Context, cacheOpti
 	return dao.DaoConfig(ctx, cacheOption...).Model
 }
 
-func (dao *WeixinSubscribeMessageTemplateDao) DaoConfig(ctx context.Context, cacheOption ...*gdb.CacheOption) dao_interface.DaoConfig {
-	daoConfig := dao_interface.DaoConfig{
-		Dao:   dao,
-		DB:    dao.DB(),
-		Table: dao.table,
-		Group: dao.group,
-		Model: dao.DB().Model(dao.Table()).Safe().Ctx(ctx),
+func (dao *WeixinSubscribeMessageTemplateDao) DaoConfig(ctx context.Context, cacheOption ...*gdb.CacheOption) *dao_interface.DaoConfig {
+	//if dao.daoConfig != nil && len(dao.exWhereArr) == 0 {
+	//	return dao.daoConfig
+	//}
+
+	var daoConfig = daoctl.NewDaoConfig(ctx, dao, cacheOption...)
+	dao.daoConfig = &daoConfig
+
+	if len(dao.exWhereArr) > 0 {
+		daoConfig.IgnoreExtModel(dao.exWhereArr...)
+		dao.exWhereArr = []string{}
+
 	}
 
-	if len(cacheOption) == 0 {
-		daoConfig.CacheOption = daoctl.MakeDaoCache(dao.Table())
-		daoConfig.Model = daoConfig.Model.Cache(*daoConfig.CacheOption)
-	} else {
-		if cacheOption[0] != nil {
-			daoConfig.CacheOption = cacheOption[0]
-			daoConfig.Model = daoConfig.Model.Cache(*daoConfig.CacheOption)
-		}
+	if dao.ignoreCache {
+		daoConfig.IgnoreCache()
 	}
 
-	daoConfig.Model = daoctl.RegisterDaoHook(daoConfig.Model)
-
-	return daoConfig
+	return dao.daoConfig
 }
 
 // Transaction wraps the transaction logic using function f.
@@ -149,4 +155,21 @@ func (dao *WeixinSubscribeMessageTemplateDao) DaoConfig(ctx context.Context, cac
 // as it is automatically handled by this function.
 func (dao *WeixinSubscribeMessageTemplateDao) Transaction(ctx context.Context, f func(ctx context.Context, tx gdb.TX) error) (err error) {
 	return dao.Ctx(ctx).Transaction(ctx, f)
+}
+
+func (dao *WeixinSubscribeMessageTemplateDao) GetExtWhereKeys() []string {
+	return dao.exWhereArr
+}
+
+func (dao *WeixinSubscribeMessageTemplateDao) IsIgnoreCache() bool {
+	return dao.ignoreCache
+}
+
+func (dao *WeixinSubscribeMessageTemplateDao) IgnoreCache() dao_interface.IDao {
+	dao.ignoreCache = true
+	return dao
+}
+func (dao *WeixinSubscribeMessageTemplateDao) IgnoreExtModel(whereKey ...string) dao_interface.IDao {
+	dao.exWhereArr = append(dao.exWhereArr, whereKey...)
+	return dao
 }
