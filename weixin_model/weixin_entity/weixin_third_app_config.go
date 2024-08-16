@@ -10,34 +10,34 @@ import (
 
 // WeixinThirdAppConfig is the golang structure for table weixin_third_app_config.
 type WeixinThirdAppConfig struct {
-	Id             int64       `json:"id"             description:"服务商id"`
-	Name           string      `json:"name"           description:"服务商name"`
-	AppId          string      `json:"appId"          description:"服务商应用Id"`
-	AppName        string      `json:"appName"        description:"服务商应用名称"`
-	AppType        int         `json:"appType"        description:"服务商应用类型"`
-	AppAuthToken   string      `json:"appAuthToken"   description:"服务商应用授权token"`
-	ExpiresIn      *gtime.Time `json:"expiresIn"      description:"Token过期时间"`
-	ReExpiresIn    *gtime.Time `json:"reExpiresIn"    description:"Token限期刷新时间"`
-	UnionMainId    int64       `json:"unionMainId"    description:"关联主体id"`
-	SysUserId      int64       `json:"sysUserId"      description:"用户id"`
-	ExtJson        string      `json:"extJson"        description:"拓展字段"`
-	AppGatewayUrl  string      `json:"appGatewayUrl"  description:"网关地址"`
-	AppCallbackUrl string      `json:"appCallbackUrl" description:"回调地址"`
-	AppSecret      string      `json:"appSecret"      description:"服务商应用密钥"`
-	MsgVerifyToken string      `json:"msgVerifyToken" description:"消息校验Token"`
-	MsgEncryptKey  string      `json:"msgEncryptKey"  description:"消息加密解密密钥"`
-	AuthInitUrl    string      `json:"authInitUrl"    description:"授权发起页域名"`
-	ServerDomain   string      `json:"serverDomain"   description:"服务器域名"`
-	BusinessDomain string      `json:"businessDomain" description:"业务域名"`
-	AuthTestAppIds string      `json:"authTestAppIds" description:"授权测试应用列表"`
-	PlatformSite   string      `json:"platformSite"   description:"平台官方"`
-	Logo           string      `json:"logo"           description:"服务商logo"`
-	State          int         `json:"state"          description:"状态：0禁用 1启用"`
-	ReleaseState   int         `json:"releaseState"   description:"发布状态：0未发布 1已发布"`
-	HttpsCert      string      `json:"httpsCert"      description:"域名证书"`
-	HttpsKey       string      `json:"httpsKey"       description:"域名私钥"`
-	UpdatedAt      *gtime.Time `json:"updatedAt"      description:""`
-	AppIdMd5       string      `json:"appIdMd5"       description:"应用id加密md5后的结果"`
-	UserId         int64       `json:"userId"         description:"应用所属账号"`
-	RefreshToken   string      `json:"refreshToken"   description:"刷新应用Token"`
+	Id             int64       `json:"id"             orm:"id"               description:"服务商id"`
+	Name           string      `json:"name"           orm:"name"             description:"服务商name"`
+	AppId          string      `json:"appId"          orm:"app_id"           description:"服务商应用Id"`
+	AppName        string      `json:"appName"        orm:"app_name"         description:"服务商应用名称"`
+	AppType        int         `json:"appType"        orm:"app_type"         description:"服务商应用类型"`
+	AppAuthToken   string      `json:"appAuthToken"   orm:"app_auth_token"   description:"服务商应用授权token"`
+	ExpiresIn      *gtime.Time `json:"expiresIn"      orm:"expires_in"       description:"Token过期时间"`
+	ReExpiresIn    *gtime.Time `json:"reExpiresIn"    orm:"re_expires_in"    description:"Token限期刷新时间"`
+	UnionMainId    int64       `json:"unionMainId"    orm:"union_main_id"    description:"关联主体id"`
+	SysUserId      int64       `json:"sysUserId"      orm:"sys_user_id"      description:"用户id"`
+	ExtJson        string      `json:"extJson"        orm:"ext_json"         description:"拓展字段"`
+	AppGatewayUrl  string      `json:"appGatewayUrl"  orm:"app_gateway_url"  description:"网关地址"`
+	AppCallbackUrl string      `json:"appCallbackUrl" orm:"app_callback_url" description:"回调地址"`
+	AppSecret      string      `json:"appSecret"      orm:"app_secret"       description:"服务商应用密钥"`
+	MsgVerifyToken string      `json:"msgVerifyToken" orm:"msg_verify_token" description:"消息校验Token"`
+	MsgEncryptKey  string      `json:"msgEncryptKey"  orm:"msg_encrypt_key"  description:"消息加密解密密钥"`
+	AuthInitUrl    string      `json:"authInitUrl"    orm:"auth_init_url"    description:"授权发起页域名"`
+	ServerDomain   string      `json:"serverDomain"   orm:"server_domain"    description:"服务器域名"`
+	BusinessDomain string      `json:"businessDomain" orm:"business_domain"  description:"业务域名"`
+	AuthTestAppids string      `json:"authTestAppIds" orm:"auth_test_appIds" description:"授权测试应用列表"`
+	PlatformSite   string      `json:"platformSite"   orm:"platform_site"    description:"平台官方"`
+	Logo           string      `json:"logo"           orm:"logo"             description:"服务商logo"`
+	State          int         `json:"state"          orm:"state"            description:"状态：0禁用 1启用"`
+	ReleaseState   int         `json:"releaseState"   orm:"release_state"    description:"发布状态：0未发布 1已发布"`
+	HttpsCert      string      `json:"httpsCert"      orm:"https_cert"       description:"域名证书"`
+	HttpsKey       string      `json:"httpsKey"       orm:"https_key"        description:"域名私钥"`
+	UpdatedAt      *gtime.Time `json:"updatedAt"      orm:"updated_at"       description:""`
+	AppIdMd5       string      `json:"appIdMd5"       orm:"app_id_md5"       description:"应用id加密md5后的结果"`
+	UserId         int64       `json:"userId"         orm:"user_id"          description:"应用所属账号"`
+	RefreshToken   string      `json:"refreshToken"   orm:"refresh_token"    description:"刷新应用Token"`
 }

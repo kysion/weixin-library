@@ -31,7 +31,7 @@ type WeixinThirdAppConfig struct {
 	AuthInitUrl    interface{} // 授权发起页域名
 	ServerDomain   interface{} // 服务器域名
 	BusinessDomain interface{} // 业务域名
-	AuthTestAppIds interface{} // 授权测试应用列表
+	AuthTestAppids interface{} // 授权测试应用列表
 	PlatformSite   interface{} // 平台官方
 	Logo           interface{} // 服务商logo
 	State          interface{} // 状态：0禁用 1启用

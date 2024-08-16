@@ -10,43 +10,43 @@ import (
 
 // WeixinMerchantAppConfig is the golang structure for table weixin_merchant_app_config.
 type WeixinMerchantAppConfig struct {
-	Id             int64       `json:"id"             description:"商家id"`
-	Name           string      `json:"name"           description:"商家name"`
-	AppId          string      `json:"appId"          description:"商家应用Id"`
-	AppName        string      `json:"appName"        description:"商家应用名称"`
-	AppType        int         `json:"appType"        description:"应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店"`
-	AppAuthToken   string      `json:"appAuthToken"   description:"商家应用token：1、当第三方代开发的时候，这个是商家授权的应用token (authorizer_access_token)；2、当是商家自研模式时，这个是商家的应用token(access_token)。"`
-	IsFullProxy    int         `json:"isFullProxy"    description:"是否全权委托待开发：0否 1是"`
-	State          int         `json:"state"          description:"状态： 0禁用 1启用"`
-	ExpiresIn      *gtime.Time `json:"expiresIn"      description:"Token过期时间"`
-	ReExpiresIn    *gtime.Time `json:"reExpiresIn"    description:"Token限期刷新时间"`
-	UserId         int64       `json:"userId"         description:"应用所属账号"`
-	UnionMainId    int64       `json:"unionMainId"    description:"关联主体id"`
-	SysUserId      int64       `json:"sysUserId"      description:"用户id"`
-	ExtJson        string      `json:"extJson"        description:"拓展字段"`
-	AppGatewayUrl  string      `json:"appGatewayUrl"  description:"网关地址"`
-	AppCallbackUrl string      `json:"appCallbackUrl" description:"回调地址"`
-	AppSecret      string      `json:"appSecret"      description:"商家应用密钥"`
-	MsgVerifyToken string      `json:"msgVerifyToken" description:"消息校验Token"`
-	MsgEncryptKey  string      `json:"msgEncryptKey"  description:"消息加密解密密钥（EncodingAESKey）"`
-	MsgEncryptType int         `json:"msgEncryptType" description:"消息加密模式：1兼容模式 2明文模式 4安全模式"`
-	BusinessDomain string      `json:"businessDomain" description:"业务域名"`
-	JsDomain       string      `json:"jsDomain"       description:"JS接口安全域名"`
-	AuthDomain     string      `json:"authDomain"     description:"网页授权域名"`
-	Logo           string      `json:"logo"           description:"商家logo"`
-	HttpsCert      string      `json:"httpsCert"      description:"域名证书"`
-	HttpsKey       string      `json:"httpsKey"       description:"域名私钥"`
-	ServerDomain   string      `json:"serverDomain"   description:"服务器域名"`
-	AppIdMd5       string      `json:"appIdMd5"       description:"应用id加密md5后的结果"`
-	ThirdAppId     string      `json:"thirdAppId"     description:"服务商appId"`
-	NotifyUrl      string      `json:"notifyUrl"      description:"异步通知地址，允许业务层追加相关参数"`
-	ServerRate     float64     `json:"serverRate"     description:"手续费比例，默认0.6%"`
-	UnionMainType  string      `json:"unionMainType"  description:"应用关联主体类型，和user_type保持一致"`
-	Version        string      `json:"version"        description:"应用版本"`
-	PrivacyPolicy  string      `json:"privacyPolicy"  description:"隐私协议"`
-	UserPolicy     string      `json:"userPolicy"     description:"用户协议"`
-	DevState       int         `json:"devState"       description:"开发状态：0未上线 1已上线"`
-	UpdatedAt      *gtime.Time `json:"updatedAt"      description:""`
-	RefreshToken   string      `json:"refreshToken"   description:"刷新商家授权应用Token"`
-	PrimitiveId    string      `json:"primitiveId"    description:"应用原始ID"`
+	Id             int64       `json:"id"             orm:"id"               description:"商家id"`
+	Name           string      `json:"name"           orm:"name"             description:"商家name"`
+	AppId          string      `json:"appId"          orm:"app_id"           description:"商家应用Id"`
+	AppName        string      `json:"appName"        orm:"app_name"         description:"商家应用名称"`
+	AppType        int         `json:"appType"        orm:"app_type"         description:"应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店"`
+	AppAuthToken   string      `json:"appAuthToken"   orm:"app_auth_token"   description:"商家应用token：1、当第三方代开发的时候，这个是商家授权的应用token (authorizer_access_token)；2、当是商家自研模式时，这个是商家的应用token(access_token)。"`
+	IsFullProxy    int         `json:"isFullProxy"    orm:"is_full_proxy"    description:"是否全权委托待开发：0否 1是"`
+	State          int         `json:"state"          orm:"state"            description:"状态： 0禁用 1启用"`
+	ExpiresIn      *gtime.Time `json:"expiresIn"      orm:"expires_in"       description:"Token过期时间"`
+	ReExpiresIn    *gtime.Time `json:"reExpiresIn"    orm:"re_expires_in"    description:"Token限期刷新时间"`
+	UserId         int64       `json:"userId"         orm:"user_id"          description:"应用所属账号"`
+	UnionMainId    int64       `json:"unionMainId"    orm:"union_main_id"    description:"关联主体id"`
+	SysUserId      int64       `json:"sysUserId"      orm:"sys_user_id"      description:"用户id"`
+	ExtJson        string      `json:"extJson"        orm:"ext_json"         description:"拓展字段"`
+	AppGatewayUrl  string      `json:"appGatewayUrl"  orm:"app_gateway_url"  description:"网关地址"`
+	AppCallbackUrl string      `json:"appCallbackUrl" orm:"app_callback_url" description:"回调地址"`
+	AppSecret      string      `json:"appSecret"      orm:"app_secret"       description:"商家应用密钥"`
+	MsgVerifyToken string      `json:"msgVerifyToken" orm:"msg_verify_token" description:"消息校验Token"`
+	MsgEncryptKey  string      `json:"msgEncryptKey"  orm:"msg_encrypt_key"  description:"消息加密解密密钥（EncodingAESKey）"`
+	MsgEncryptType int         `json:"msgEncryptType" orm:"msg_encrypt_type" description:"消息加密模式：1兼容模式 2明文模式 4安全模式"`
+	BusinessDomain string      `json:"businessDomain" orm:"business_domain"  description:"业务域名"`
+	JsDomain       string      `json:"jsDomain"       orm:"js_domain"        description:"JS接口安全域名"`
+	AuthDomain     string      `json:"authDomain"     orm:"auth_domain"      description:"网页授权域名"`
+	Logo           string      `json:"logo"           orm:"logo"             description:"商家logo"`
+	HttpsCert      string      `json:"httpsCert"      orm:"https_cert"       description:"域名证书"`
+	HttpsKey       string      `json:"httpsKey"       orm:"https_key"        description:"域名私钥"`
+	ServerDomain   string      `json:"serverDomain"   orm:"server_domain"    description:"服务器域名"`
+	AppIdMd5       string      `json:"appIdMd5"       orm:"app_id_md5"       description:"应用id加密md5后的结果"`
+	ThirdAppId     string      `json:"thirdAppId"     orm:"third_app_id"     description:"服务商appId"`
+	NotifyUrl      string      `json:"notifyUrl"      orm:"notify_url"       description:"异步通知地址，允许业务层追加相关参数"`
+	ServerRate     float64     `json:"serverRate"     orm:"server_rate"      description:"手续费比例，默认0.6%"`
+	UnionMainType  string      `json:"unionMainType"  orm:"union_main_type"  description:"应用关联主体类型，和user_type保持一致"`
+	Version        string      `json:"version"        orm:"version"          description:"应用版本"`
+	PrivacyPolicy  string      `json:"privacyPolicy"  orm:"privacy_policy"   description:"隐私协议"`
+	UserPolicy     string      `json:"userPolicy"     orm:"user_policy"      description:"用户协议"`
+	DevState       int         `json:"devState"       orm:"dev_state"        description:"开发状态：0未上线 1已上线"`
+	UpdatedAt      *gtime.Time `json:"updatedAt"      orm:"updated_at"       description:""`
+	RefreshToken   string      `json:"refreshToken"   orm:"refresh_token"    description:"刷新商家授权应用Token"`
+	PrimitiveId    string      `json:"primitiveId"    orm:"primitive_id"     description:"应用原始ID"`
 }
