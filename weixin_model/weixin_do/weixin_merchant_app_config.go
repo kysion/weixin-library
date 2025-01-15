@@ -29,7 +29,7 @@ type WeixinMerchantAppConfig struct {
 	AppGatewayUrl  interface{} // 网关地址
 	AppCallbackUrl interface{} // 回调地址
 	AppSecret      interface{} // 商家应用密钥
-	MsgVerfiyToken interface{} // 消息校验Token
+	MsgVerifyToken interface{} // 消息校验Token
 	MsgEncryptKey  interface{} // 消息加密解密密钥（EncodingAESKey）
 	MsgEncryptType interface{} // 消息加密模式：1兼容模式 2明文模式 4安全模式
 	BusinessDomain interface{} // 业务域名
