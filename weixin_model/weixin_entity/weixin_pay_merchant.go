@@ -10,23 +10,23 @@ import (
 
 // WeixinPayMerchant is the golang structure for table weixin_pay_merchant.
 type WeixinPayMerchant struct {
-	Id                int64       `json:"id"                description:"ID"`
-	Mchid             int         `json:"mchid"             description:"微信支付商户号"`
-	MerchantName      string      `json:"merchantName"      description:"商户号公司名称"`
-	MerchantShortName string      `json:"merchantShortName" description:"商户号简称"`
-	MerchantType      int         `json:"merchantType"      description:"商户号类型：1服务商、2商户、4门店商家"`
-	ApiV3Key          string      `json:"apiV3Key"          description:"用于ApiV3平台证书解密、回调信息解密"`
-	ApiV2Key          string      `json:"apiV2Key"          description:"用于ApiV2平台证书解密、回调信息解密"`
-	PayCertP12        string      `json:"payCertP12"        description:"支付证书文件"`
-	PayPublicKeyPem   string      `json:"payPublicKeyPem"   description:"公钥文件"`
-	PayPrivateKeyPem  string      `json:"payPrivateKeyPem"  description:"私钥文件"`
-	CertSerialNumber  string      `json:"certSerialNumber"  description:"证书序列号"`
-	JsapiAuthPath     string      `json:"jsapiAuthPath"     description:"JSAPI支付授权目录"`
-	SysUserId         int64       `json:"sysUserId"         description:"用户ID"`
-	UnionMainId       int64       `json:"unionMainId"       description:"用户关联主体"`
-	UnionMainType     int         `json:"unionMainType"     description:"用户类型"`
-	BankcardAccount   string      `json:"bankcardAccount"   description:"银行结算账户,用于交易和提现"`
-	UnionAppid        string      `json:"unionAppid"        description:"该商户号关联的AppId，微信支付接入模式属于直连模式，限制只能是同一主体下的App列表"`
-	UpdatedAt         *gtime.Time `json:"updatedAt"         description:""`
-	AppId             string      `json:"appId"             description:"商户号 对应的公众号的服务号APPID"`
+	Id                int64       `json:"id"                orm:"id"                  description:"ID"`
+	Mchid             int         `json:"mchid"             orm:"mchid"               description:"微信支付商户号"`
+	MerchantName      string      `json:"merchantName"      orm:"merchant_name"       description:"商户号公司名称"`
+	MerchantShortName string      `json:"merchantShortName" orm:"merchant_short_name" description:"商户号简称"`
+	MerchantType      int         `json:"merchantType"      orm:"merchant_type"       description:"商户号类型：1服务商、2商户、4门店商家"`
+	ApiV3Key          string      `json:"apiV3Key"          orm:"api_v3_key"          description:"用于ApiV3平台证书解密、回调信息解密"`
+	ApiV2Key          string      `json:"apiV2Key"          orm:"api_v2_key"          description:"用于ApiV2平台证书解密、回调信息解密"`
+	PayCertP12        string      `json:"payCertP12"        orm:"pay_cert_p12"        description:"支付证书文件"`
+	PayPublicKeyPem   string      `json:"payPublicKeyPem"   orm:"pay_public_key_pem"  description:"公钥文件"`
+	PayPrivateKeyPem  string      `json:"payPrivateKeyPem"  orm:"pay_private_key_pem" description:"私钥文件"`
+	CertSerialNumber  string      `json:"certSerialNumber"  orm:"cert_serial_number"  description:"证书序列号"`
+	JsapiAuthPath     string      `json:"jsapiAuthPath"     orm:"jsapi_auth_path"     description:"JSAPI支付授权目录"`
+	SysUserId         int64       `json:"sysUserId"         orm:"sys_user_id"         description:"用户ID"`
+	UnionMainId       int64       `json:"unionMainId"       orm:"union_main_id"       description:"用户关联主体"`
+	UnionMainType     int         `json:"unionMainType"     orm:"union_main_type"     description:"用户类型"`
+	BankcardAccount   string      `json:"bankcardAccount"   orm:"bankcard_account"    description:"银行结算账户,用于交易和提现"`
+	UnionAppid        string      `json:"unionAppid"        orm:"union_appid"         description:"该商户号关联的AppId，微信支付接入模式属于直连模式，限制只能是同一主体下的App列表"`
+	UpdatedAt         *gtime.Time `json:"updatedAt"         orm:"updated_at"          description:""`
+	AppId             string      `json:"appId"             orm:"app_id"              description:"商户号 对应的公众号的服务号APPID"`
 }

@@ -16,7 +16,7 @@ import (
 
 type sTicket struct{}
 
-func NewTicket() *sTicket {
+func NewTicket() weixin_service.ITicket {
 	// 初始化文件内容
 
 	result := &sTicket{}
@@ -26,9 +26,9 @@ func NewTicket() *sTicket {
 }
 
 func (s *sTicket) injectHook() {
-	notifyHook := weixin_service.Gateway().GetServiceNotifyTypeHook()
+	serviceHook := weixin_service.Gateway().GetServiceNotifyTypeHook()
 
-	notifyHook.InstallHook(weixin_enum.Info.ServiceType.Ticket, s.Ticket)
+	serviceHook.InstallHook(weixin_enum.Info.ServiceType.Ticket, s.Ticket)
 }
 
 // Ticket 票据具体服务
@@ -36,9 +36,10 @@ func (s *sTicket) Ticket(ctx context.Context, info g.Map) bool {
 	if info["MsgType"] != weixin_enum.Info.ServiceType.Ticket.Code() {
 		return false
 	}
+	//	Services 解密后的内容： &{wxb64aa49959fa359c 1720167532 component_verify_ticket ticket@@@LsDX8DrrnTcYrr0nk7VndG9ickwwcupzE1MPhGAp4zPSgCrdEkXupN2mVXxsZhguYaQNGQ7Yb5S0Ghls-YzhXw    }
 
 	data := weixin_model.EventMessageBody{}
-	gconv.Struct(info["info"], &data)
+	_ = gconv.Struct(info["info"], &data)
 	res := getComponentAccessToken(ctx, &data)
 
 	return res
@@ -68,7 +69,7 @@ func getComponentAccessToken(ctx context.Context, data *weixin_model.EventMessag
 	fmt.Println("获取令牌返回数据：", componentAccessToken)
 
 	componentAccessTokenRes := weixin_model.ComponentAccessTokenRes{}
-	gjson.DecodeTo(componentAccessToken, &componentAccessTokenRes)
+	_ = gjson.DecodeTo(componentAccessToken, &componentAccessTokenRes)
 	fmt.Println("令牌：", componentAccessTokenRes)
 
 	// 找出服务商
@@ -99,11 +100,6 @@ func getComponentAccessToken(ctx context.Context, data *weixin_model.EventMessag
 	return true
 }
 
-type wxResult struct {
-	Ticket    string `json:"ticket"`
-	ExpiresIn int    `json:"expires_in"`
-}
-
 // GetTicket 获取票据
 func (s *sTicket) GetTicket(ctx context.Context, appId string) (string, error) {
 	appConfig, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
@@ -118,38 +114,14 @@ func (s *sTicket) GetTicket(ctx context.Context, appId string) (string, error) {
 		return "", err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
-	var result wxResult
+	var result weixin_model.TicketResult
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return "", err
 	}
 
 	return result.Ticket, nil
-}
-
-// GenerateScheme 获取scheme码
-func (s *sTicket) GenerateScheme(ctx context.Context, appId string, info *weixin_model.JumpWxa) (*weixin_model.GetSchemeRes, error) {
-	// POST https://api.weixin.qq.com/wxa/generatescheme?access_token=ACCESS_TOKEN
-
-	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
-	if err != nil {
-		return nil, err
-	}
-
-	url := "https://api.weixin.qq.com/wxa/generatescheme?access_token=" + merchantApp.AppAuthToken
-
-	encode, _ := gjson.Encode(g.Map{
-		"jump_wxa":        info,
-		"is_expire":       true,
-		"expire_type":     1,
-		"expire_interval": 1,
-	})
-
-	result := g.Client().PostContent(ctx, url, encode)
-
-	res := weixin_model.GetSchemeRes{}
-	gjson.DecodeTo(result, &res)
-
-	return &res, err
 }

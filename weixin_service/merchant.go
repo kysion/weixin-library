@@ -17,6 +17,48 @@ import (
 )
 
 type (
+	ITinyAppUrl interface {
+		// GenerateScheme 获取scheme码 【加密 URL Scheme】
+		GenerateScheme(ctx context.Context, appId string, info *weixin_model.JumpWxa) (*weixin_model.GetSchemeRes, error)
+		// GeneratePubScheme 获取scheme码 【明文 URL Scheme】
+		GeneratePubScheme(ctx context.Context, appId string, info *weixin_model.JumpWxa) (*weixin_model.GetSchemeRes, error)
+	}
+	IUserAuth interface {
+		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
+		GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
+		// UserAuthCallback 处理网页授权回调请求 （公众号登录）
+		UserAuthCallback(ctx context.Context, info g.Map) (int64, error)
+		// GetMiniAppUserInfo 获取小程序用户唯一标识，用于检查是否注册,如果已经注册，返会openId
+		GetMiniAppUserInfo(ctx context.Context, authCode string, appId string, getDetail bool) (*weixin_model.UserInfoRes, error)
+		// UserLogin 获取微信用户openId和sessionKey会话key 进行login  （小程序登录）
+		UserLogin(ctx context.Context, info g.Map) (string, error)
+		// GetMinoUserAccessToken 获取小程序用户access_token TODO
+		GetMinoUserAccessToken(ctx context.Context)
+		// GetTinyAppUserInfo 小程序获取用户数据
+		GetTinyAppUserInfo(ctx context.Context, sessionKey, encryptedData, iv, appId string, openId string) (*weixin_model.UserInfoRes, error)
+	}
+	IUserEvent interface {
+		// UserEvent 用户相关事件
+		UserEvent(ctx context.Context, info g.Map) bool
+		// Subscribe 用户关注公众号
+		Subscribe(ctx context.Context, appId string, info *weixin_model.MessageBodyDecrypt) (bool, error)
+		// UnSubscribe 用户取消关注公众号
+		UnSubscribe(ctx context.Context, appId string, info *weixin_model.MessageBodyDecrypt) (bool, error)
+		// UserAuthorizationRevoke 用户撤回事件  -- 取消授权
+		UserAuthorizationRevoke(ctx context.Context, appId string, info *weixin_model.MessageBodyDecrypt) (bool, error)
+	}
+	ISubMerchant interface {
+		// GetAuditStateByBusinessCode 根据业务申请编号查询申请状态
+		GetAuditStateByBusinessCode(ctx context.Context, spMchId, businessCode string) (*weixin_model.SubMerchantAuditStateRes, error)
+		// GetAuditStateByApplymentId 根据申请单号查询申请状态
+		GetAuditStateByApplymentId(ctx context.Context, spMchId, applymentId string) (*weixin_model.SubMerchantAuditStateRes, error)
+		// GetSettlement 查询结算账号
+		GetSettlement(ctx context.Context, subMchId string) (*weixin_model.SettlementRes, error)
+		// UpdateSettlement 修改结算账号,成功会返回application_no，作为查询申请状态的唯一标识
+		UpdateSettlement(ctx context.Context, subMchId string, info *weixin_model.UpdateSettlementReq) (string, error)
+		// GetSettlementAuditState 查询结算账户修改审核状态
+		GetSettlementAuditState(ctx context.Context, subMchId, applicationNo string) (*weixin_model.SettlementRes, error)
+	}
 	IAppVersion interface {
 		// SubmitAppVersionAudit 提交应用版本审核
 		SubmitAppVersionAudit(ctx context.Context, appId string, info *weixin_model.SubmitAppVersionAuditReq) (*weixin_model.AppVersionAuditRes, error)
@@ -42,14 +84,6 @@ type (
 		GetQrcode(ctx context.Context, appId string) (*weixin_model.ErrorCommonRes, error)
 		// ReleaseApp 发布已通过审核的小程序
 		ReleaseApp(ctx context.Context, appId string) (*weixin_model.ErrorCommonRes, error)
-	}
-	IMerchantNotify interface {
-		// InstallNotifyHook 订阅异步通知Hook
-		InstallNotifyHook(hookKey hook.NotifyKey, hookFunc hook.NotifyHookFunc)
-		// InstallTradeHook 订阅支付Hook
-		InstallTradeHook(hookKey hook.TradeHookKey, hookFunc hook.TradeHookFunc)
-		// NotifyServices 异步通知地址  用于接收支付宝推送给商户的支付/退款成功的消息。
-		NotifyServices(ctx context.Context) (string, error)
 	}
 	IWeiXinPay interface {
 		// PayTradeCreate  1、创建交易订单   （AppId的H5是没有的，需要写死，小程序有的 ）
@@ -87,65 +121,44 @@ type (
 		// DeleteReceiver 删除分账接收方（相当于分账关系解绑）
 		DeleteReceiver(ctx context.Context, appId string, info *weixin_model.DeleteReceiverRequest) (*profitsharing.DeleteReceiverResponse, error)
 	}
-	ISubMerchant interface {
-		// GetAuditStateByBusinessCode 根据业务申请编号查询申请状态
-		GetAuditStateByBusinessCode(ctx context.Context, spMchId, businessCode string) (*weixin_model.SubMerchantAuditStateRes, error)
-		// GetAuditStateByApplymentId 根据申请单号查询申请状态
-		GetAuditStateByApplymentId(ctx context.Context, spMchId, applymentId string) (*weixin_model.SubMerchantAuditStateRes, error)
-		// GetSettlement 查询结算账号
-		GetSettlement(ctx context.Context, subMchId string) (*weixin_model.SettlementRes, error)
-		// UpdateSettlement 修改结算账号,成功会返回application_no，作为查询申请状态的唯一标识
-		UpdateSettlement(ctx context.Context, subMchId string, info *weixin_model.UpdateSettlementReq) (string, error)
-		// GetSettlementAuditState 查询结算账户修改审核状态
-		GetSettlementAuditState(ctx context.Context, subMchId, applicationNo string) (*weixin_model.SettlementRes, error)
-	}
-	IUserAuth interface {
-		InstallConsumerHook(infoType hook.ConsumerKey, hookFunc hook.ConsumerHookFunc)
-		GetHook() base_hook.BaseHook[hook.ConsumerKey, hook.ConsumerHookFunc]
-		// UserAuthCallback 处理网页授权回调请求 （公众号登录）
-		UserAuthCallback(ctx context.Context, info g.Map) (int64, error)
-		// GetMiniAppUserInfo 获取小程序用户唯一标识，用于检查是否注册,如果已经注册，返会openId
-		GetMiniAppUserInfo(ctx context.Context, authCode string, appId string, getDetail bool) (*weixin_model.UserInfoRes, error)
-		// UserLogin 获取微信用户openId和sessionKey会话key 进行login  （小程序登录）
-		UserLogin(ctx context.Context, info g.Map) (string, error)
-		// GetMinoUserAccessToken 获取小程序用户access_token TODO
-		GetMinoUserAccessToken(ctx context.Context)
-		// GetTinyAppUserInfo 小程序获取用户数据
-		GetTinyAppUserInfo(ctx context.Context, sessionKey, encryptedData, iv, appId string, openId string) (*weixin_model.UserInfoRes, error)
-	}
-	IUserEvent interface {
-		// UserEvent 用户相关事件
-		UserEvent(ctx context.Context, info g.Map) bool
-		// Subscribe 用户关注公众号
-		Subscribe(ctx context.Context, appId string, info *weixin_model.MessageBodyDecrypt) (bool, error)
-		// UnSubscribe 用户取消关注公众号
-		UnSubscribe(ctx context.Context, appId string, info *weixin_model.MessageBodyDecrypt) (bool, error)
-		// UserAuthorizationRevoke 用户撤回事件  -- 取消授权
-		UserAuthorizationRevoke(ctx context.Context, appId string, info *weixin_model.MessageBodyDecrypt) (bool, error)
+	ISubscribeMessage interface {
+		// SendMessage 发送订阅消息
+		SendMessage(ctx context.Context, appId string, info *weixin_model.SendMessage) (*weixin_model.SendMessageRes, error)
+		// GetCategory 获取小程序账号的类目
+		GetCategory(ctx context.Context, appId string) (*weixin_model.GetCategoryRes, error)
+		// GetMyTemplateList 获取个人模板列表
+		GetMyTemplateList(ctx context.Context, appId string) (*weixin_model.GetMyTemplateListRes, error)
+		// DeleteTemplate 删除模板
+		DeleteTemplate(ctx context.Context, appId string, info *weixin_model.DeleteTemplate) (*weixin_model.DeleteTemplateRes, error)
+		// GetPubTemplateKeyWords 获取模板的关键词列表
+		GetPubTemplateKeyWords(ctx context.Context, appId string, templateId string) (*weixin_model.GetPubTemplateKeyWordsRes, error)
+		// GetPubTemplateTitleList 获取指定类目下的公共模板列表
+		GetPubTemplateTitleList(ctx context.Context, appId string) (*weixin_model.GetPubTemplateTitleListRes, error)
 	}
 	IAppAuth interface {
-		// RefreshToken 刷新Token
+		// RefreshToken 刷新授权应用的Token
 		RefreshToken(ctx context.Context, merchantAppId, thirdAppId, refreshToken string) (bool, error)
 		// AppAuth 应用授权具体服务
 		AppAuth(ctx context.Context, info g.Map) bool
-		// Authorized 授权成功
+		// Authorized 授权成功 （应用授权成功微信会推送service一次，但是我们自建授权/:appId/gateway.auth自建授权的req中指定了res的地址，就是/:appId/gateway.authRes， 所以要避免重复处理的情况出现）
 		Authorized(ctx context.Context, info g.Map) bool
 		// UpdateAuthorized 授权更新
 		UpdateAuthorized(ctx context.Context, info g.Map) bool
-		// Unauthorized 授权取消
+		// Unauthorized 授权取消 （渠道1:解决操作可以在微信公众平台登陆后，然后解除第三方应用的授权、渠道2：...）
 		Unauthorized(ctx context.Context, info g.Map) bool
 	}
 )
 
 var (
-	localWeiXinPay      IWeiXinPay
-	localSubAccount     ISubAccount
-	localSubMerchant    ISubMerchant
-	localUserAuth       IUserAuth
-	localUserEvent      IUserEvent
-	localAppAuth        IAppAuth
-	localAppVersion     IAppVersion
-	localMerchantNotify IMerchantNotify
+	localSubMerchant      ISubMerchant
+	localTinyAppUrl       ITinyAppUrl
+	localUserAuth         IUserAuth
+	localUserEvent        IUserEvent
+	localAppAuth          IAppAuth
+	localAppVersion       IAppVersion
+	localWeiXinPay        IWeiXinPay
+	localSubAccount       ISubAccount
+	localSubscribeMessage ISubscribeMessage
 )
 
 func AppAuth() IAppAuth {
@@ -170,17 +183,6 @@ func RegisterAppVersion(i IAppVersion) {
 	localAppVersion = i
 }
 
-func MerchantNotify() IMerchantNotify {
-	if localMerchantNotify == nil {
-		panic("implement not found for interface IMerchantNotify, forgot register?")
-	}
-	return localMerchantNotify
-}
-
-func RegisterMerchantNotify(i IMerchantNotify) {
-	localMerchantNotify = i
-}
-
 func WeiXinPay() IWeiXinPay {
 	if localWeiXinPay == nil {
 		panic("implement not found for interface IWeiXinPay, forgot register?")
@@ -203,6 +205,17 @@ func RegisterSubAccount(i ISubAccount) {
 	localSubAccount = i
 }
 
+func SubscribeMessage() ISubscribeMessage {
+	if localSubscribeMessage == nil {
+		panic("implement not found for interface ISubscribeMessage, forgot register?")
+	}
+	return localSubscribeMessage
+}
+
+func RegisterSubscribeMessage(i ISubscribeMessage) {
+	localSubscribeMessage = i
+}
+
 func SubMerchant() ISubMerchant {
 	if localSubMerchant == nil {
 		panic("implement not found for interface ISubMerchant, forgot register?")
@@ -212,6 +225,17 @@ func SubMerchant() ISubMerchant {
 
 func RegisterSubMerchant(i ISubMerchant) {
 	localSubMerchant = i
+}
+
+func TinyAppUrl() ITinyAppUrl {
+	if localTinyAppUrl == nil {
+		panic("implement not found for interface ITinyAppUrl, forgot register?")
+	}
+	return localTinyAppUrl
+}
+
+func RegisterTinyAppUrl(i ITinyAppUrl) {
+	localTinyAppUrl = i
 }
 
 func UserAuth() IUserAuth {

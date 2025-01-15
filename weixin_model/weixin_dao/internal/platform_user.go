@@ -16,41 +16,45 @@ import (
 
 // PlatformUserDao is the data access object for table platform_user.
 type PlatformUserDao struct {
-	table   string              // table is the underlying table name of the DAO.
-	group   string              // group is the database configuration group name of current DAO.
-	columns PlatformUserColumns // columns contains all the column names of Table for convenient usage.
+	dao_interface.IDao
+	table       string              // table is the underlying table name of the DAO.
+	group       string              // group is the database configuration group name of current DAO.
+	columns     PlatformUserColumns // columns contains all the column names of Table for convenient usage.
+	daoConfig   *dao_interface.DaoConfig
+	ignoreCache bool
+	exWhereArr  []string
 }
 
 // PlatformUserColumns defines and stores column names for table platform_user.
 type PlatformUserColumns struct {
-	Id            string //
-	FacilitatorId string // 服务商id
-	OperatorId    string // 运营商id
-	MerchantId    string // 商户id
-	EmployeeId    string // 员工id
-	Platform      string // 平台类型：1支付宝、2微信、4抖音、8银联
-	ThirdAppId    string // 第三方平台AppId
-	MerchantAppId string // 商家应用AppId
-	CreatedAt     string //
-	UpdatedAt     string //
-	UserId        string // 平台用户唯一标识
-	Type          string // 用户类型：0匿名，1用户，2微商，4商户、8广告主、16服务商、32运营中心，64后台
+	Id             string //
+	FacilitatorId  string // 服务商id
+	OperatorId     string // 运营商id
+	MerchantId     string // 商户id
+	SysUserId      string // 系统用户id
+	PlatformType   string // 平台类型：1支付宝、2微信、4抖音、8银联
+	ThirdAppId     string // 第三方平台AppId
+	MerchantAppId  string // 商家应用AppId
+	CreatedAt      string //
+	UpdatedAt      string //
+	PlatformUserId string // 平台用户唯一标识
+	SysUserType    string // 系统用户类型：0匿名，1用户，2微商，4商户、8广告主、16服务商、32运营中心，64后台
 }
 
 // platformUserColumns holds the columns for table platform_user.
 var platformUserColumns = PlatformUserColumns{
-	Id:            "id",
-	FacilitatorId: "facilitator_id",
-	OperatorId:    "operator_id",
-	MerchantId:    "merchant_id",
-	EmployeeId:    "employee_id",
-	Platform:      "platform",
-	ThirdAppId:    "third_app_id",
-	MerchantAppId: "merchant_app_id",
-	CreatedAt:     "created_at",
-	UpdatedAt:     "updated_at",
-	UserId:        "user_id",
-	Type:          "type",
+	Id:             "id",
+	FacilitatorId:  "facilitator_id",
+	OperatorId:     "operator_id",
+	MerchantId:     "merchant_id",
+	SysUserId:      "sys_user_id",
+	PlatformType:   "platform_type",
+	ThirdAppId:     "third_app_id",
+	MerchantAppId:  "merchant_app_id",
+	CreatedAt:      "created_at",
+	UpdatedAt:      "updated_at",
+	PlatformUserId: "platform_user_id",
+	SysUserType:    "sys_user_type",
 }
 
 // NewPlatformUserDao creates and returns a new DAO object for table data access.
@@ -58,10 +62,15 @@ func NewPlatformUserDao(proxy ...dao_interface.IDao) *PlatformUserDao {
 	var dao *PlatformUserDao
 	if len(proxy) > 0 {
 		dao = &PlatformUserDao{
-			group:   proxy[0].Group(),
-			table:   proxy[0].Table(),
-			columns: platformUserColumns,
+			group:       proxy[0].Group(),
+			table:       proxy[0].Table(),
+			columns:     platformUserColumns,
+			daoConfig:   proxy[0].DaoConfig(context.Background()),
+			IDao:        proxy[0].DaoConfig(context.Background()).Dao,
+			ignoreCache: proxy[0].DaoConfig(context.Background()).IsIgnoreCache(),
+			exWhereArr:  proxy[0].DaoConfig(context.Background()).Dao.GetExtWhereKeys(),
 		}
+
 		return dao
 	}
 
@@ -97,28 +106,25 @@ func (dao *PlatformUserDao) Ctx(ctx context.Context, cacheOption ...*gdb.CacheOp
 	return dao.DaoConfig(ctx, cacheOption...).Model
 }
 
-func (dao *PlatformUserDao) DaoConfig(ctx context.Context, cacheOption ...*gdb.CacheOption) dao_interface.DaoConfig {
-	daoConfig := dao_interface.DaoConfig{
-		Dao:   dao,
-		DB:    dao.DB(),
-		Table: dao.table,
-		Group: dao.group,
-		Model: dao.DB().Model(dao.Table()).Safe().Ctx(ctx),
+func (dao *PlatformUserDao) DaoConfig(ctx context.Context, cacheOption ...*gdb.CacheOption) *dao_interface.DaoConfig {
+	//if dao.daoConfig != nil && len(dao.exWhereArr) == 0 {
+	//	return dao.daoConfig
+	//}
+
+	var daoConfig = daoctl.NewDaoConfig(ctx, dao, cacheOption...)
+	dao.daoConfig = &daoConfig
+
+	if len(dao.exWhereArr) > 0 {
+		daoConfig.IgnoreExtModel(dao.exWhereArr...)
+		dao.exWhereArr = []string{}
+
 	}
 
-	if len(cacheOption) == 0 {
-		daoConfig.CacheOption = daoctl.MakeDaoCache(dao.Table())
-		daoConfig.Model = daoConfig.Model.Cache(*daoConfig.CacheOption)
-	} else {
-		if cacheOption[0] != nil {
-			daoConfig.CacheOption = cacheOption[0]
-			daoConfig.Model = daoConfig.Model.Cache(*daoConfig.CacheOption)
-		}
+	if dao.ignoreCache {
+		daoConfig.IgnoreCache()
 	}
 
-	daoConfig.Model = daoctl.RegisterDaoHook(daoConfig.Model)
-
-	return daoConfig
+	return dao.daoConfig
 }
 
 // Transaction wraps the transaction logic using function f.
@@ -129,4 +135,21 @@ func (dao *PlatformUserDao) DaoConfig(ctx context.Context, cacheOption ...*gdb.C
 // as it is automatically handled by this function.
 func (dao *PlatformUserDao) Transaction(ctx context.Context, f func(ctx context.Context, tx gdb.TX) error) (err error) {
 	return dao.Ctx(ctx).Transaction(ctx, f)
+}
+
+func (dao *PlatformUserDao) GetExtWhereKeys() []string {
+	return dao.exWhereArr
+}
+
+func (dao *PlatformUserDao) IsIgnoreCache() bool {
+	return dao.ignoreCache
+}
+
+func (dao *PlatformUserDao) IgnoreCache() dao_interface.IDao {
+	dao.ignoreCache = true
+	return dao
+}
+func (dao *PlatformUserDao) IgnoreExtModel(whereKey ...string) dao_interface.IDao {
+	dao.exWhereArr = append(dao.exWhereArr, whereKey...)
+	return dao
 }

@@ -23,7 +23,7 @@ type WeixinConsumerConfig struct {
 	UserType           interface{} // 用户账号类型，和sysUserType保持一致
 	UserState          interface{} // 状态：0未激活、1正常、-1封号、-2异常、-3已注销
 	IsCertified        interface{} // 是否实名认证
-	Sex                interface{} // 性别：0女 1男
+	Sex                interface{} // 性别：0未知、1男、2女
 	AccessToken        interface{} // 授权token
 	ExtJson            interface{} // 拓展字段
 	CreatedAt          *gtime.Time //

@@ -62,6 +62,13 @@ service:
   # 私钥
   payPrivateKeyPem: "/data/kysion-files/weixin/weixin-pay/1642565036_cert/apiclient_key.pem"
 
+# 微信配置
+weixin:
+  # 微信消息验证Token，需要和微信开放平台设置的Token一致
+  msgVerifyToken: "commianlajie"
+  # 服务器域名
+  serverDomain: "https://www.mianlajie.com"
+
 # 日志配置
 logger:
   path: "temp/logs/default"
@@ -74,7 +81,7 @@ upload:
   # 用戶1分钟内限制上传最大文件数量
   fileMaxUploadCountMinute: 10
   # 文件上传的默认保存路径
-  path: "resources/upload"
+  path: "resource/upload"
   temp: "temp/upload"
 
 # 数据库连接配置

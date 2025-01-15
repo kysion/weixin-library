@@ -14,6 +14,7 @@ import (
 	"github.com/kysion/weixin-library/weixin_service"
 	"github.com/kysion/weixin-library/weixin_utility"
 	"net/url"
+	"strings"
 )
 
 // AlipayAuthUserInfo 用户登录信息
@@ -150,7 +151,13 @@ func (c *cMerchantService) UserAuthRes(ctx context.Context, req *weixin_merchant
 
 	//susUserId := ctx.Value("sys_user_id")
 	token, _ := GetJwtToken(ctx, gconv.Int64(sysUserId))
-	req.To += "?jwtToken=" + token.Token + "&expireAt=" + token.ExpireAt.String()
+
+	if strings.Contains(req.To, "?") {
+		req.To += "&"
+	} else {
+		req.To += "?"
+	}
+	req.To += "jwtToken=" + token.Token + "&expireAt=" + gconv.String(token.ExpireAt.UnixMilli())
 
 	g.RequestFromCtx(ctx).Response.RedirectTo(req.To)
 
@@ -177,7 +184,7 @@ func (c *cMerchantService) UserLogin(ctx context.Context, req *weixin_merchant_a
 	return "success", nil
 }
 
-// RefreshToken 刷新Token
+// RefreshToken 刷新授权应用的Token
 func (c *cMerchantService) RefreshToken(ctx context.Context, _ *weixin_merchant_app_v1.RefreshTokenReq) (api_v1.BoolRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
@@ -198,12 +205,12 @@ func (c *cMerchantService) RefreshToken(ctx context.Context, _ *weixin_merchant_
 	return ret == true, err
 }
 
-// AppAuthReq 应用授权
+// AppAuthReq_Pref 应用授权 （自建应用授权API的Req）
 func (c *cMerchantService) AppAuthReq(ctx context.Context, _ *weixin_merchant_app_v1.AppAuthReq) (v1.StringRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
-	app, _ := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
+	thirdApp, _ := weixin_service.ThirdAppConfig().GetThirdAppConfigByAppId(ctx, appId)
 
 	// 4.获取预授权码
 	proAuthCodeReq := weixin_model.ProAuthCodeReq{
@@ -211,7 +218,7 @@ func (c *cMerchantService) AppAuthReq(ctx context.Context, _ *weixin_merchant_ap
 		// ComponentAccessToken: token,  // 不能写json结构体里面，一半数据写在上面url上，一半数据写在json结构体
 	}
 	encode, _ := gjson.Encode(proAuthCodeReq)
-	proAuthCodeUrl := "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=" + app.AppAuthToken
+	proAuthCodeUrl := "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=" + thirdApp.AppAuthToken
 
 	proAuthCode := g.Client().PostContent(ctx, proAuthCodeUrl, encode)
 	proAuthCodeRes := weixin_model.ProAuthCodeRes{}
@@ -223,8 +230,8 @@ func (c *cMerchantService) AppAuthReq(ctx context.Context, _ *weixin_merchant_ap
 		}
 	*/
 
-	//redirect_url := gurl.Encode("https://www.kuaimk.com/weixin/wx56j8q12l89h99/gateway.authRes")
-	redirect_url := "https://www.kuaimk.com/weixin/wx56j8q12l89h99/gateway.authRes"
+	//redirect_url := "https://www.kuaimk.com/weixin/wx56j8q12l89h99/gateway.authRes"
+	redirect_url := thirdApp.AuthInitUrl + "/weixin/" + thirdApp.AppId + "/gateway.authRes"
 
 	//authUrl := "https://mp.weixin.qq.com/cgi-bin/componentloginpage?" +
 
@@ -232,7 +239,8 @@ func (c *cMerchantService) AppAuthReq(ctx context.Context, _ *weixin_merchant_ap
 	authUrl, _ := buildAppAuthURL(redirect_url, appId, proAuthCodeRes.PreAuthCode)
 	sys_service.SysLogs().InfoSimple(ctx, nil, "\n应用授权全链接： "+authUrl, "cAppAuth")
 
-	g.RequestFromCtx(ctx).Response.Header().Set("referer", "https://www.kauimk.com/weixin/wx56j8q12l89h99/gateway.services") // https://www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
+	//g.RequestFromCtx(ctx).Response.Header().Set("referer", "https://www.kauimk.com/weixin/wx56j8q12l89h99/gateway.services") // https://www.kuaimk.com/weixin/$APPID$/wx56j8q12l89h99/gateway.callback
+	g.RequestFromCtx(ctx).Response.Header().Set("referer", thirdApp.AppGatewayUrl)
 
 	// g.RequestFromCtx(ctx).Response.RedirectTo(authUrl) // 会报错：说请确认授权入口页所在域名和授权回调页所在域名相同
 
@@ -248,14 +256,12 @@ func (c *cMerchantService) AppAuthReq(ctx context.Context, _ *weixin_merchant_ap
 	return "success", nil
 }
 
-// AuthRes 商家应用授权变更等消息推送
-func (c *cMerchantService) AuthRes(ctx context.Context, req *weixin_merchant_app_v1.AuthResReq) (v1.StringRes, error) {
+// AppAuthRes 商家应用授权变更等消息推送 （自建应用授权API的Res）
+func (c *cMerchantService) AppAuthRes(ctx context.Context, req *weixin_merchant_app_v1.AppAuthResReq) (v1.StringRes, error) {
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
 	fmt.Println("认证code：", req.AuthCode)
-
-	fmt.Println("推送消息：", req.ExpiresIn)
 
 	weixin_service.AppAuth().AppAuth(ctx, g.Map{
 		"appId":      appId,

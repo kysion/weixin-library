@@ -49,7 +49,7 @@
 │       └── merchant           Weixin商户基本操作逻辑代码。
 ├── manifest          交付清单：包含程序编译、部署、运行、配置的文件。
 │   └── config        配置管理：配置文件存放目录。
-├── resources         静态资源：静态资源文件。这些文件往往可以通过 资源打包/镜像编译 的形式注入到发布文件中。
+├── resource         静态资源：静态资源文件。这些文件往往可以通过 资源打包/镜像编译 的形式注入到发布文件中。
 ├── utility           实用类库：一般以独立文件形式的通用类库
 ├── weixin_consts              常量定义：组件专用常量或公共类型及变量定义。
 ├── weixin_controller          接口处理：接收/解析用户输入参数的入口/接口层。
@@ -71,7 +71,7 @@
 └── weixin.go         组件入口
 ```
 
-### alipay-library 理解为这是一个SDK库，项目大部分实现是基于第三方应用代商家发起Api调用
+### weixin-library 理解为这是一个SDK库，项目大部分实现是基于第三方应用代商家发起Api调用
 特性：
 > 封装了Weixin网关，用于接收和发送消息。<br>
 > 封装了Weixin小程序开发管理Api <br>
@@ -97,7 +97,7 @@
 - i18n目录需要，里头包含项目所需国际化输出文件
 - manifest/config/config.yaml 配置文件
 - hack/config.yaml 配置文件，用于配置gf dao生成数据模型表   （可选）
-- resources目录需要，是serverRoot目录，里头包含ip资源库等资源
+- resource目录需要，是serverRoot目录，里头包含ip资源库等资源
 - .env 配置文件，优先级最高  (可选)
 
 ### 部署&编译流程：

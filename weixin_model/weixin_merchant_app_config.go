@@ -8,7 +8,7 @@ type WeixinMerchantAppConfig struct {
 	AppId          string      `json:"appId"          description:"商家应用Id"`
 	AppName        string      `json:"appName"        description:"商家应用名称"`
 	AppType        int         `json:"appType"        description:"应用类型：1公众号 2小程序 4网站应用H5  8移动应用  16视频小店"`
-	AppAuthToken   string      `json:"appAuthToken"   description:"商家授权应用token"`
+	AppAuthToken   string      `json:"appAuthToken"   description:"商家应用token：1、当第三方代开发的时候，这个是商家授权的应用token (authorizer_access_token)；2、当是商家自研模式时，这个是商家的应用token(access_token)。"`
 	IsFullProxy    int         `json:"isFullProxy"    description:"是否全权委托待开发：0否 1是"`
 	State          int         `json:"state"          description:"状态： 0禁用 1启用"`
 	ExpiresIn      *gtime.Time `json:"expiresIn"      description:"Token过期时间"`
@@ -20,7 +20,7 @@ type WeixinMerchantAppConfig struct {
 	AppGatewayUrl  string      `json:"appGatewayUrl"  description:"网关地址"`
 	AppCallbackUrl string      `json:"appCallbackUrl" description:"回调地址"`
 	AppSecret      string      `json:"appSecret"      description:"服务器应用密钥"`
-	MsgVerfiyToken string      `json:"msgVerfiyToken" description:"消息校验Token"`
+	MsgVerifyToken string      `json:"msgVerifyToken" description:"消息校验Token"`
 	MsgEncryptKey  string      `json:"msgEncryptKey"  description:"消息加密解密密钥（EncodingAESKey）"`
 	MsgEncryptType int         `json:"msgEncryptType" description:"消息加密模式：1兼容模式 2明文模式 4安全模式"`
 	BusinessDomain string      `json:"businessDomain" description:"业务域名"`
@@ -47,12 +47,12 @@ type WeixinMerchantAppConfig struct {
 type UpdateMerchantAppConfig struct {
 	Id             int64       `json:"id"             description:"商家id"`
 	Name           string      `json:"name"           description:"商家name"`
-	AppAuthToken   string      `json:"appAuthToken"   description:"应用token"`
+	AppAuthToken   string      `json:"appAuthToken"   description:"商家应用token：1、当第三方代开发的时候，这个是商家授权的应用token (authorizer_access_token)；2、当是商家自研模式时，这个是商家的应用token(access_token)。"`
 	ExpiresIn      *gtime.Time `json:"expiresIn"      description:"Token过期时间"`
 	AppGatewayUrl  string      `json:"appGatewayUrl"  description:"网关地址"`
 	AppCallbackUrl string      `json:"appCallbackUrl" description:"回调地址"`
 	AppSecret      string      `json:"appSecret"      description:"服务器应用密钥"`
-	MsgVerfiyToken string      `json:"msgVerfiyToken" description:"消息校验Token"`
+	MsgVerifyToken string      `json:"msgVerifyToken" description:"消息校验Token"`
 	MsgEncryptKey  string      `json:"msgEncryptKey"  description:"消息加密解密密钥"`
 	MsgEncryptType int         `json:"msgEncryptType" description:"消息加密模式：1兼容模式 2明文模式 4安全模式"`
 	BusinessDomain string      `json:"businessDomain" description:"业务域名"`
@@ -64,11 +64,12 @@ type UpdateMerchantAppConfig struct {
 
 type UpdateMerchantAppAuthToken struct {
 	AppId        *string     `json:"appId"          description:"商家应用Id"`
-	AppAuthToken *string     `json:"appAuthToken"   description:"应用token"`
+	AppAuthToken *string     `json:"appAuthToken"   description:"商家应用token：1、当第三方代开发的时候，这个是商家授权的应用token (authorizer_access_token)；2、当是商家自研模式时，这个是商家的应用token(access_token)。"`
 	ExpiresIn    *gtime.Time `json:"expiresIn"      description:"Token过期时间"`
 	ReExpiresIn  *gtime.Time `json:"reExpiresIn"    description:"Token限期刷新时间"`
 	RefreshToken *string     `json:"refreshToken"   description:"刷新应用Token"`
 	ThirdAppId   *string     `json:"thirdAppId"     description:"服务商appId"`
+	IsFullProxy  *int        `json:"isFullProxy" dc:"是否全权委托待开发：0否 1是"`
 }
 
 // UpdateMerchantAppConfigReq 修改商家应用基础信息

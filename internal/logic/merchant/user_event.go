@@ -85,7 +85,7 @@ func init() {
 	//weixin_service.RegisterUserEvent(NewUserEvent())
 }
 
-func NewUserEvent() *sUserEvent {
+func NewUserEvent() weixin_service.IUserEvent {
 
 	result := &sUserEvent{}
 
@@ -115,11 +115,11 @@ func (s *sUserEvent) UserEvent(ctx context.Context, info g.Map) bool {
 
 	//  注册事件处理
 	if messageInfo.Event != "" {
-		s.Subscribe(ctx, appId, messageInfo)
+		_, _ = s.Subscribe(ctx, appId, messageInfo) // subscribe(订阅)、
 
-		s.UnSubscribe(ctx, appId, messageInfo)
+		_, _ = s.UnSubscribe(ctx, appId, messageInfo) // unsubscribe(取消订阅)
 
-		s.UserAuthorizationRevoke(ctx, appId, messageInfo)
+		_, _ = s.UserAuthorizationRevoke(ctx, appId, messageInfo) // user_authorization_revoke（用户撤回）
 	}
 
 	return true
@@ -213,3 +213,9 @@ func (s *sUserEvent) UserAuthorizationRevoke(ctx context.Context, appId string, 
 
 	return true, nil
 }
+
+// TODO user_info_modified：用户资料变更，
+
+// TODO user_authorization_revoke：用户撤回，
+
+// TODO user_authorization_cancellation：用户完成注销；

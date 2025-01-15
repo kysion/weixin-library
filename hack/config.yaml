@@ -5,7 +5,7 @@
 gfcli:
   # 工具编译配置
   build:
-    name:     "merchant-library"
+    name:     "weixin-library"
     arch:     "amd64"
     system:   "linux,darwin,windows"
     mod:      ""
@@ -15,9 +15,18 @@ gfcli:
   gen:
     dao:
       - #link: : "pgsql:user=root password=root host=127.0.0.1 port=5432 dbname=test sslmode=disable"
-        link: "pgsql:user=kuaimk password=Kuaimk23db host=192.168.1.105 port=5432 dbname=kmk_struct sslmode=disable"
+#        link: "pgsql:user=kuaimk password=Kuaimk23db host=192.168.1.105 port=5432 dbname=kmk_struct sslmode=disable"
+        link: "pgsql:user=kuaimk password=d3d3Lmt1YWltay5jb20= host=10.68.74.250 port=5432 dbname=kuaimkdb sslmode=disable"
         # link: "pgsql:user=kysion password=kysiondb host=182.43.195.225 port=15432 dbname=gf-admin sslmode=disable"
-        tables: "weixin_merchant_app_config, weixin_consumer_config, weixin_third_app_config, platform_user, weixin_pay_merchant, weixin_pay_sub_merchant "
+        tables: "
+          weixin_merchant_app_config,
+          weixin_consumer_config,
+          weixin_third_app_config,
+          platform_user,
+          weixin_pay_merchant,
+          weixin_pay_sub_merchant,
+          weixin_subscribe_message_template
+        "
         descriptionTag:  true
         noModelComment:  true
         withTime: false

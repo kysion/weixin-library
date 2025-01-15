@@ -16,9 +16,13 @@ import (
 
 // WeixinThirdAppConfigDao is the data access object for table weixin_third_app_config.
 type WeixinThirdAppConfigDao struct {
-	table   string                      // table is the underlying table name of the DAO.
-	group   string                      // group is the database configuration group name of current DAO.
-	columns WeixinThirdAppConfigColumns // columns contains all the column names of Table for convenient usage.
+	dao_interface.IDao
+	table       string                      // table is the underlying table name of the DAO.
+	group       string                      // group is the database configuration group name of current DAO.
+	columns     WeixinThirdAppConfigColumns // columns contains all the column names of Table for convenient usage.
+	daoConfig   *dao_interface.DaoConfig
+	ignoreCache bool
+	exWhereArr  []string
 }
 
 // WeixinThirdAppConfigColumns defines and stores column names for table weixin_third_app_config.
@@ -37,12 +41,12 @@ type WeixinThirdAppConfigColumns struct {
 	AppGatewayUrl  string // 网关地址
 	AppCallbackUrl string // 回调地址
 	AppSecret      string // 服务商应用密钥
-	MsgVerfiyToken string // 消息校验Token
+	MsgVerifyToken string // 消息校验Token
 	MsgEncryptKey  string // 消息加密解密密钥
 	AuthInitUrl    string // 授权发起页域名
 	ServerDomain   string // 服务器域名
 	BusinessDomain string // 业务域名
-	AuthTestAppIds string // 授权测试应用列表
+	AuthTestAppids string // 授权测试应用列表
 	PlatformSite   string // 平台官方
 	Logo           string // 服务商logo
 	State          string // 状态：0禁用 1启用
@@ -71,12 +75,12 @@ var weixinThirdAppConfigColumns = WeixinThirdAppConfigColumns{
 	AppGatewayUrl:  "app_gateway_url",
 	AppCallbackUrl: "app_callback_url",
 	AppSecret:      "app_secret",
-	MsgVerfiyToken: "msg_verfiy_token",
+	MsgVerifyToken: "msg_verify_token",
 	MsgEncryptKey:  "msg_encrypt_key",
 	AuthInitUrl:    "auth_init_url",
 	ServerDomain:   "server_domain",
 	BusinessDomain: "business_domain",
-	AuthTestAppIds: "auth_test_appIds",
+	AuthTestAppids: "auth_test_appIds",
 	PlatformSite:   "platform_site",
 	Logo:           "logo",
 	State:          "state",
@@ -94,10 +98,15 @@ func NewWeixinThirdAppConfigDao(proxy ...dao_interface.IDao) *WeixinThirdAppConf
 	var dao *WeixinThirdAppConfigDao
 	if len(proxy) > 0 {
 		dao = &WeixinThirdAppConfigDao{
-			group:   proxy[0].Group(),
-			table:   proxy[0].Table(),
-			columns: weixinThirdAppConfigColumns,
+			group:       proxy[0].Group(),
+			table:       proxy[0].Table(),
+			columns:     weixinThirdAppConfigColumns,
+			daoConfig:   proxy[0].DaoConfig(context.Background()),
+			IDao:        proxy[0].DaoConfig(context.Background()).Dao,
+			ignoreCache: proxy[0].DaoConfig(context.Background()).IsIgnoreCache(),
+			exWhereArr:  proxy[0].DaoConfig(context.Background()).Dao.GetExtWhereKeys(),
 		}
+
 		return dao
 	}
 
@@ -133,28 +142,25 @@ func (dao *WeixinThirdAppConfigDao) Ctx(ctx context.Context, cacheOption ...*gdb
 	return dao.DaoConfig(ctx, cacheOption...).Model
 }
 
-func (dao *WeixinThirdAppConfigDao) DaoConfig(ctx context.Context, cacheOption ...*gdb.CacheOption) dao_interface.DaoConfig {
-	daoConfig := dao_interface.DaoConfig{
-		Dao:   dao,
-		DB:    dao.DB(),
-		Table: dao.table,
-		Group: dao.group,
-		Model: dao.DB().Model(dao.Table()).Safe().Ctx(ctx),
+func (dao *WeixinThirdAppConfigDao) DaoConfig(ctx context.Context, cacheOption ...*gdb.CacheOption) *dao_interface.DaoConfig {
+	//if dao.daoConfig != nil && len(dao.exWhereArr) == 0 {
+	//	return dao.daoConfig
+	//}
+
+	var daoConfig = daoctl.NewDaoConfig(ctx, dao, cacheOption...)
+	dao.daoConfig = &daoConfig
+
+	if len(dao.exWhereArr) > 0 {
+		daoConfig.IgnoreExtModel(dao.exWhereArr...)
+		dao.exWhereArr = []string{}
+
 	}
 
-	if len(cacheOption) == 0 {
-		daoConfig.CacheOption = daoctl.MakeDaoCache(dao.Table())
-		daoConfig.Model = daoConfig.Model.Cache(*daoConfig.CacheOption)
-	} else {
-		if cacheOption[0] != nil {
-			daoConfig.CacheOption = cacheOption[0]
-			daoConfig.Model = daoConfig.Model.Cache(*daoConfig.CacheOption)
-		}
+	if dao.ignoreCache {
+		daoConfig.IgnoreCache()
 	}
 
-	daoConfig.Model = daoctl.RegisterDaoHook(daoConfig.Model)
-
-	return daoConfig
+	return dao.daoConfig
 }
 
 // Transaction wraps the transaction logic using function f.
@@ -165,4 +171,21 @@ func (dao *WeixinThirdAppConfigDao) DaoConfig(ctx context.Context, cacheOption .
 // as it is automatically handled by this function.
 func (dao *WeixinThirdAppConfigDao) Transaction(ctx context.Context, f func(ctx context.Context, tx gdb.TX) error) (err error) {
 	return dao.Ctx(ctx).Transaction(ctx, f)
+}
+
+func (dao *WeixinThirdAppConfigDao) GetExtWhereKeys() []string {
+	return dao.exWhereArr
+}
+
+func (dao *WeixinThirdAppConfigDao) IsIgnoreCache() bool {
+	return dao.ignoreCache
+}
+
+func (dao *WeixinThirdAppConfigDao) IgnoreCache() dao_interface.IDao {
+	dao.ignoreCache = true
+	return dao
+}
+func (dao *WeixinThirdAppConfigDao) IgnoreExtModel(whereKey ...string) dao_interface.IDao {
+	dao.exWhereArr = append(dao.exWhereArr, whereKey...)
+	return dao
 }
