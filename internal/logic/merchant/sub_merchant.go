@@ -20,6 +20,20 @@ import (
 	"net/http"
 )
 
+/*
+商户进件：微信支付特约商户
+*/
+
+// 提交申请单 （人工）
+
+// 查询申请单状态
+
+// 修改结算账号
+
+// 查询结算账号
+
+// 查询结算账户修改审核状态
+
 type sSubMerchant struct {
 }
 
@@ -27,7 +41,7 @@ func init() {
 	//weixin_service.RegisterSubMerchant(NewSubMerchant())
 }
 
-func NewSubMerchant() *sSubMerchant {
+func NewSubMerchant() weixin_service.ISubMerchant {
 
 	result := &sSubMerchant{}
 
@@ -65,16 +79,6 @@ func newSubClient(ctx context.Context, spMchId string, no ...string) (*core.Clie
 
 	return client, nil
 }
-
-// 提交申请单 （人工）
-
-// 查询申请单状态
-
-// 修改结算账号
-
-// 查询结算账号
-
-// 查询结算账户修改审核状态
 
 // GetAuditStateByBusinessCode 根据业务申请编号查询申请状态
 func (s *sSubMerchant) GetAuditStateByBusinessCode(ctx context.Context, spMchId, businessCode string) (*weixin_model.SubMerchantAuditStateRes, error) {
@@ -131,7 +135,7 @@ func (s *sSubMerchant) GetSettlement(ctx context.Context, subMchId string) (*wei
 
 	resp := weixin_model.SettlementRes{}
 	body, err := ioutil.ReadAll(result.Response.Body)
-	gjson.DecodeTo(body, &resp)
+	_ = gjson.DecodeTo(body, &resp)
 
 	return &resp, err
 }
@@ -232,7 +236,7 @@ func (s *sSubMerchant) GetSettlementAuditState(ctx context.Context, subMchId, ap
 
 	resp := weixin_model.SettlementRes{}
 	body, err := ioutil.ReadAll(result.Response.Body)
-	gjson.DecodeTo(body, &resp)
+	_ = gjson.DecodeTo(body, &resp)
 
 	return &resp, err
 }

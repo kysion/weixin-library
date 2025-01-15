@@ -1,8 +1,9 @@
-package gateway
+package weixin_service
 
 import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
+	"github.com/SupenBysz/gf-admin-community/utility/idgen"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/base_model"
@@ -11,7 +12,7 @@ import (
 	dao "github.com/kysion/weixin-library/weixin_model/weixin_dao"
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
-	"github.com/yitter/idgenerator-go/idgen"
+	"github.com/kysion/weixin-library/weixin_service"
 	"time"
 )
 
@@ -25,7 +26,7 @@ type sSubscribeMessageTemplate struct {
 	Duration   time.Duration
 }
 
-func NewSubscribeMessageTemplate() *sSubscribeMessageTemplate {
+func NewSubscribeMessageTemplate() weixin_service.ISubscribeMessageTemplate {
 	return &sSubscribeMessageTemplate{
 		redisCache: gcache.New(),
 	}
@@ -55,7 +56,7 @@ func (s *sSubscribeMessageTemplate) GetSubscribeMessageTemplateById(ctx context.
 func (s *sSubscribeMessageTemplate) CreateSubscribeMessageTemplate(ctx context.Context, info *weixin_model.WeixinSubscribeMessageTemplate) (*weixin_model.WeixinSubscribeMessageTemplateRes, error) {
 	data := do.WeixinSubscribeMessageTemplate{}
 
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	data.Id = idgen.NextId()
 
@@ -79,7 +80,7 @@ func (s *sSubscribeMessageTemplate) UpdateSubscribeMessageTemplate(ctx context.C
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "该消息模板不存在", dao.WeixinSubscribeMessageTemplate.Table())
 	}
 	data := do.WeixinSubscribeMessageTemplate{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	model := dao.WeixinSubscribeMessageTemplate.Ctx(ctx)
 	affected, err := daoctl.UpdateWithError(model.Data(data).OmitNilData().Where(do.WeixinSubscribeMessageTemplate{Id: id}))

@@ -1,4 +1,4 @@
-package merchant
+package gateway
 
 import (
 	"context"
@@ -48,7 +48,7 @@ type sMerchantNotify struct {
 //	weixin_service.RegisterMerchantNotify(NewMerchantNotify())
 //}
 
-func NewMerchantNotify() *sMerchantNotify {
+func NewMerchantNotify() weixin_service.IMerchantNotify {
 	return &sMerchantNotify{}
 }
 
@@ -76,11 +76,16 @@ func NewMerchantNotify() *sMerchantNotify {
 
 // InstallNotifyHook 订阅异步通知Hook
 func (s *sMerchantNotify) InstallNotifyHook(hookKey hook.NotifyKey, hookFunc hook.NotifyHookFunc) {
-	sys_service.SysLogs().InfoSimple(context.Background(), nil, "\n-------订阅订阅异步通知Hook： ------- ", "sPlatformUser")
+	_ = sys_service.SysLogs().InfoSimple(context.Background(), nil, "\n-------订阅订阅异步通知Hook： ------- ", "sPlatformUser")
 
 	hookKey.HookCreatedAt = *gtime.Now()
 
-	secondAt := gtime.New(weixin_consts.Global.TradeHookExpireAt * gconv.Int64(time.Second))
+	tradeHookExpireAt := weixin_consts.Global.TradeHookExpireAt
+	if tradeHookExpireAt == 0 {
+		tradeHookExpireAt = 7200
+	}
+
+	secondAt := gtime.New(tradeHookExpireAt * gconv.Int64(time.Second))
 	hookKey.HookExpireAt = *gtime.New(hookKey.HookCreatedAt.Second() + secondAt.Second())
 
 	s.NotifyHook.InstallHook(hookKey, hookFunc)
@@ -90,7 +95,12 @@ func (s *sMerchantNotify) InstallNotifyHook(hookKey hook.NotifyKey, hookFunc hoo
 func (s *sMerchantNotify) InstallTradeHook(hookKey hook.TradeHookKey, hookFunc hook.TradeHookFunc) {
 	hookKey.HookCreatedAt = *gtime.Now()
 
-	secondAt := gtime.New(weixin_consts.Global.TradeHookExpireAt * gconv.Int64(time.Second))
+	tradeHookExpireAt := weixin_consts.Global.TradeHookExpireAt
+	if tradeHookExpireAt == 0 {
+		tradeHookExpireAt = 7200
+	}
+
+	secondAt := gtime.New(tradeHookExpireAt * gconv.Int64(time.Second))
 
 	hookKey.HookExpireAt = *gtime.New(hookKey.HookCreatedAt.Second() + secondAt.Second())
 
@@ -99,20 +109,23 @@ func (s *sMerchantNotify) InstallTradeHook(hookKey hook.TradeHookKey, hookFunc h
 
 // NotifyServices 异步通知地址  用于接收支付宝推送给商户的支付/退款成功的消息。
 func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
-	sys_service.SysLogs().InfoSimple(ctx, nil, "\n----------微信支付异步通知", "WeiXin-Notify")
+	_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n----------微信支付异步通知", "WeiXin-Notify")
 
 	appId := weixin_utility.GetAppIdFormContext(ctx)
 
-	subMerchant, err := weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
+	var err error
+	var spMerchant *weixin_model.PayMerchant           // 服务商
+	var subMerchant *weixin_model.WeixinPaySubMerchant // 特约商户
+
+	subMerchant, err = weixin_service.PaySubMerchant().GetPaySubMerchantByAppId(ctx, appId)
 	//if err != nil {
 	//	return "", err
 	//}
 
-	var spMerchat *weixin_model.PayMerchant
 	if subMerchant != nil && subMerchant.SpMchid != 0 {
-		spMerchat, err = weixin_service.PayMerchant().GetPayMerchantByMchid(ctx, subMerchant.SpMchid)
+		spMerchant, err = weixin_service.PayMerchant().GetPayMerchantByMchid(ctx, subMerchant.SpMchid)
 	} else {
-		spMerchat, err = weixin_service.PayMerchant().GetPayMerchantByAppId(ctx, appId)
+		spMerchant, err = weixin_service.PayMerchant().GetPayMerchantByAppId(ctx, appId)
 	}
 
 	if err != nil {
@@ -120,9 +133,9 @@ func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
 	}
 
 	err = dao.WeixinConsumerConfig.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-		// 1.验签并解密，得到通知json数据  TODO 解决Bug
-		transaction, err := ParseNotifyRequestTransaction(ctx, spMerchat) // TODO 验签并解密失败
 
+		// 1.验签并解密，得到通知json数据
+		transaction, err := ParseNotifyRequestTransaction(ctx, spMerchant)
 		if err != nil {
 			return sys_service.SysLogs().ErrorSimple(ctx, err, "验签失败", "WeiXin-Notify")
 		}
@@ -133,12 +146,11 @@ func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
 			outTradeNo := gconv.Int64(transaction.OutTradeNo)  // 商户订单号，是我们自己指定的，OutTradeNo = orderId
 			tradeId := gconv.String(transaction.TransactionId) // 微信交易凭证id。
 			tradeJson := gconv.String(transactionJson)         // 交易元数据
-
 			info := pay_model.UpdateOrderTradeInfo{
 				PlatformOrderId: &tradeId,   // 微信交易凭证id。
 				TradeSource:     &tradeJson, // 交易元数据
 			}
-			_, err := pay_service.Order().UpdateOrderTradeSource(ctx, outTradeNo, &info)
+			_, err = pay_service.Order().UpdateOrderTradeSource(ctx, outTradeNo, &info)
 			if err != nil {
 				return err
 			}
@@ -189,7 +201,7 @@ func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
 		}
 
 		// 3. 支付成功，添加账单account_bill  商家 消费者的账单  及广播业务层Hook
-		if *transaction.TradeState == pay_enum.WeiXinTrade.TradeStatus.SUCCESS.Code() {
+		if transaction.TradeState != nil && *transaction.TradeState == pay_enum.WeiXinTrade.TradeStatus.SUCCESS.Code() {
 			// 4. 分账交易下单结算  需要支付状态为Success的订单
 
 			// a.查询分账关系
@@ -214,8 +226,7 @@ func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
 			// Trade发布广播
 			s.TradeHook.Iterator(func(key hook.TradeHookKey, value hook.TradeHookFunc) {
 				if key.WeiXinTradeStatus.Code() == pay_enum.WeiXinTrade.TradeStatus.SUCCESS.Code() {
-					fmt.Println()
-					sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------微信支付异步通知TradeHook发布广播-------- ", "WeiXin-Notify")
+					_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------微信支付异步通知TradeHook发布广播-------- ", "WeiXin-Notify")
 
 					value(ctx, orderInfo)
 				}
@@ -231,19 +242,16 @@ func (s *sMerchantNotify) NotifyServices(ctx context.Context) (string, error) {
 				})
 			})
 
-			// 4.远程设置设备通电
-			go func() {
-				url := "http://10.168.173.252:7771/device/setPowerState?serialNumber=" + orderInfo.ProductNumber + "&isPowerOn=true"
-				g.Client().PostContent(ctx, url)
-			}()
-
+			// TODO 4.远程设置设备通电  此异步任务需要写到实际的业务层，而不是这里 （当初用于给筷满客的设备开机）
+			//go func() {
+			//	url := "http://10.168.173.252:7771/device/setPowerState?serialNumber=" + orderInfo.ProductNumber + "&isPowerOn=true"
+			//	g.Client().PostContent(ctx, url)
+			//}()
 		}
-
 		return nil
-
 	})
 
-	// TODO 根据支付状态，返回通知响应给微信支付
+	// 根据支付状态，返回通知响应给微信支付
 	if err != nil {
 		return "success", err
 	}
@@ -306,7 +314,7 @@ func ParseNotifyRequestTransaction(ctx context.Context, spMerchant *weixin_model
 	// 处理通知内容
 	fmt.Println(notifyReq.Summary)
 
-	sys_service.SysLogs().InfoSimple(ctx, nil, fmt.Sprintf("支付的通知内容为：%s", content), "WeiXin-Notify")
+	_ = sys_service.SysLogs().InfoSimple(ctx, nil, fmt.Sprintf("支付的通知内容为：%s", content), "WeiXin-Notify")
 
 	return content, nil
 }

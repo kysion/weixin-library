@@ -17,7 +17,7 @@ type WeixinThirdAppConfig struct {
 	AppGatewayUrl  string      `json:"appGatewayUrl"  description:"网关地址"`
 	AppCallbackUrl string      `json:"appCallbackUrl" description:"回调地址"`
 	AppSecret      string      `json:"appSecret"      description:"服务商应用密钥"`
-	MsgVerfiyToken string      `json:"msgVerfiyToken" description:"消息校验Token"`
+	MsgVerifyToken string      `json:"msgVerifyToken" description:"消息校验Token"`
 	MsgEncryptKey  string      `json:"msgEncryptKey"  description:"消息加密解密密钥"`
 	AuthInitUrl    string      `json:"authInitUrl"    description:"授权发起页域名"`
 	ServerDomain   string      `json:"serverDomain"   description:"服务器域名"`
@@ -45,7 +45,7 @@ type UpdateThirdAppConfig struct {
 	AppGatewayUrl  string      `json:"appGatewayUrl"  dc:"网关地址"`
 	AppCallbackUrl string      `json:"appCallbackUrl" dc:"回调地址"`
 	AppSecret      string      `json:"appSecret"      dc:"服务商应用密钥"`
-	MsgVerfiyToken string      `json:"msgVerfiyToken" dc:"消息校验Token"`
+	MsgVerifyToken string      `json:"msgVerifyToken" dc:"消息校验Token"`
 	MsgEncryptKey  string      `json:"msgEncryptKey"  dc:"消息加密解密密钥"`
 	AuthInitUrl    string      `json:"authInitUrl"    dc:"授权发起页域名"`
 	ServerDomain   string      `json:"serverDomain"   dc:"服务器域名"`

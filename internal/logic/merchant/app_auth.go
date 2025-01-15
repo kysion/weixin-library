@@ -15,15 +15,19 @@ import (
 	"github.com/kysion/weixin-library/weixin_service"
 )
 
-// 应用授权
+/*
+应用授权
+*/
+
+/*
+	应用授权通知类型InfoType ：
+		authorized 授权成功
+		updateauthorized 更新授权
+		unauthorized 取消授权
+*/
+
 type sAppAuth struct {
 }
-
-// gateway 主要用于记录和服务商相关操作
-
-// merchant 主要记录和商家有关，例如一些商家消息的hook注册，
-
-// internal 主要用于拓展SDK所不具备。票据例外
 
 func init() {
 	//weixin_service.RegisterAppAuth(NewAppAuth())
@@ -40,7 +44,7 @@ func (s *sAppAuth) injectHook() {
 	notifyHook.InstallHook(weixin_enum.Info.ServiceType.Unauthorized, s.Unauthorized)         // 取消授权
 }
 
-func NewAppAuth() *sAppAuth {
+func NewAppAuth() weixin_service.IAppAuth {
 
 	result := &sAppAuth{}
 
@@ -63,7 +67,7 @@ func GetAuthorizerAccessToken(ctx context.Context, thirdAppId, componentAccessTo
 	tokenRes := g.Client().PostContent(ctx, queryTokenUrl, tokenReqJson)
 	tokenResData := weixin_model.AuthorizerAccessTokenRes{}
 
-	gjson.DecodeTo(tokenRes, &tokenResData)
+	_ = gjson.DecodeTo(tokenRes, &tokenResData)
 	fmt.Println("商家接口调用Token：", tokenResData.AuthorizerAccessToken)
 
 	// 有了authorizer_access_token就又能调用各种商家的API接口了
@@ -136,7 +140,7 @@ func (s *sAppAuth) AppAuth(ctx context.Context, info g.Map) bool {
 	encode, _ := gjson.Encode(authorizerInfoReq)
 	authorizerInfo := g.Client().PostContent(ctx, authorizerInfoUrl, encode)
 	authorizerInfoRes := weixin_model.AuthorizationInfoRes{}
-	gjson.DecodeTo(authorizerInfo, &authorizerInfoRes)
+	_ = gjson.DecodeTo(authorizerInfo, &authorizerInfoRes)
 	fmt.Println("授权方基本信息：", authorizerInfoRes)
 
 	// 2.获取授权方商家的authorizer_access_token
@@ -179,7 +183,7 @@ func (s *sAppAuth) Authorized(ctx context.Context, info g.Map) bool {
 
 	// 返回的信息
 	data := weixin_model.EventMessageBody{}
-	gconv.Struct(info["info"], &data)
+	_ = gconv.Struct(info["info"], &data)
 
 	// 授权码 过期时间 authorization_code + 时间
 	fmt.Println("授权的商家AppID：", data.AuthorizerAppid)
@@ -223,7 +227,7 @@ func (s *sAppAuth) Authorized(ctx context.Context, info g.Map) bool {
 	fmt.Println("Authorized-authorizerInfo: ----->")
 	g.Dump(authorizerInfo)
 	var authorizerInfoRes weixin_model.AuthorizationInfoRes
-	gjson.DecodeTo(authorizerInfo, &authorizerInfoRes)
+	_ = gjson.DecodeTo(authorizerInfo, &authorizerInfoRes)
 	fmt.Println("授权方基本信息：", authorizerInfoRes)
 
 	if &authorizerInfoRes == nil || &authorizerInfoRes.AuthorizationInfo == nil || authorizerInfoRes.AuthorizationInfo.AuthorizerAppid == "0" {
@@ -248,7 +252,7 @@ func (s *sAppAuth) Authorized(ctx context.Context, info g.Map) bool {
 	}
 
 	tokenResData := weixin_model.AuthorizationInfoRes{}
-	gjson.DecodeTo(tokenRes, &tokenResData)
+	_ = gjson.DecodeTo(tokenRes, &tokenResData)
 	fmt.Println("商家接口调用Token：", tokenResData.AuthorizationInfo.AuthorizerAccessToken)
 
 	if &tokenResData == nil || tokenResData.AuthorizationInfo.AuthorizerRefreshToken == "" {
@@ -316,7 +320,7 @@ func (s *sAppAuth) Unauthorized(ctx context.Context, info g.Map) bool {
 
 	// 返回的信息
 	data := weixin_model.EventMessageBody{}
-	gconv.Struct(info["info"], &data)
+	_ = gconv.Struct(info["info"], &data)
 
 	// 授权码 过期时间 authorization_code + 时间
 	fmt.Println("解除授权的商家AppID：", data.AuthorizerAppid)

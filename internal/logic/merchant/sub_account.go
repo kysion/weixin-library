@@ -75,7 +75,7 @@ func init() {
 	//weixin_service.RegisterSubAccount(NewSubAccount())
 }
 
-func NewSubAccount() *sSubAccount {
+func NewSubAccount() weixin_service.ISubAccount {
 	return &sSubAccount{}
 }
 
@@ -206,7 +206,7 @@ func (s *sSubAccount) SubAccountRequest(ctx context.Context, appId string, info 
 
 	req := profitsharing.CreateOrderRequest{}
 
-	gconv.Struct(info, &req)
+	_ = gconv.Struct(info, &req)
 
 	// 分账下单
 	resp, result, err := svc.CreateOrder(ctx, req)
@@ -230,7 +230,7 @@ func (s *sSubAccount) QueryOrderAmount(ctx context.Context, appId string, info *
 
 	req := profitsharing.QueryOrderAmountRequest{}
 
-	gconv.Struct(info, &req)
+	_ = gconv.Struct(info, &req)
 
 	svc := profitsharing.TransactionsApiService{Client: client}
 
@@ -308,7 +308,7 @@ func (s *sSubAccount) AddProfitSharingReceivers(ctx context.Context, appId strin
 	body, err := ioutil.ReadAll(result.Response.Body)
 
 	res := profitsharing.AddReceiverResponse{}
-	gjson.DecodeTo(body, res)
+	_ = gjson.DecodeTo(body, res)
 
 	// 处理成功响应结果方法2
 	//resp := new(profitsharing.AddReceiverResponse)

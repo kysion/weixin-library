@@ -43,24 +43,9 @@ service:
     default: 15
   # Session上下文缓存Key
   sessionContextKey: "KysionWeixinLibraryBizCtxContextKye"
-#  # 第三方应用ID
-#  appId: "wx534d1a08aa84c529"
-#  # 第三方应用密钥
-#  appSecret: "a1f0e1abcb259e9adc084bf8b7e862ab"
-#  # 第三方应用Token
-#  token: "comjditcokuaimk"
-#  # 消息解密密钥
-#  decryptKey: "EC68C5852D342DD42A7F64071E6C5EE901234567890"
   # 交易Hook失效时间 时间单位秒
   tradeHookExpireAt: "7200"
 
-  # 商户号相关
-  # 包含私钥的证书
-  payCertP12: "/data/kysion-files/weixin/weixin-pay/1642565036_cert/apiclient_cert.p12"
-  # 公钥
-  payPublicKeyPem: "/data/kysion-files/weixin/weixin-pay/1642565036_cert/apiclient_cert.pem"
-  # 私钥
-  payPrivateKeyPem: "/data/kysion-files/weixin/weixin-pay/1642565036_cert/apiclient_key.pem"
 
 # 微信配置
 weixin:

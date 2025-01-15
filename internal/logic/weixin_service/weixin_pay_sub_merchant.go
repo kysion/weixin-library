@@ -1,8 +1,9 @@
-package gateway
+package weixin_service
 
 import (
 	"context"
 	"github.com/SupenBysz/gf-admin-community/sys_service"
+	"github.com/SupenBysz/gf-admin-community/utility/idgen"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/kysion/base-library/base_model"
 	"github.com/kysion/base-library/utility/daoctl"
@@ -11,14 +12,14 @@ import (
 	do "github.com/kysion/weixin-library/weixin_model/weixin_do"
 	entity "github.com/kysion/weixin-library/weixin_model/weixin_entity"
 	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
-	"github.com/yitter/idgenerator-go/idgen"
+	"github.com/kysion/weixin-library/weixin_service"
 )
 
 // 微信支付特约商户 （也就是服务商模式下的子商户）
 type sPaySubMerchant struct {
 }
 
-func NewPaySubMerchant() *sPaySubMerchant {
+func NewPaySubMerchant() weixin_service.IPaySubMerchant {
 	return &sPaySubMerchant{}
 }
 
@@ -85,7 +86,7 @@ func (s *sPaySubMerchant) QueryPaySubMerchant(ctx context.Context, params *base_
 func (s *sPaySubMerchant) CreatePaySubMerchant(ctx context.Context, info *weixin_model.WeixinPaySubMerchant) (*weixin_model.WeixinPaySubMerchant, error) {
 	data := do.WeixinPaySubMerchant{}
 
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	data.Id = idgen.NextId()
 
@@ -109,7 +110,7 @@ func (s *sPaySubMerchant) UpdatePaySubMerchant(ctx context.Context, id int64, in
 		return false, sys_service.SysLogs().ErrorSimple(ctx, err, "该特约商户配置不存在", dao.WeixinPaySubMerchant.Table())
 	}
 	data := do.WeixinPaySubMerchant{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	model := dao.WeixinPaySubMerchant.Ctx(ctx)
 	affected, err := daoctl.UpdateWithError(model.Data(data).OmitNilData().Where(do.WeixinPaySubMerchant{Id: id}))
@@ -124,7 +125,7 @@ func (s *sPaySubMerchant) UpdatePaySubMerchant(ctx context.Context, id int64, in
 // SetAuthPath 设置特约商户授权目录
 func (s *sPaySubMerchant) SetAuthPath(ctx context.Context, info *weixin_model.SetSubMerchantAuthPath) (bool, error) {
 	data := do.WeixinPaySubMerchant{}
-	gconv.Struct(info, &data)
+	_ = gconv.Struct(info, &data)
 
 	affected, err := daoctl.UpdateWithError(dao.WeixinPaySubMerchant.Ctx(ctx).Data(data).OmitNilData().Where(do.WeixinPaySubMerchant{SubMchid: info.SubMchid}))
 

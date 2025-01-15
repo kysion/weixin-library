@@ -8,6 +8,7 @@ import (
 	"github.com/kysion/pay-share-library/pay_service"
 	"github.com/kysion/weixin-library/internal/logic/internal/weixin"
 	"github.com/kysion/weixin-library/weixin_model"
+	"github.com/kysion/weixin-library/weixin_model/weixin_enum"
 	"github.com/kysion/weixin-library/weixin_service"
 	"github.com/kysion/weixin-library/weixin_utility"
 	"strconv"
@@ -21,7 +22,7 @@ type sWeiXinPay struct {
 //	weixin_service.RegisterWeiXinPay(NewWeiXinPay())
 //}
 
-func NewWeiXinPay() *sWeiXinPay {
+func NewWeiXinPay() weixin_service.IWeiXinPay {
 
 	result := &sWeiXinPay{}
 
@@ -31,7 +32,7 @@ func NewWeiXinPay() *sWeiXinPay {
 
 // PayTradeCreate  1、创建交易订单   （AppId的H5是没有的，需要写死，小程序有的 ）
 func (s *sWeiXinPay) PayTradeCreate(ctx context.Context, info *weixin_model.TradeOrder, openId string) (*weixin_model.PayParamsRes, error) {
-	sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin创建交易订单 ------- ", "WeiXin-Pay")
+	_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------WeiXin创建交易订单 ------- ", "WeiXin-Pay")
 	appId := weixin_utility.GetAppIdFormContext(ctx) // 特约商户绑定的AppId
 
 	// 商家AppId解析，获取商家应用，创建微信支付客户端
@@ -55,10 +56,16 @@ func (s *sWeiXinPay) PayTradeCreate(ctx context.Context, info *weixin_model.Trad
 		return nil, err
 	}
 
+	// 判断是否是第三方待开发
+	isParent := false
+	if merchantApp.ThirdAppId != "" {
+		isParent = true
+	}
+
 	var prepayId string
-	// 判断是小程序还是H5
-	if merchantApp.AppType == 1 {
-		isParent := false
+
+	switch merchantApp.AppType {
+	case weixin_enum.AppManage.AppType.PublicAccount.Code(): // 公众号
 		if isParent {
 			//  公众号  -- 服务商模式
 			prepayId, err = s.JsapiCreateOrder(ctx, &weixin_model.TradeOrder{
@@ -74,15 +81,16 @@ func (s *sWeiXinPay) PayTradeCreate(ctx context.Context, info *weixin_model.Trad
 			}, openId)
 		}
 
-	} else if merchantApp.AppType == 2 {
+	case weixin_enum.AppManage.AppType.TinyApp.Code(): // 小程序
 		// 小程序  JsApi支付产品
 		prepayId, err = s.JsapiCreateOrder(ctx, &weixin_model.TradeOrder{
 			ReturnUrl: info.ReturnUrl, // 支付成功后的返回地址
 			Order:     info.Order,
 		}, openId)
 
-	} else if merchantApp.AppType == 4 {
-		// APP
+	case weixin_enum.AppManage.AppType.H5.Code(): // H5
+
+	case weixin_enum.AppManage.AppType.App.Code(): // APP
 
 	}
 
@@ -112,9 +120,6 @@ func (s *sWeiXinPay) makePayParams(ctx context.Context, orderId, appId, prepay_i
 			payPrivateKeyPem = merchant.PayPrivateKeyPem
 		}
 	}
-	//if err != nil {
-	//	return nil, sys_service.SysLogs().ErrorSimple(ctx, err, "该应用没有对应的商户号", "WeiXin-Pay")
-	//}
 
 	ret := &weixin_model.PayParamsRes{
 		AppId:     appId,

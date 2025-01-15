@@ -26,7 +26,7 @@ import (
 
 // GetMiniAppUserInfo 获取小程序用户唯一标识，用于检查是否注册,如果已经注册，返会openId
 func (s *sUserAuth) GetMiniAppUserInfo(ctx context.Context, authCode string, appId string, getDetail bool) (*weixin_model.UserInfoRes, error) {
-	sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------获取用户openID---- ", "sUserAuth")
+	_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------获取用户openID---- ", "sUserAuth")
 
 	//openId := ""
 	code := authCode
@@ -106,7 +106,7 @@ func (s *sUserAuth) UserLogin(ctx context.Context, info g.Map) (string, error) {
 	sysUserId := gconv.Int64(from.Get("sys_user_id"))
 	merchantId := gconv.Int64(from.Get("merchant_id"))
 	userInfo := weixin_model.UserInfoRes{}
-	gconv.Struct(from.Get("user_info"), &userInfo) // 先通过code获取了userInfo，然后进行传递， （因为code只能用一次）
+	_ = gconv.Struct(from.Get("user_info"), &userInfo) // 先通过code获取了userInfo，然后进行传递， （因为code只能用一次）
 
 	merchantApp, err := weixin_service.MerchantAppConfig().GetMerchantAppConfigByAppId(ctx, appId)
 	if err != nil || merchantApp == nil {
@@ -132,10 +132,10 @@ func (s *sUserAuth) UserLogin(ctx context.Context, info g.Map) (string, error) {
 			return "", sys_service.SysLogs().ErrorSimple(ctx, err, "获取用户唯一标识openId失败，请检查", "WeiXin")
 		}
 
-		sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------OpenId： ------- "+res.Openid, "sUserAuth")
-		sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------SessionKey： ------- "+res.SessionKey, "sUserAuth")
+		_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------OpenId： ------- "+res.Openid, "sUserAuth")
+		_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n-------SessionKey： ------- "+res.SessionKey, "sUserAuth")
 
-		gconv.Struct(res, &userInfo)
+		_ = gconv.Struct(res, &userInfo)
 	}
 
 	// 3.获取用户信息userInfo
@@ -199,16 +199,16 @@ func (s *sUserAuth) UserLogin(ctx context.Context, info g.Map) (string, error) {
 		}
 
 		// 5.存储kmk_consumer消费者数据
-		g.Try(ctx, func(ctx context.Context) {
+		_ = g.Try(ctx, func(ctx context.Context) {
 			s.ConsumerHook.Iterator(func(key hook.ConsumerKey, value hook.ConsumerHookFunc) {
 				if key.ConsumerAction.Code() == weixin_enum.Consumer.ActionEnum.Auth.Code() && key.Category.Code() == weixin_enum.Consumer.Category.Consumer.Code() { // 如果订阅者是订阅授权,并且是操作kmk_consumer表
 					userInfoRes.SessionKey = "" //
-					g.Try(ctx, func(ctx context.Context) {
+					_ = g.Try(ctx, func(ctx context.Context) {
 						data := hook.UserInfo{
 							SysUserId:   sysUserId, // (消费者id = sys_User_id)
 							UserInfoRes: *userInfoRes,
 						}
-						sys_service.SysLogs().InfoSimple(ctx, nil, "\n广播-------存储消费者数据 kmk-consumer", "sUserAuth")
+						_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n广播-------存储消费者数据 kmk-consumer", "sUserAuth")
 
 						value(ctx, data)
 					})
@@ -217,10 +217,10 @@ func (s *sUserAuth) UserLogin(ctx context.Context, info g.Map) (string, error) {
 		})
 
 		// 6.存储第三方应用和用户关系记录  plat_form_user
-		g.Try(ctx, func(ctx context.Context) {
+		_ = g.Try(ctx, func(ctx context.Context) {
 			s.ConsumerHook.Iterator(func(key hook.ConsumerKey, value hook.ConsumerHookFunc) { // 这会同时走两个Hook，kmk_consumer  + platform_user,所以加上了category类型
 				if key.ConsumerAction.Code() == weixin_enum.Consumer.ActionEnum.Auth.Code() && key.Category.Code() == weixin_enum.Consumer.Category.PlatFormUser.Code() { // 如果订阅者是订阅授权
-					g.Try(ctx, func(ctx context.Context) {
+					_ = g.Try(ctx, func(ctx context.Context) {
 						platformUser := entity.PlatformUser{
 							Id:             0,
 							FacilitatorId:  0,
@@ -234,7 +234,7 @@ func (s *sUserAuth) UserLogin(ctx context.Context, info g.Map) (string, error) {
 							SysUserType:    sysUser.Type, // TODO 后期通过sysUserId拿到user，拿到type
 						}
 
-						sys_service.SysLogs().InfoSimple(ctx, nil, "\n广播-------存储第三方应用和用户关系记录 kmk-plat_form_user", "sMerchantService")
+						_ = sys_service.SysLogs().InfoSimple(ctx, nil, "\n广播-------存储第三方应用和用户关系记录 kmk-plat_form_user", "sMerchantService")
 
 						value(ctx, platformUser) // 调用Hook
 					})
@@ -267,7 +267,9 @@ func getOpenIDAndSessionKeyByThirdApp(code string, appID, thirdAppId string, com
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -317,8 +319,9 @@ func miniAppGetUserInfo(sessionKey, encryptedData, iv string, openId string) (*w
 		log.Printf("Failed to make HTTP request: %v", err)
 		return nil, err
 	}
-	defer resp.Body.Close()
-
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	var userInfo wxUserInfo
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
 		log.Printf("Failed to decode response: %v", err)
@@ -362,17 +365,19 @@ func getSNSUserInfo(ctx context.Context, openid string, accessToken string) (*we
 		fmt.Println(err)
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	// 解析结果
-	var user_info weixin_model.UserInfoRes
-	if err := json.NewDecoder(resp.Body).Decode(&user_info); err != nil {
+	var userInfo weixin_model.UserInfoRes
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
 	// 打印用户信息
-	fmt.Printf("openid=%s, nickname=%s\n", user_info.OpenID, user_info.NickName)
+	fmt.Printf("openid=%s, nickname=%s\n", userInfo.OpenID, userInfo.NickName)
 
-	return &user_info, nil
+	return &userInfo, nil
 }
