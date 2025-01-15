@@ -3,10 +3,10 @@ package weixin
 import (
 	"context"
 	"encoding/xml"
+	"github.com/go-pay/gopay"
+	wechat3 "github.com/go-pay/gopay/wechat/v3"
+	"github.com/go-pay/xlog"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/kysion/gopay"
-	"github.com/kysion/gopay/pkg/xlog"
-	wechat3 "github.com/kysion/gopay/wechat/v3"
 	"github.com/kysion/weixin-library/weixin_model"
 	"github.com/kysion/weixin-library/weixin_service"
 	"github.com/kysion/weixin-library/weixin_utility/weixin_encrypt"

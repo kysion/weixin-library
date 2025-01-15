@@ -118,8 +118,8 @@ var (
 						group.Bind(merchant.SubscribeMessage)
 					})
 
-					// 订阅消息模板管理 【小程序 & 公众号】
 					group.Group("/template", func(group *ghttp.RouterGroup) {
+						// 订阅消息模板管理 【小程序 & 公众号】
 						group.Bind(weixin_controller.SubscribeMessageTemplate)
 					})
 				})
